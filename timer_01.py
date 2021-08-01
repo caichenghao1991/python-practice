@@ -7,6 +7,7 @@ def findNemo(list):
     '''
         find string nemo in a list of strings
         O(n) time complexity
+        O(1) space complexity, does not consider input memory cost
     '''
     start_time = time()
     for _ in list:
