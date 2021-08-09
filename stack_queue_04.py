@@ -88,6 +88,30 @@ class Queue:
         return self.first
 
 
+class BuildStackWithQueue:
+    def __init__(self):
+        self.stack = Queue()
+
+    def push(self, value):
+        """
+            first enqueue new item at last of queue
+            then repeat new length - 1 times dequeue first item then enqueue it at last
+            O(n) time complexity
+        """
+        self.stack.enqueue(value)
+        steps = self.stack.length - 1
+        while steps > 0:
+            node = self.stack.dequeue()
+            self.enqueue(node.value)
+            steps -= 1
+
+    def pop(self):
+        return self.stack.pop()
+
+    def peek(self):
+        return self.stack.peek()
+
+
 if __name__ == '__main__':
     stack = Stack()
     stack.push(1)
@@ -112,3 +136,11 @@ if __name__ == '__main__':
     queue.dequeue()
     print(queue.dequeue().value)
     queue.dequeue()  # test dequeue on empty queue
+
+    stack3 = BuildStackWithQueue()
+    stack.push(1)
+    stack.push(2)
+    print(stack.peek().value)
+    stack.pop()
+    print(stack.pop().value)
+    stack.pop()  # test pop on empty stack
