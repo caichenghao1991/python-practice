@@ -38,7 +38,7 @@ class Array:
 
     def merge_sorted(self, *args):
         """
-            in place merging
+            in place merging, when have 2 separate array
             merging from right to left so can merge in place, otherwise change from second list
             will overwrite values in the first list
             last line if first list has remaining, don't need to do anything, since the
