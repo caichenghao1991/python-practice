@@ -120,24 +120,24 @@ def bucket_sort(array):
     max_val = max(array)
     num_bucket = 10
     rang = (max_val - min_val) / num_bucket
-    arr = []
+    bucket = []
     for i in range(num_bucket):
-        arr.append([])
+        bucket.append([])
 
     for i in range(len(array)):
         # append boundary to lower bucket
         diff = (array[i] - min_val) / rang - int((array[i] - min_val) / rang)
         if diff == 0 and array[i] != min_val:
-            arr[int((array[i] - min_val) / rang) - 1].append(array[i])
+            bucket[int((array[i] - min_val) / rang) - 1].append(array[i])
         else:
-            arr[int((array[i] - min_val) / rang)].append(array[i])
+            bucket[int((array[i] - min_val) / rang)].append(array[i])
 
     for i in range(num_bucket):
-        if len(arr[i]) != 0:
-            insertion_sort(arr[i])
+        if len(bucket[i]) != 0:
+            insertion_sort(bucket[i])
 
     j = 0
-    for lst in arr:
+    for lst in bucket:
         if lst:
             for i in lst:
                 array[j] = i
@@ -156,7 +156,7 @@ def counting_sort(array, rang):
     """
     # array: 1 0 3 1 3 1
     count = [0] * rang
-    output = [0 for i in range(len(array))]
+    output = [0 for _ in range(len(array))]
     # count each digit occurrence
     # 1 3  0  2
     for i in array:
@@ -166,11 +166,12 @@ def counting_sort(array, rang):
     for i in range(1, len(count)):
         count[i] = count[i] + count[i - 1]
     # shift one to the right  is the corresponding starting index of each value
-    for i in range(len(array)-1,-1, -1):
+    for i in range(len(array)-1, -1, -1):
         # for each value at index i, this value occurance in the output should be at
         # the index of corresponding counter list value - 1
         output[count[arr[i]] - 1] = arr[i]
         count[arr[i]] -= 1  # minus one for that counter value
+
     return output
 
 
@@ -189,7 +190,7 @@ def radix_sort(array):
 
 
 def counting_sort2(array, exp):
-    output = [0 for i in range(len(array))]
+    output = [0 for _ in range(len(array))]
     count = [0] * 10
 
     for i in range(len(array)):
@@ -199,7 +200,8 @@ def counting_sort2(array, exp):
     for i in range(1, 10):
         count[i] += count[i-1]
 
-    for i in range(len(array) - 1, -1, -1): # must from right to left to keep order
+    for i in range(len(array) - 1, -1, -1):
+        # must from right to left to keep order
         curr_dig = array[i] / exp
         output[count[int(curr_dig) % 10] - 1] = arr[i]
         count[int(curr_dig) % 10] -= 1
