@@ -48,4 +48,3 @@ if __name__ == '__main__':
     hashTable.set('c', 3)
     hashTable.set('d', 4)
     print(hashTable.get('a'))
-

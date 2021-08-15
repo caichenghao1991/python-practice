@@ -102,11 +102,11 @@ class BuildStackWithQueue:
         steps = self.stack.length - 1
         while steps > 0:
             node = self.stack.dequeue()
-            self.enqueue(node.value)
+            self.stack.enqueue(node.value)
             steps -= 1
 
     def pop(self):
-        return self.stack.pop()
+        return self.stack.dequeue()
 
     def peek(self):
         return self.stack.peek()
