@@ -12,7 +12,7 @@ class HashTable:
     def __init__(self, size):
         self.data = [None] * size
 
-    def _hash(self, key):
+    def _hash(self, key: str):
         hash_value = 0
         for i, c in enumerate(key):
             hash_value += (ord(c) + i) % len(self.data)
