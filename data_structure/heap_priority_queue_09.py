@@ -11,26 +11,21 @@ class MinHeap:
         left = pos * 2 + 1
         right = pos * 2 + 2
         length = len(self.data)
-
-        if left < length and self.data[pos] > self.data[left]:
-            if (right < length and self.data[left] < self.data[right]) or right >= length:
-                self.data[left], self.data[pos] = self.data[pos], self.data[left]
-                self.min_heapify(left)
-            else:
-                self.min_heapify(right)
-        if right < length and self.data[pos] > self.data[right]:
-            if self.data[left] < self.data[right]:
-                self.data[left], self.data[pos] = self.data[pos], self.data[left]
-                self.min_heapify(left)
-            else:
-                self.data[right], self.data[pos] = self.data[pos], self.data[right]
-                self.min_heapify(right)
+        small = pos
+        if left < length and self.data[small] > self.data[left]:
+            small = left
+        if right < length and self.data[small] > self.data[right]:
+            small = right
+        if small != pos:
+            self.data[small], self.data[pos] = self.data[pos], self.data[small]
+            self.min_heapify(small)
 
     def build_heap(self, array):
         self.data = array
         self.size = len(array)
         for i in range(len(array) // 2, -1, -1):
             self.min_heapify(i)
+        return self.data
 
     def pop(self):
         value = self.data[0]

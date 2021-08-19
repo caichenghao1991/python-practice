@@ -5,7 +5,7 @@ class TreeNode:
         self.right = None
 
 
-class BinaryTree:
+class BinarySearchTree:
     def __init__(self):
         self.root = None
 
@@ -106,16 +106,15 @@ class BinaryTree:
             print(root.value)
             self.inorder_traversal(root.right)
 
+    def build_tree(self, array):
+        for i in array:
+            self.insert(i)
+
 
 if __name__ == '__main__':
-    tree = BinaryTree()
-    tree.insert(9)
-    tree.insert(4)
-    tree.insert(6)
-    tree.insert(20)
-    tree.insert(170)
-    tree.insert(15)
-    tree.insert(1)
+    arr = [9, 4, 6, 20, 170, 15, 1]
+    tree = BinarySearchTree()
+    tree.build_tree(arr)
     tree.inorder_traversal(tree.root)
     '''
             9

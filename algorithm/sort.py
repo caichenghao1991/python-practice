@@ -1,3 +1,5 @@
+import data_structure.heap_priority_queue_09 as h
+
 def bubble_sort(array):
     """
         O(n^2) time complexity, best Omega(n), O(1) space complexity
@@ -210,6 +212,28 @@ def counting_sort2(array, exp):
         array[i] = output[i]
 
 
+def min_heapify(pos, array):
+    left = pos * 2 + 1
+    right = pos * 2 + 2
+    length = len(array)
+    small = pos
+    if left < length and array[small] > array[left]:
+        small = left
+    if right < length and array[small] > array[right]:
+        small = right
+    if small != pos:
+        array[small], array[pos] = array[pos], array[small]
+        min_heapify(small, array)
+    return array
+
+def heap_sort(array):
+    heap = h.MinHeap()
+    array = heap.build_heap(array)
+    for i in range(len(array)):
+        array[i:] = min_heapify(0, array[i:])
+        min_heapify(0, array[i:])
+    return array
+
 if __name__ == '__main__':
     arr = [1, 5, 3, 9, 2, 6, 8, 7, 4]
     bubble_sort(arr)
@@ -234,3 +258,6 @@ if __name__ == '__main__':
     arr = [170, 45, 75, 90, 802, 24, 2, 66]
     radix_sort(arr)
     print(arr)
+    arr = [170, 45, 75, 90, 802, 24, 2, 66]
+    print(heap_sort(arr))
+
