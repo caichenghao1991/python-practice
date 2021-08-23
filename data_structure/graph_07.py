@@ -1,4 +1,5 @@
 class Graph:
+    #  adjacent list
     def __init__(self):
         self.num_nodes = 0
         self.adjacentList = {}

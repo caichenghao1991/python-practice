@@ -29,4 +29,3 @@ def fib2(num: int):
 if __name__ == '__main__':
     print(fib(7))
     print(fib2(7))
-
