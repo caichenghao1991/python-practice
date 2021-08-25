@@ -1,11 +1,14 @@
-import queue as Q
+import queue as q
+
+
 class Graph:
 
     def __init__(self, vertices):
         self.vertices = vertices
         self.graph = [[0 for _ in range(vertices)] for _ in range(vertices)]
 
-    def find_min_vertice(self, dist, queue):
+    @staticmethod
+    def find_min_vertex(dist, queue):
         minimum = float("Inf")
         index = -1
         for i in range(len(dist)):
@@ -32,7 +35,7 @@ class Graph:
         queue = [i for i in range(self.vertices)]
         ct = 0  # in case vertices can't be reach via any edges
         while queue and ct < self.vertices:
-            curr = self.find_min_vertice(dist, queue)
+            curr = self.find_min_vertex(dist, queue)
             queue.remove(curr)
 
             for next_node in range(self.vertices):
@@ -48,7 +51,7 @@ class Graph:
         return dist, parent
 
     def dijkstra_pq(self, src):
-        dist_pq = Q.PriorityQueue()
+        dist_pq = q.PriorityQueue()
         dist_pq.put((0, 0))
         parent = [-1] * self.vertices
         visited = set()
@@ -85,4 +88,4 @@ if __name__ == '__main__':
                    [0, 0, 2, 0, 0, 0, 6, 7, 0]]
 
     print(graph.dijkstra(0)[0])
-    print(graph.dijkstra_pq(0)[0])  #[0, 4, 12, 19, 21, 11, 9, 8, 14]
+    print(graph.dijkstra_pq(0)[0])  # [0, 4, 12, 19, 21, 11, 9, 8, 14]
