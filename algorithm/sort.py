@@ -103,13 +103,13 @@ def quick_sort_helper(array, left, right):
 
 def partition(array, left, right):
     pivot = array[right]
-    pointer = left - 1
+    pointer = left
     for i in range(left, right):
         if array[i] <= pivot:
-            pointer += 1
             array[i], array[pointer] = array[pointer], array[i]
-    array[pointer + 1], array[right] = array[right], array[pointer + 1],
-    return pointer + 1
+            pointer += 1
+    array[pointer], array[right] = array[right], array[pointer],
+    return pointer
 
 
 def bucket_sort(array):

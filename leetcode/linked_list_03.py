@@ -34,7 +34,8 @@ class Solution:
         print('->'.join([str(_) for _ in s]))
 
     # 206. Reverse Linked List 3 pointer
-    def reverseList(self, head: ListNode) -> ListNode:
+    @staticmethod
+    def reverseList(head: ListNode) -> ListNode:
         prev, curr = None, head
         while curr:
             next_node = curr.next
@@ -44,7 +45,8 @@ class Solution:
         return prev
 
     # 92. Reverse Linked List II
-    def reverseBetween(self, head: ListNode, left: int, right: int) -> ListNode:
+    @staticmethod
+    def reverseBetween(head: ListNode, left: int, right: int) -> ListNode:
         position = 1
         start = ListNode()
         start.next = head
@@ -68,7 +70,8 @@ class Solution:
         return dummy.next
 
     # 430. Flatten a Multilevel Doubly Linked List  only need consider 2nd level, flat one level a time
-    def flatten(self, head: Node) -> Node:
+    @staticmethod
+    def flatten(head: Node) -> Node:
         curr = head
         while curr:
             if curr.child:
@@ -89,7 +92,8 @@ class Solution:
     # 142. Linked List Cycle II
     # Floyd's tortoise and hare
     # fast and slow pointer meet at a, then 1 from start 1 from a, meet again at b, b is cycle start
-    def detectCycle(self, head: ListNode):
+    @staticmethod
+    def detectCycle(head: ListNode):
         slow, fast = head, head
         while True:
             if not fast or not fast.next:
@@ -107,23 +111,22 @@ class Solution:
 
 
 if __name__ == '__main__':
-    solution = Solution()
-    node = solution.build_linked_list([1, 2, 3, 4, 5])
-    solution.print_linked_list(node)
-    n = solution.reverseList(node)
-    solution.print_linked_list(n)
+    node = Solution.build_linked_list([1, 2, 3, 4, 5])
+    Solution.print_linked_list(node)
+    n = Solution.reverseList(node)
+    Solution.print_linked_list(n)
 
-    node = solution.build_linked_list([1, 2, 3, 4, 5])
-    n = solution.reverseBetween(node, 2, 4)
-    solution.print_linked_list(n)
+    node = Solution.build_linked_list([1, 2, 3, 4, 5])
+    n = Solution.reverseBetween(node, 2, 4)
+    Solution.print_linked_list(n)
 
     c = Node(3, None, None, None)
     a, b = Node(1, None, None, None), Node(2, None, None, c)
     a.next = b
     b.prev = a
-    n = solution.flatten(a)
-    solution.print_linked_list(n)
+    n = Solution.flatten(a)
+    Solution.print_linked_list(n)
 
     a, b, c = ListNode(1), ListNode(2), ListNode(3)
     a.next, b.next, c.next = b, c, b
-    print(solution.detectCycle(a).val)
+    print(Solution.detectCycle(a).val)

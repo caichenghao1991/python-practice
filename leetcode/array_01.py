@@ -3,7 +3,8 @@ from typing import List
 
 class Solution(object):
     # 1. Two Sum     hash/dict
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
+    @staticmethod
+    def twoSum(nums: List[int], target: int) -> List[int]:
         dic = {}
         for i in range(len(nums)):
             if nums[i] not in dic:
@@ -13,7 +14,8 @@ class Solution(object):
         return []
 
     # 11. Container With Most Water   two pointer
-    def maxArea(self, height: List[int]) -> int:
+    @staticmethod
+    def maxArea(height: List[int]) -> int:
         left, right = 0, len(height) - 1
         area = 0
         while left < right:
@@ -25,21 +27,22 @@ class Solution(object):
         return area
 
     # 42. Trapping Rain Water  two pointer
-    def trap(self, height):
+    @staticmethod
+    def trap(height: List[int]) -> int:
         left, right = 0, len(height) - 1
-        lmax, rmax, area = 0, 0, 0
+        l_max, r_max, area = 0, 0, 0
         while left < right:
-            lmax, rmax = max(lmax, height[left]), max(rmax, height[right])
-            if lmax > rmax:
-                area += rmax - height[right]
+            l_max, r_max = max(l_max, height[left]), max(r_max, height[right])
+            if l_max > r_max:
+                area += r_max - height[right]
                 right -= 1
             else:
-                area += lmax - height[left]
+                area += l_max - height[left]
                 left += 1
         return area
 
 
 if __name__ == "__main__":
-    solution = Solution()
-    print(solution.twoSum([2, 7, 11, 15], 9))
-    print(solution.maxArea([1, 8, 6, 2, 5, 4, 8, 3, 7]))
+    print(Solution.twoSum([2, 7, 11, 15], 9))
+    print(Solution.maxArea([1, 8, 6, 2, 5, 4, 8, 3, 7]))
+    print(Solution.trap([4, 2, 0, 3, 2, 5]))

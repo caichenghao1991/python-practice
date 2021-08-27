@@ -1,6 +1,7 @@
 class Solution(object):
     # 844. Backspace String Compare   two pointer
-    def backspaceCompare(self, s: str, t: str) -> bool:
+    @staticmethod
+    def backspaceCompare(s: str, t: str) -> bool:
         p1, p2 = len(s), len(t)
         while p1 >= 0 and p2 >= 0:
             back = 1
@@ -22,8 +23,9 @@ class Solution(object):
 
         return p1 < 0 and p2 < 0
 
-    #3. Longest Substring Without Repeating Characters    sliding window + hash
-    def lengthOfLongestSubstring(self, s: str) -> int:
+    # 3. Longest Substring Without Repeating Characters    sliding window + hash
+    @staticmethod
+    def lengthOfLongestSubstring(s: str) -> int:
         dic = {}
         res, start = 0, 0
         for i in range(len(s)):
@@ -34,14 +36,15 @@ class Solution(object):
             dic[s[i]] = i
         return res
 
-    # 680. Valid Palindrome II
-    def validPalindrome(self, s:str) -> bool:
-        l, r = 0, len(s) - 1
+    # 680. Valid Palindrome II     two pointer  iterative
+    @staticmethod
+    def validPalindrome(s: str) -> bool:
+        left, right = 0, len(s) - 1
         flag = True
-        while l < r:
-            if s[l] != s[r]:
-                l1 = l + 1
-                r1 = r
+        while left < right:
+            if s[left] != s[right]:
+                l1 = left + 1
+                r1 = right
                 while l1 < r1:
                     if s[l1] != s[r1]:
                         flag = False
@@ -49,35 +52,36 @@ class Solution(object):
                     l1 += 1
                     r1 -= 1
                 if not flag:
-                    r2 = r - 1
-                    l2 = l
+                    r2 = right - 1
+                    l2 = left
                     while l2 < r2:
                         if s[l2] != s[r2]:
                             return False
                         l2 += 1
                         r2 -= 1
                 return True
-            l += 1
-            r -= 1
+            left += 1
+            right -= 1
         return True
 
-    def validPalindrome2(self, s:str) -> bool:
-        def helper(s, l, r, flag):
-            while l < r:
-                if s[l] != s[r]:
+    @staticmethod   # recursive
+    def validPalindrome2(s: str) -> bool:
+        def helper(s2, left: int, right: int, flag: bool) -> bool:
+            while left < right:
+                if s2[left] != s2[right]:
                     if not flag:
-                        return helper(s, l + 1, r, True) or helper(s, l, r - 1, True)
+                        return helper(s2, left + 1, right, True) or helper(s2, left, right - 1, True)
                     else:
                         return False
                 else:
-                    l += 1
-                    r -= 1
+                    left += 1
+                    right -= 1
             return True
 
         return helper(s, 0, len(s) - 1, False)
 
+
 if __name__ == '__main__':
-    solution = Solution()
-    print(solution.backspaceCompare('ab#c', 'ad#c'))
-    print(solution.lengthOfLongestSubstring("abcabcbb"))
-    print(solution.validPalindrome("abca"))
+    print(Solution.backspaceCompare('ab#c', 'ad#c'))
+    print(Solution.lengthOfLongestSubstring("abcabcbb"))
+    print(Solution.validPalindrome("abca"))

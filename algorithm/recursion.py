@@ -1,7 +1,16 @@
 def factorial(num):
-    if num == 1:
+    if num <= 1:
         return 1
     return num * factorial(num - 1)
+
+
+def factorial2(num, total=1):
+    # tail recursion O(1) space complexity compare to regular O(n)
+    if num == 0:
+        return total
+    else:
+        # no need to wait result for computation, direct move to next function
+        return factorial2(num-1, total*num)
 
 
 def fibonacci(index):
@@ -21,5 +30,6 @@ def fibonacci2(index):
 
 if __name__ == '__main__':
     print(factorial(5))
+    print(factorial2(5))
     print(fibonacci(7))
     print(fibonacci2(7))
