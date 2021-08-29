@@ -7,6 +7,7 @@ class MinHeap:
         self.data = []
         self.size = 0
 
+    # top down switch parent with smaller child   siftdown
     def min_heapify(self, pos):
         left = pos * 2 + 1
         right = pos * 2 + 2
@@ -35,6 +36,7 @@ class MinHeap:
         self.min_heapify(0)
         return value
 
+    # bottom up to root switch if child larger than parent  siftup
     def insert(self, value):   
         self.data.append(value)
         self.size += 1
