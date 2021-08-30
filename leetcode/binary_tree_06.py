@@ -211,3 +211,4 @@ if __name__ == "__main__":
     print(solution.countNodes(r))
     r = Solution.build_tree_with_array([2, 1, 3])
     print(Solution.isValidBST(r))
+

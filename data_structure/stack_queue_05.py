@@ -1,3 +1,4 @@
+from collections import deque
 class Node:
     def __init__(self, value):
         self.value = value
@@ -137,6 +138,13 @@ if __name__ == '__main__':
     print(queue.dequeue().value)
     queue.dequeue()  # test dequeue on empty queue
 
+    q = deque([])
+    q.append(1)
+    q.append(2)
+    print(q[0])
+    print(q.popleft())
+    print(len(q))
+
     stack3 = BuildStackWithQueue()
     stack.push(1)
     stack.push(2)
@@ -144,3 +152,4 @@ if __name__ == '__main__':
     stack.pop()
     print(stack.pop().value)
     stack.pop()  # test pop on empty stack
+
