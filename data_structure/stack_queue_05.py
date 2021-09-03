@@ -1,4 +1,6 @@
 from collections import deque
+
+
 class Node:
     def __init__(self, value):
         self.value = value
@@ -59,7 +61,7 @@ class Stack2:
         return self.arr[len(self.arr) - 1]
 
 
-class Queue:
+class Queue:  # if use array O(n) for remove pop(0)
     def __init__(self):
         self.first = None
         self.last = None
@@ -138,7 +140,8 @@ if __name__ == '__main__':
     print(queue.dequeue().value)
     queue.dequeue()  # test dequeue on empty queue
 
-    q = deque([])
+    # queue no need import external library
+    q = deque()
     q.append(1)
     q.append(2)
     print(q[0])

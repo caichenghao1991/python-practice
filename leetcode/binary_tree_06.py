@@ -37,7 +37,7 @@ class Solution:
         return root
 
     @staticmethod
-    # 104. Maximum Depth of Binary Tree
+    # 104. Maximum Depth of Binary Tree   t: O(n) Θ(logn)  s: O(n)  Θ(logn)
     def maxDepth(root: TreeNode) -> int:
         def helper(node, depth):
             if not node:
@@ -48,7 +48,7 @@ class Solution:
         return helper(root, 0)
 
     @staticmethod
-    # 102. Binary Tree Level Order Traversal
+    # 102. Binary Tree Level Order Traversal   t: O(n)  s: O(n) max width
     # bfs + 2 counter /bfs + nested while loop with 1 counter
     # or use second array avoid modification on same array
     def levelOrder(root: TreeNode) -> List[List[int]]:
@@ -95,6 +95,7 @@ class Solution:
 
     @staticmethod
     # 199. Binary Tree Right Side View  dfs track level or bfs get right most
+    # t: O(n)  s: O(n)  bfs queue (level) width / dfs height of tree
     def rightSideView(root: TreeNode) -> List[int]:
         """
         res = []
@@ -116,7 +117,7 @@ class Solution:
                 level = [kid for node in level for kid in (node.left, node.right) if kid]
         return res
 
-    # 222. Count Complete Tree Nodes   binary search
+    # 222. Count Complete Tree Nodes   binary search  / recursion   t: O((logn)^2)  s: O((logn)^2)
     def countNodes(self, root: TreeNode) -> int:
         """
         :type root: TreeNode
@@ -176,12 +177,13 @@ class Solution:
         return d
 
     @staticmethod
+    # 98. Validate Binary Search Tree   t: O(n)   s: O(1) if Function Call Stack size is not considered, otherwise O(n)
     def isValidBST(root):
         res = []
-
         def helper(node, lb, rb):
             if node.val <= lb or node.val >= rb:
                 res.append(1)
+                return False
             else:
                 if node.left:
                     helper(node.left, lb, node.val)

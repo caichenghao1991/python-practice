@@ -35,25 +35,32 @@ class LinkedList:
         self.length += 1
     
     def insert_at_index(self, index, val):
+        node = Node(val)
+        if self.get_index(index):
+            post = self.get_index(index)
+            post.prev = node
+            node.next = post
         if self.get_index(index - 1):
             pre = self.get_index(index - 1)
-            node = Node(val)
-            if self.get_index(index):
-                post = self.get_index(index)
-                post.prev = node
-                node.next = post
             pre.next = node
             node.prev = pre
+            self.length += 1
+            return node
+        elif index == 0:
+            self.head = node
             self.length += 1
             return node
         return
 
     def delete(self, index):
-        if type(index) == int and 0 <= index < self.length:
+        if type(index) == int and 0 < index < self.length:
             node = self.get_index(index - 1)
             node.next = node.next.next
             if node.next.next:
                 node.next.next.prev = node
+            self.length -= 1
+        elif index == 0:
+            self.head = self.head.next
             self.length -= 1
 
     def search(self, val):
@@ -69,10 +76,11 @@ class LinkedList:
 
     def print_list(self):
         node = self.head
+        res = []
         while node:
-            print(node.value, end="--")
+            res.append(str(node.value))
             node = node.next
-        print("None")
+        print("-->".join(res))
 
     def size(self):
         return self.length

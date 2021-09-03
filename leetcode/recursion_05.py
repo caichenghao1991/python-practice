@@ -2,6 +2,7 @@ from typing import List
 
 
 class Solution:
+    # 215. Kth Largest Element in an Array    quick select     t: O(n^2)  Θ(nlogn)  s: O(1)
     def findKthLargest(self, nums: List[int], k: int) -> int:
         # nums.sort()
         # return nums[len(nums)-k]
@@ -55,6 +56,7 @@ class Solution:
         '''
 
     @staticmethod
+    # 34. Find First and Last Position of Element in Sorted Array   t: O(logn)   s: O(1)
     def searchRange(nums: List[int], target: int) -> List[int]:
         start, end = -1, -1
         l1, l2, r1, r2 = 0, 0, len(nums) - 1, len(nums) - 1

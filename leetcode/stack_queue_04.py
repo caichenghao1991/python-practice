@@ -1,6 +1,6 @@
 class Solution:
 
-    # 20. Valid Parentheses  stack
+    # 20. Valid Parentheses  stack    t: O(n)  s: O(n)
     @staticmethod
     def isValid(s: str) -> bool:
         start = ['(', '{', '[']
@@ -16,7 +16,7 @@ class Solution:
                     return False
         return len(stack) == 0
 
-    # 1249. Minimum Remove to Make Valid Parentheses   stack
+    # 1249. Minimum Remove to Make Valid Parentheses   stack  t: O(n)  s: O(n)
     @staticmethod
     def minRemoveToMakeValid(s: str) -> str:
         arr = list(s)

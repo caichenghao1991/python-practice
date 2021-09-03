@@ -16,7 +16,7 @@ class Node(object):
 
 
 class Solution:
-    # bottom up build linked list from array
+    # build linked list from end to root   two pointer
     @staticmethod
     def build_linked_list(arr: List) -> ListNode:
         prev, curr = None, None
@@ -33,7 +33,7 @@ class Solution:
             start = start.next
         print('->'.join([str(_) for _ in s]))
 
-    # 206. Reverse Linked List 3 pointer
+    # 206. Reverse Linked List 3 pointer  t: O(n)  s: O(1)
     @staticmethod
     def reverseList(head: ListNode) -> ListNode:
         prev, curr = None, head
@@ -44,7 +44,7 @@ class Solution:
             curr = next_node
         return prev
 
-    # 92. Reverse Linked List II
+    # 92. Reverse Linked List II   t: O(n)  s: O(1)
     @staticmethod
     def reverseBetween(head: ListNode, left: int, right: int) -> ListNode:
         position = 1
@@ -70,6 +70,7 @@ class Solution:
         return dummy.next
 
     # 430. Flatten a Multilevel Doubly Linked List  only need consider 2nd level, flat one level a time
+    # t: O(n)  s: O(1)
     @staticmethod
     def flatten(head: Node) -> Node:
         curr = head
@@ -90,7 +91,7 @@ class Solution:
         return head
 
     # 142. Linked List Cycle II
-    # Floyd's tortoise and hare
+    # Floyd's tortoise and hare   t: O(n)  s: O(1)
     # fast and slow pointer meet at a, then 1 from start 1 from a, meet again at b, b is cycle start
     @staticmethod
     def detectCycle(head: ListNode):

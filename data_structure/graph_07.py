@@ -6,7 +6,7 @@ class Graph:
 
     def add_vertex(self, node):
         if node not in self.adjacentList:
-            self.adjacentList[node] = []
+            self.adjacentList[node] = set()
             self.num_nodes += 1
 
     def add_edge(self, node1, node2):
@@ -14,15 +14,15 @@ class Graph:
             self.add_vertex(node1)
         if node2 not in self.adjacentList:
             self.add_vertex(node2)
-        self.adjacentList[node1].append(node2)
-        self.adjacentList[node2].append(node1)
+        self.adjacentList[node1].add(node2)
+        self.adjacentList[node2].add(node1)
 
     def print_graph(self):
         for k in self.adjacentList.keys():
-            values = k + ":"
+            temp = []
             for v in self.adjacentList.get(k):
-                values = values + v + '-'
-            print(values[:-1])
+                temp += [v]
+            print(k + ":" + ",".join(temp))
 
 
 if __name__ == '__main__':

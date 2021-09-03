@@ -4,7 +4,7 @@ import heapq
 
 
 class Solution:
-    # 1376. Time Needed to Inform All Employees  dfs/ bfs
+    # 1376. Time Needed to Inform All Employees  dfs/ bfs   t: O(n)   s: O(n)
     def numOfMinutes(self, n: int, headID: int, manager: List[int], informTime: List[int]) -> int:
         adj = [[] for _ in range(n)]
         for i in range(len(manager)):
@@ -32,6 +32,7 @@ class Solution:
         return longest + time[emp]
 
     # 207. Course Schedule   topological sort (dfs/kahn's algorithm)
+    # t: O(n+E) or O(n^2)  E is edge count    s: O(n^2) or O(E)
     def canFinish(self, numCourses, prerequisites):
         adj = [[] for _ in range(numCourses)]
         """
@@ -81,6 +82,8 @@ class Solution:
 
     @staticmethod
     # 743. Network Delay Time   Dijkstra  / Bellman Ford
+    # Dijkstra  t: O(n + E)logn   s: O(n+E)
+    # Bellman Ford    t: O(nE)   s: O(n)
     def networkDelayTime(times: List[List[int]], n: int, k: int) -> int:
         # Dijkstra
         adj = [{} for _ in range(n)]

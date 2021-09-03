@@ -1,3 +1,4 @@
+# top down
 def fib(num: int):
     # use closure to avoid global variable
     # 0  1  1  2  3  5  8  13
@@ -15,6 +16,7 @@ def fib(num: int):
     return helper(num)
 
 
+# bottom up
 def fib2(num: int):
     prev, curr = 0, 1
     index = 2

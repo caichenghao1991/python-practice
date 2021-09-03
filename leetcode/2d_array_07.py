@@ -3,7 +3,7 @@ from typing import List
 
 
 class Solution:
-    # 200. Number of Islands   bfs / dfs
+    # 200. Number of Islands   bfs / dfs    t: O(mn)   s: O(mn)  bfs: O(max(m,n))
     def numIslands(self, grid: List[List[str]]) -> int:
         if not grid:
             return 0
@@ -34,7 +34,7 @@ class Solution:
             self.dfs_num_islands(grid2, y + d[0], x + d[1])
 
     @staticmethod
-    # 994. Rotting Oranges   bfs
+    # 994. Rotting Oranges   bfs  t: O(mn)   s: O(mn)
     def orangesRotting(grid: List[List[int]]) -> int:
         good = 0
 
@@ -78,7 +78,7 @@ class Solution:
                 steps = steps + 1
         return -1 if c3 < good else steps
 
-    # 663. Walls and Gates    dfs / bfs
+    # 663. Walls and Gates    dfs / bfs   t: O(n) n:cell count  s: O(n)
     def wallsAndGates(self, rooms):
         door = []
         for i in range(len(rooms)):

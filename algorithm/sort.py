@@ -1,5 +1,6 @@
 import data_structure.heap_priority_queue_09 as h
 
+
 def bubble_sort(array):
     """
         O(n^2) time complexity, best Omega(n), O(1) space complexity
@@ -7,10 +8,10 @@ def bubble_sort(array):
         after one iteration the largest/smallest value is at the right end,
         then repeat each time one more value at right end is sorted
     """
-    for i in range(len(array) - 1, 1, -1):
-        for j in range(1, i + 1):
-            if array[j] < array[j - 1]:
-                array[j], array[j - 1] = array[j - 1], array[j]
+    for i in range(len(array)):
+        for j in range(0, len(array) - i - 1):
+            if array[j] > array[j + 1]:
+                array[j], array[j + 1] = array[j + 1], array[j]
     return array
 
 
@@ -115,7 +116,7 @@ def partition(array, left, right):
 def bucket_sort(array):
     """
         O(n^2) average theta(n+k) time complexity, O(n) space complexity
-        create empty buckets, insert value belong to those bucket rangeks
+        create empty buckets, insert value belong to those bucket range
         sort values inside bucket, concat all bucket values
     """
     min_val = min(array)
@@ -169,7 +170,7 @@ def counting_sort(array, rang):
         count[i] = count[i] + count[i - 1]
     # shift one to the right  is the corresponding starting index of each value
     for i in range(len(array)-1, -1, -1):
-        # for each value at index i, this value occurance in the output should be at
+        # for each value at index i, this value occurrence in the output should be at
         # the index of corresponding counter list value - 1
         output[count[arr[i]] - 1] = arr[i]
         count[arr[i]] -= 1  # minus one for that counter value
@@ -226,6 +227,7 @@ def min_heapify(pos, array):
         min_heapify(small, array)
     return array
 
+
 def heap_sort(array):
     heap = h.MinHeap()
     array = heap.build_heap(array)
@@ -233,6 +235,7 @@ def heap_sort(array):
         array[i:] = min_heapify(0, array[i:])
         min_heapify(0, array[i:])
     return array
+
 
 if __name__ == '__main__':
     arr = [1, 5, 3, 9, 2, 6, 8, 7, 4]

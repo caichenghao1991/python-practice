@@ -2,7 +2,7 @@ from typing import List
 
 
 class Solution(object):
-    # 1. Two Sum     hash/dict
+    # 1. Two Sum     hash/dict   t: O(n)  s:O(n)
     @staticmethod
     def twoSum(nums: List[int], target: int) -> List[int]:
         dic = {}
@@ -13,7 +13,7 @@ class Solution(object):
                 return [dic[nums[i]], i]
         return []
 
-    # 11. Container With Most Water   two pointer
+    # 11. Container With Most Water   two pointer   t: O(n)  s:O(1)
     @staticmethod
     def maxArea(height: List[int]) -> int:
         left, right = 0, len(height) - 1
@@ -26,7 +26,7 @@ class Solution(object):
                 right -= 1
         return area
 
-    # 42. Trapping Rain Water  two pointer
+    # 42. Trapping Rain Water  two pointer  t: O(n)  s:O(1)
     @staticmethod
     def trap(height: List[int]) -> int:
         left, right = 0, len(height) - 1
@@ -48,21 +48,21 @@ class MyQueue(object):
         self.s1 = []
         self.s2 = []
 
-    def push(self, x: int):
+    def push(self, x: int):   # t: O(1)  s: O(n)
         self.s1.append(x)
 
-    def pop(self) -> int:
+    def pop(self) -> int:     # t: O(n)  Θ(1)
         if not self.s2:
             while self.s1:
                 self.s2.append(self.s1.pop())
         return self.s2.pop()
 
-    def peek(self) -> int:
+    def peek(self) -> int:    # t: O(n)   Θ(1)
         if self.s2:
             return self.s2[-1]
         return self.s1[0]
 
-    def empty(self):
+    def empty(self):   # O(1)
         return not self.s1 and not self.s2
 
 

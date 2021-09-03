@@ -1,5 +1,5 @@
 class Solution(object):
-    # 844. Backspace String Compare   two pointer
+    # 844. Backspace String Compare   two pointer  t: O(a+b)  s: O(1)
     @staticmethod
     def backspaceCompare(s: str, t: str) -> bool:
         p1, p2 = len(s), len(t)
@@ -23,7 +23,7 @@ class Solution(object):
 
         return p1 < 0 and p2 < 0
 
-    # 3. Longest Substring Without Repeating Characters    sliding window + hash
+    # 3. Longest Substring Without Repeating Characters    sliding window + hash   t: O(n)  s: O(n)
     @staticmethod
     def lengthOfLongestSubstring(s: str) -> int:
         dic = {}
@@ -36,7 +36,7 @@ class Solution(object):
             dic[s[i]] = i
         return res
 
-    # 680. Valid Palindrome II     two pointer  iterative
+    # 680. Valid Palindrome II     two pointer  iterative  t: O(n)  s: O(1)
     @staticmethod
     def validPalindrome(s: str) -> bool:
         left, right = 0, len(s) - 1
@@ -64,7 +64,7 @@ class Solution(object):
             right -= 1
         return True
 
-    @staticmethod   # recursive
+    @staticmethod   # recursive   t: O(n)  s: O(1)
     def validPalindrome2(s: str) -> bool:
         def helper(s2, left: int, right: int, flag: bool) -> bool:
             while left < right:
