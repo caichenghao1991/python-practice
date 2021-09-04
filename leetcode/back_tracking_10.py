@@ -57,6 +57,30 @@ class Solution:
                 return True
         return False
 
+    # 17. Letter Combinations of a Phone Number   backtracking/dfs  t: O(4^len)
+    def letterCombinations(self, digits: str) -> List[str]:
+        self.dic = {"2": ["a", "b", "c"], "3": ["d", "e", "f"], "4": ["g", "h", "i"], "5": ["j", "k", "l"],
+                    "6": ["m", "n", "o"], "7": ["p", "q", "r", "s"], "8": ["t", "u", "v"], "9": ["w", "x", "y", "z"], }
+        res = []
+        if not len(digits):
+            return res
+        self.helper(0, digits, "", res)
+
+        return res
+
+    def helper(self, index, digits, temp, res):
+        if index >= len(digits):
+            res.append(temp)
+            return
+
+        for j in self.dic.get(digits[index]):
+            """
+            temp = temp + j
+            self.helper(index+1, digits, temp, res)
+            temp = temp[:-1]
+            """
+            self.helper(index + 1, digits, temp + j, res)
+
 
 if __name__ == '__main__':
     solution = Solution()
