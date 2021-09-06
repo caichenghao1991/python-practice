@@ -1,5 +1,6 @@
 from decimal import *
 import random
+from functools import reduce
 
 
 class Review:
@@ -14,7 +15,12 @@ class Review:
     
     --Data type
     immutable data types: int, float, decimal, bool (True False), string, tuple, and range.
+        immutable data type when value change, will create a new item in memory if that value doesn't already in memory,
+        and assign new location to variable  
+        so a=1;   b=a;   a=2;  print(b) # 1
     mutable data types: list, dictionary, set and user-defined classes.
+        mutable data type when value change, will not affect the location it stored in
+        li = [1,2];  li2=li;  li[0]=0;  li.append(3);  print(li2) # [0,2,3]
     data type can be changed once the value has been changed
     
     
@@ -27,6 +33,7 @@ class Review:
     
     --String
     quotes inside string need alternative double and single quotes or use \", \'  word = "He's cool"
+    use r"C:\path"   so it won't transform items like \t
     use '''    ''' to keep format (spacing)
     casting to string use str()   ex: str(age)
     String Formatting  print("%s is %d years old." % (name, age))  %%  %s  %d  %f  %c  %E
@@ -109,7 +116,8 @@ class Review:
     [i for i in 'hi']  # ['h', 'i' ]   
     [w.lower() if w.startswith('h') else w.upper() for w in list1]  list1 item start with h then lower otherwise upper 
     [(x,y) for x in range(2) for y in range(3)]  return all combination of (x,y)
-    list2 = list1.copy()  or  list2 = list1[:] # deep copy, change in new list won't affect original 
+    list2 = list1.copy()  or  list2 = list1[:] # deep copy, change in new list won't affect original, 
+        # if list2 = list1, when list1 changed, it will change list2 as well since they have same memory location
     Read
     print(list1[0], list1[:1], list1[::-2])  # [True, 1]     
     len(list1) #3    
@@ -207,9 +215,172 @@ class Review:
     del set1   # delete set1 object  
     
     
+    --Function
+    modularize repeated content
+    def function_name([para1,...]):
+        pass
+    function_name([para1_value,...])  # call function
+    def function_name([para1, para2='default_value']):  # Default value can't use [] or {}, a new list is created once 
+        when the function is defined, and the same list is used in each successive call. Python’s default arguments are 
+        evaluated once when the function is defined, not each time the function is called.
+        when calling function with default value, the parameter with default value can be omitted
+    function_name(para1_value)   or function_name(para1=para1_value)
+    function_name([para1,...],*args):  # front parameters are required, *args pack additional parameters into a tuple
+        args[1] # access the parameter in tuple with index 1   *args  can be 0 parameter as well
+    function_name(para1_value, 1, 2)    # args[1] will be 2
+    function_name(*[1,2,3])    # *[1,2,3] unpack list to individual parameters, work for tuple, set as well
+    function_name2([para1,...],**kwargs):  # front parameters are required, *kwargs pack additional into dictionary
+        kwargs['name']   # 'JK'
+    function_name2(1,name='JK',date='1991-10')    # will call need para=val, here para no need ''
+    function_name2(1,**{'name':'JK','date':'1991-10'})
+    function_name3(*args, **kwargs): 
+        return kwargs['name']   # function return value,  or just use return to step out the function. 
+        return kwargs['name'], return kwargs['date']    can have multiple return statement under various if condition
+    name = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK' for first return  
+    item = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # item: ('JK','1991-10')  put return items in a tuple
+    name,date = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK', date is '1991-10' for 2nd return
+    
+    if immutable variable var, inside function, add: global var    var = 7  to change the global outside variable values
+    a = 6; b = []  
+    def sum():
+        global a
+        a = 7
+        b.append(1)
+    print(a,b)  # 7 [1]   # immutable data will not change if no global declaration, mutable data will always change
+    inside function add document comment   ''':param name: xxx   :return: xxx '''
+    help(function_name)   # print out function information,  hover on function name will show document comments
+    
+    def outer():
+        a = 100    # outer function can't access inner function variable, since it's function is destroyed after finish
+        def inner():
+            nonlocal a    # a cannot be modified before nonlocal declaration
+            a = 200  # inner function can't modify outer function variable, it only create a new inner variable when
+            print(a+10)     # have the same name as outer variable, unless add nonlocal var declaration   
+                         # when variable is used, find declaration with order: inner -> outer -> global -> builtin    
+        print(inner)  #return location info
+        info = locals()  # info will have local variable and value, inner fuction location information
+        inner()  # run inner function
+        or return inner
+    r = outer()  # return inner function memory location
+    r()  # run inner function   or  outer()()
+    
+    info = globals()  return the global variable (system and user-defined) dictionary 
+    
+    decorator pattern
+    def d(func):      
+        print('<-')
+        def wr(para):      # def wr(*args,**kwargs):  to cover all input cases
+            func(para)     # func(*args,**kwargs) 
+            print(1)
+            return 'x'
+        print('->')
+        return wr   #
+    @d      # <- ->  equivalent to:  f = d(f), used for add additional logic while keep original function name and call
+    def f(para):
+        print(2)  
+        return 'x'
+    r = f(para_val)   # 2  1  # first execute outer function of d then go into inner function
+                  # equivalent to call wrapper function
+                  
+    decorator function can have input parameters as well need extra layer of outer function
+    def outer_param(para):
+        def d(func):  # same content
+        return d
+    @outer_param(para_val)
+    def f(para):
+    
+    
+    --Recursion
+    must have exit conditions, each step closer to exit
+    def p(start,total):       def p(start):                                         def p(v):           
+        if start == 0:                                                                 if v == 0:
+            return total                                                                   return
+        return p(start-1, total+start)   # tail recursion, save space                  p(v-1)
+        return start+p(start-1)     # keep older call stack                                
+       
+                                            
+    --Anonymous function (lambda)
+    func = lambda arg1, arg2: expression (ex: arg1+arg2)
+    print(func(1,2))  # 3
+    def func1(a, f):
+        return f(a)
+    func1(3, lambda x: x+2)     
+    list1 = [('sam',35),('tom',19), ('tony',20)] 
+    print(max(list1, key=lambda x: x[1]))   # ('sam',35)   key is a function x is each tuple in list1                              
+    max, min, sorted all have key function
+    print(list(filter(lambda x:x[1]>19, list1)))  # [('sam', 35), ('tony', 20)] filter out data not match condition
+    print(list(map(lambda x:x[0].title(), list1)))  # ['Sam', 'Tom', 'Tony']  retrieve part of data
+    from functools import reduce
+    print(reduce(lambda x, y: x+y, [1,2,3,4,5]))  # sum of array, or concat strings
+    r = zip([1,2,3], {'one','two','three'});  print(set(r))  # {(1, 'one'), (2, 'two'), (3, 'three')}
+    # The zip() function returns an iterator of tuples (built by each iterable input).
+    
+    
+    --File operation
+    $touch test.txt   #create new file       $ test.txt  #open file
+    Opens a file and returns a corresponding file object.
+    file = open('<path>', mode='r', encoding=None)
+    Modes    default rt
+    'r' - Read (default).
+    'w' - Write (truncate, or create new file).
+    'x' - Write or fail if the file already exists.
+    'a' - Append.
+    'w+' - Read and write (overwrite from beggining).
+    'r+' - Read and write from the start.
+    'a+' - Read and write from the end.
+    't' - Text mode (default).
+    'b' - Binary mode.  (audio, video, image...)
+    
+    my_file = open('test.txt')    open('path/test.txt', mode = 'a', buffering, encoding)  return a steam object
+        # FileNotFoundError if path not exist
+    print(my_file.readable())    # return boolean whether stream is readable
+    print(my_file.read()) #read whole file
+    my_file.seek(0)  # reposition cursor to start so can read again
+    my_file.readline()  #read one line and move cursor down 
+    my_file.readlines()  # return list of lines
+    my_file.write(string)   # in 'w' mode will clear content then write
+    my_file.writelines(Iterable)   # need add  \n in string to switch new line
+    my_file.close()  # release resource
+    or use with open() as stream to auto release resource   
+    try:
+        with open('path/test.txt', mode = 'a') as my_file:    
+            # windows       open(r'C:\path\test.txt', mode = 'a')   open('C:\\path\\test.txt')
+            #  ./ from current folder      #  ../ back one folder
+            my_file.write("Hello World")
+            print(my_file.readlines())
+        except FileNotFoundError, IOError as err:
+            print('file does not exist')
+
+    import os   
+    os.path.isabs(string)   # return bool check path is absolute path
+    os.path.abspath('basic_python.py')  # return file name's absolute path
+    os.path.abspath(__file__)  # return file name's absolute path
+    os.path.dirname(__file__)  # return string of current file's absolute directory
+        os.getcwd()  # return string of current file's absolute directory
+    os.path.split(path)   # return tuple of directory and file name  ('C:\\path\\','a.txt')
+    os.path.splitext(path)  # return tuple of file extension and directory+file name  ('C:\\path\\a','.txt')
+    os.path.getsize(path)   # return file size in bytes
+    os.path.join(os.getcwd(),'path','a.txt')     # return path with path\\a.txt inside current directory
+    os.path.listdir(path)   # return a list containing all the file and directory under path
+    os.path.exists(path)   # return bool   check path exist or not
+    os.path.isfile(path)   # check path is file or not
+    os.path.isdir(path)   # check path is directory or not
+    os.mkdir(path)   # no return  raise FileExistError if path already exist
+    os.rmdir(path)   #   remove empty directory   otherwise raise OSError
+    os.remove(path)   # remove file 
+    os.chdir(path)   # switch current working directory to path
+    
+    
+    --Exceptions
+    
+    
     --Others 
     import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
+    isinstance(var, int)   # return bool   check whether variable data type is integer
+    import sys    sys.getrefcount(var)   # return the number of variable using the reference var
+    
+    
     """
 
     student_age, age = 3, 3
@@ -251,8 +422,12 @@ class Review:
     print(filename.count('1'))
     list1 = [1, '2', True]
     print(list1)
-    a = set(list1)
-    print(a)
+
 
 if __name__ == '__main__':
+    aaa = 1
     review = Review()
+    list1 = [1,2,3,4]
+
+    print(reduce(lambda x, y: x+y, ['1','2','3']))
+
