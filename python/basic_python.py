@@ -1,7 +1,7 @@
 from decimal import *
 import random
 from functools import reduce
-
+from typing import *
 
 class Review:
     """"""
@@ -17,11 +17,13 @@ class Review:
     immutable data types: int, float, decimal, bool (True False), string, tuple, and range.
         immutable data type when value change, will create a new item in memory if that value doesn't already in memory,
         and assign new location to variable  
-        so a=1;   b=a;   a=2;  print(b) # 1
+        so a=1;   b=a;   a=2;  print(b) # 1   
     mutable data types: list, dictionary, set and user-defined classes.
         mutable data type when value change, will not affect the location it stored in
         li = [1,2];  li2=li;  li[0]=0;  li.append(3);  print(li2) # [0,2,3]
     data type can be changed once the value has been changed
+    pi = Decimal('1.1')  # used to avoid inaccuracy   float might get 1.1000000000000001
+    type(pi)  # <class 'Decimal'>  return data type of pi
     
     
     --Print and input
@@ -81,6 +83,7 @@ class Review:
     -7 in binary: 7 in binary ob0000 0111,    reverse ^  ob1111 1000,  then +1  ob1111 1001     ~n+1 is -7 
     binary(negative) to decimal: ob1111 1001,   -1  ob1111 1000, then reverse ^ ob0000 0111  is 7
     print(~7+1)  # -7          n << 3    # 7 * 2^3               n >> 2   # 7 // 4
+    print(~7 + 1)  # -7           print(7 << 3)  # 7 * 2^3         print(7 >> 2)  # 7 // 4
     
     
     --Condition
@@ -112,7 +115,7 @@ class Review:
     mutable array able to store different data type entries
     Create / Copy
     list1 = []  list1 = [1, '2', True]    list2 = list(str)  # create char list from string
-    list(range(3,5))  # [3,4]       [i * 2 for i in [1, 2, 3, 4] if i%2==0]  # [4, 8]      
+    list(range(3,5))  # [3,4]       [i * 2 for i in [1, 2, 3, 4] if i % 2 == 0 and i >= 0]  # [4, 8]      
     [i for i in 'hi']  # ['h', 'i' ]   
     [w.lower() if w.startswith('h') else w.upper() for w in list1]  list1 item start with h then lower otherwise upper 
     [(x,y) for x in range(2) for y in range(3)]  return all combination of (x,y)
@@ -162,11 +165,12 @@ class Review:
     --Dictionary
     Also known as map or hashtable (key value pair), retain order of insertion when iterating keys after Python 3.7
     dictionary key need to be immutable: int, float, boolean, string, None, tuple
-    same dictionary key, the value will be overwrote    use hash O(1) operations
+    same dictionary key, the value will be override    use hash O(1) operations
     Create
     my_dict = {'name': 'Andrei Neagoie', 'age': 30, 18: False}    dict1 = {}   dict2 = dict1.copy()
     dict2 = dict([('name','Harry'),('age',[10,1])])
     dict2 = dict.fromkeys(['name','age'], 1)   # create dictionary with keys and same default value   
+    {k:v for k, v in dict1.items()}     {k: v for k, v in [('one',1),('two',2)]}
     Read
     dict1['name']       # Andrei Neagoie   keyError if key not exist
     dict1.get('age')                   # 30 --> Returns None if key does not exist.
@@ -194,6 +198,7 @@ class Review:
     Unordered collection of unique item, no order, use hash   use hash O(1) operations
     Create
     set1 = set()  set1, set2 = {1,2,3},{3,4,5}    set(new_list)    new_set = set1.copy()  
+    {x-1 for x in list1 if x > 5}
     Read
     1 in set1   #True
     Insert
@@ -325,7 +330,7 @@ class Review:
     'w' - Write (truncate, or create new file).
     'x' - Write or fail if the file already exists.
     'a' - Append.
-    'w+' - Read and write (overwrite from beggining).
+    'w+' - Read and write (override from beggining).
     'r+' - Read and write from the start.
     'a+' - Read and write from the end.
     't' - Text mode (default).
@@ -372,48 +377,169 @@ class Review:
     
     
     --Exceptions
+    try:
+        pass
+    except :      # can use multiple except  
+        print('check input')
+    except ValueError as err:   # except block can raise exception as well
+        print(err)   
+        raise Exception('wrong input')    # need another try catch block outside to handle raised exception
+    [finally:    # always execute no matter exception block executed or not, even execute when try block has return 
+        pass]        # statement, but if finally has return as well, then it will override try block's return
+    [else:      # only execute if no exceptions, can't use together with finally 
+        pass]
+        
+    
+    --Generator
+    from a list, each iteration only retrieve a few data to save memory cost if the list is large
+    1. g = (x*3 for x in range(20))  # generator type
+       g.__next__()    or   next(g)    # to retrieve next value 
+       # can not generate more item than length of list, raise exception, use try, catch block
+    2. use yield function
+        def func():        def func(para):
+            n = 0
+            while True:    while n < para: 
+                print(n)              
+                yield n   # pause the function until next call of function      
+                    # temp = yield n   # receive input parameter from outside
+                n += 1   
+        [return 'can't generate more']   # return message when loop end with exception
+        g = func()    # retrieve generator    g=func(para_value)
+        g.__next__()   next(g)    # to retrieve next value after yield (n)
+        # raise exception when while end, use try, catch block
+        sending input parameter
+        r0 = g.send(None)   # r0=0    # first time call must send None
+        r1 = g.send(3)   # r0=1   temp=3    temp=3 at  temp = yield n
+        Coroutines: sub thread, one thread can have multiple Coroutines running concurrently
+        def task1(n):
+            for i in range(n):
+                print(n)
+                yeild None
+        g1,g2= task1(10), task2(5)
+        while True:
+            try:
+                next(g1)
+                next(g2)
+            except:
+                pass
+                
+                   
+    --Iterable and Iterator
+    iterator can save the item index while traversing the items of object. Can only traverse forward till end.
+    iterator object it, can use next(it) to repeatedly access next item in the iterator object.
+    iterator is iterable, but iterable is not necessary iterator
+    generator is an iterator, list is iterable, but not iterator
+    user:  iter(Iterable)     ex: it=iter([1,2,3]); next(it)   to change iterable list into iterator
+    
+    
+    --OOP object oriented programming
+    class name upper camel case, default extend from parent: object    class CellPhone:  class ClassName(object):
+    multiple inheritance     class CellPhone(Commuter, Electronic):  
+    import inspect     print(inspect.getmro(CellPhone))    or print(CellPhone.__mro__)   # get inheritance order
+    # inheritance order CellPhone->Commuter->Electronic->object   python 3: bfs    python 2: dfs preorder
+    class CellPhone(Commuter):    # non specific parent class extend from object, here extend Commuter class
+                                  # child class have all parent class attributes, need to override if necessary
+                                  # extension eliminate duplicate code  
+                                  # child will override parent same name, # parameter method, but once override with
+                                  # different # parameter, child can no longer access parent's same name method
+        def __new__(cls, *args, **kwargs):   # declare a new space for the object, usually not needed, extend parent's
+            return object.__new__(cls)     # return new space location then pass into __init__'s self
+        def __init__(self,price=0):   # init (constructor) is ran once instance is initialized  
+            self.price = price        # use (self, **kwargs for overload)
+            self.brand = 'Huawei'     # default instance variable value
+            self.case = Case()        # instance variable can be different for different CellPhone object, first search 
+            super().__init__(name)    # instance whether variable is defined, then search in class 
+            # super(CellPhone, self)  # instance variable can be other class instance object  (has relationship)
+                                      # need call parent's init method, need same number parameter
+                                      # super(CellPhone, self) same as super(), but add self instance type check
+        model=''    # class variable, shared among all instance
+        __pin=''    # private variable, can't access/ modified outside class with CellPhone.__pin
+                    # variable was rename to _CellPhone__pin   still able to access ph._CellPhone__pin, not recommended
+        def start_phone(self):    # instance method(function), self is the current instance (required if need access 
+            print(self.brand)     # other access instance variable or function defined in the class)
+                                  # need first initialize instance, then can use instance method
+        def close_phone(self, name):   # method with input parameter
+            self.startphone()     # inside method, use other non-class method must use self
+        @classmethod   #decorator  class method usually used for define actions taken before instance created
+        def destroy(cls):         # class, don't depend on instance. every instance have the same class method
+            cls.__pin = '1'       # don't need initialize instance to use class method, but ph.destroy work as well
+                                  # inside class method, can only use / update class variable and class method 
+        @staticmethod
+        def create(name):         # static method, no self/cls, can only use / update class variable and class method 
+            Person.model='Xiaomi' # used for define actions taken before instance created
+        def __call__(self,para):  # needed when run the class instance like method:  ph(1)
+        def __del__(self):        # usually don't need to write, use parent's object.__del__. executed when there is no       
+                                  # reference to a class object or at the end of execution 
+        def __str__(self):        # return string, used for print(ph) debugging with specific info  without __str__,  
+            return self.brand     # will print memory location    
+        # __xxx__ function will be trigged automatically, no need direct calling
+        def setPin(self, pin):    # oop encapsulation, private variable, public getter and setter 
+            self.__pin = pin      # can have additional logic in setter function to avoid unwanted input
+        def getPin(self):
+            return self.__pin
+        # alternative approach of getter and setter, use property decorator  
+        @property
+        def pin(self):            # must first have getter then setter, instance now can use ph.pin to get and set
+             return self.__pin
+        @pin.setter            
+        def pin(self,pin):
+            self.__pin = pin
+                     
+    ph = CellPhone()   # use class to initialize object
+    ph.brand='xiaomi'  # can add extra instance variable (feature) to instance after creation
+    ph.model='xiaomi'  # change in value of variable with the same name won't change the variable value inside class 
+    CellPhone.model = 'huawei'  # this will change the variable value defined inside the class
+    ph.close_phone('Harry')
+    CellPhone.destroy()    # no need initialize instance for class method
+    CellPhone.create('mine')    # no need initialize instance for static method
+    ph(para_val)  # when run the instance like method, this will trigge class' __call__ method
+    ph2 = ph  # create a new reference point to the memory, so change in ph2 will change ph as well
+    del ph2   # delete the location reference of ph2 to ph
+              # if there is no reference to a class object or at the end of execution, __del__ will be used to do 
+              # garbage collection
+    ph.setPin(12)
+    print(ph.getPin())  # 12
+    dir(ph)  or ph.__dir__()  # return all the attributes of the object and parent (methods and non-private variables)
+    review.pin=10  # with property decorator
+    print(review.pin)  # 10
+    
+    polymorphism： same method base on input type (isinstance(var, type)), run different code block
+    
+    class Singleton: 
+        __instance = None    # when initialize object, always return the same one
+        def __new__(cls):   # return __instance if already exist, otherwise allocate new memory location
+            if not cls.__instance:
+                cls.__instance = object.__new__(cls)
+            return cls.__instance
+    
+    
+    --Module
+    each .py file is a module (ex: os, builtins), each file contains similar functions or class. this improve code 
+    reuse via import module. builtins is default imported
+    import module_name   (.py file  without .py)   ex. import basic_numpy
+    from module_name import var/method/class    # can direct use var/method/class  no need add module ahead
+    from basic_numpy import var_a, var_b, CellPhone     
+    from basic_numpy import *   in the module can use __all__=[var,method,class]  to specify items import * can access
+    basic_numpy.method()  basic_numpy.variable    basic_numpy.class_name
+    import will load everything from the module, if anything don't want to be run when imported, 
+        add code inside if __name__=='__main__':      __name__ will change from __main__ to module name if was imported
+    directoy and packages
+    directory hold non python file, package hold python file
+    
     
     
     --Others 
     import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
-    isinstance(var, int)   # return bool   check whether variable data type is integer
+    isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable
     import sys    sys.getrefcount(var)   # return the number of variable using the reference var
     
     
     """
 
-    student_age, age = 3, 3
 
-    print(type(student_age))  # <class 'int'>
-    student_age = 3.5
-    print(type(student_age))  # <class 'float'>
-    pi = Decimal('1.1')  # used to avoid inaccuracy   float might get 1.1000000000000001
 
-    print(type(pi))
-    word = "He's a \"genius\"."
-    poem = '''
-                Night Thought
-                    Li Bai           
-    '''
-    print(word)
-    print(poem)
-    # age = input("Please Enter your age:")   # always return string object
-    print("You are %d years old." % int(student_age))  # % (age, name)
-    print(student_age, student_age)  # default space separate, default new line
-    # print(student_age, age, sep=',', end='') # use sep=',' to add separator  end='' no new line
-    print(0 <= int(student_age) <= 100)
-    print(int(0x95))
-    n = 7
-    print(~n + 1)  # -7
-    print(n << 3)  # 7 * 2^3
-    print(n >> 2)  # 7 // 4
-    print(4 if age > 5 else age)
 
-    for i in range(1, 10, 3):
-        print(i)
-    else:
-        print("end")
     filename = ''
     s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     for i in range(5):
@@ -423,11 +549,21 @@ class Review:
     list1 = [1, '2', True]
     print(list1)
 
+    __pin = 'a'
 
+    @property
+    def pin(self):  # must first have getter then setter, instance now can use ph.pin to get and set
+        return self.__pin
+
+    @pin.setter
+    def pin(self, pin):
+        self.__pin = pin
 if __name__ == '__main__':
     aaa = 1
     review = Review()
-    list1 = [1,2,3,4]
+    review.age = 18
 
-    print(reduce(lambda x, y: x+y, ['1','2','3']))
+    a = 5 if 6<7 else 3
+    print(a)
+
 

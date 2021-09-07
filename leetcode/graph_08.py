@@ -31,7 +31,7 @@ class Solution:
                 longest = max(longest, self.dfs_num_min(i, adj, time))
         return longest + time[emp]
 
-    # 207. Course Schedule   topological sort (dfs/kahn's algorithm)
+    # 207. Course Schedule   topological sort (dfs/kahn's algorithm1)
     # t: O(n+E) or O(n^2)  E is edge count    s: O(n^2) or O(E)
     def canFinish(self, numCourses, prerequisites):
         adj = [[] for _ in range(numCourses)]
