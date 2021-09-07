@@ -1,7 +1,10 @@
+import hashlib
 from decimal import *
 import random
 from functools import reduce
 from typing import *
+import time
+import datetime
 
 class Review:
     """"""
@@ -66,7 +69,9 @@ class Review:
                                         # var.center(30)   return 30 length string with original at center, rest spaces
                                         # var.rjust(30)  return 30 length string with original at right, rest spaces                                               
     join                                # ' '.join(iterable)   return string of contacting elements with space between
-        
+    
+    chr(65)    # return string of unicode       ord('A')   # return unicode of character
+     
          
     --Operators
     arithmetic operator: +  -  *  /  **  //  %  
@@ -436,7 +441,7 @@ class Review:
     class name upper camel case, default extend from parent: object    class CellPhone:  class ClassName(object):
     multiple inheritance     class CellPhone(Commuter, Electronic):  
     import inspect     print(inspect.getmro(CellPhone))    or print(CellPhone.__mro__)   # get inheritance order
-    # inheritance order CellPhone->Commuter->Electronic->object   python 3: bfs    python 2: dfs preorder
+    # inheritance order CellPhone->Commuter->Electronic->object   python1 3: bfs    python1 2: dfs preorder
     class CellPhone(Commuter):    # non specific parent class extend from object, here extend Commuter class
                                   # child class have all parent class attributes, need to override if necessary
                                   # extension eliminate duplicate code  
@@ -524,15 +529,67 @@ class Review:
     import will load everything from the module, if anything don't want to be run when imported, 
         add code inside if __name__=='__main__':      __name__ will change from __main__ to module name if was imported
     directoy and packages
-    directory hold non python file, package hold python file
+    directory hold non python1 file, package hold python1 file
+    directory will become a package after add an empty __init__.py file (when module imported, execute automatically)
+    package name can only use number alphabet and _
+    from package_name import module_name
+    from package_name.module_name import class_name
+    from .module_name import class_name   # imported module and current module have same parent directory
+    __init__.py file can include some initialize common variable, method, class. so when package imported, those things 
+        like can be accessed through package_name.methods
+        need include __all__=[var,method,class]  to use from package import *
     
+    when recursive import occurs with two python file, maybe move the import statement just before actual usage will 
+        resolve the issue, otherwise need redo architecture  
+    
+    print(sys.path)  # return list of paths which represent the search order of import module
+    system module
+    import sys    sys.getrefcount(var)   # return the number of variable using the reference var
+    sys.version  # python interpreter version
+    sys.argv   # argument parsed for running the module
+    
+    
+    --Time
+    import time
+    time.time()    # return float point number
+    time.ctime(time.time())      # return string of time in format of Mon Sep  6 23:55:30 2021
+    t = time.localtime(time.time())  # return named tuple of time: time.struct_time(tm_year=2021, tm_mon=9, tm_mday=6,
+                                  # tm_hour=23, tm_min=57, tm_sec=39, tm_wday=0, tm_yday=249, tm_isdst=1)
+                                  # t.tm_hour  # 23    function default input is current, so time.localtime() works
+    tt= time.mktime(t)           # change tuple back to float
+    time.strftime('%Y-%m-%d %H:%M:%S')    # return string of time with specified format of current time
+    time.strptime('2019/06/20','%Y/%m/%d')  # return named tuple of time 
+    time.sleep(n)   # sleep for n seconds
+    import datetime
+    d = datetime.date(2019,6,20)
+    print(d.day)  # 20         print(datetime.date.ctime(d))  # Thu Jun 20 00:00:00 2019
+    datetime.date.today()   # 2021-09-07     
+    now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
+    print(now, now-delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
+    
+    
+    --Random
+    import random
+    random.random()  # Return the next random float in the range [0.0, 1.0)
+    random.randrange(start,end,step)  # step default 1 [start, end] with step
+    random.randint(start,end)  # random integer [start, end] 
+    random.choice([1,2,3,4,5])   # random choose from a sequence
+    random.shuffle([1,2,3,4,5])   # shuffle the sequence in random order
+    random.seed(0)    # set random seed so random will get same value
+    
+    
+    --Hashlib
+    import hashlib
+    md5 = hashlib.md5("hello".encode('utf-8'))      # md5 sha224  sha256 not invertible        base64 is invertible
+    print(md5.hexdigest())    #  5d41402abc4b2a76b9719d911017c592     save encoded password in database
+    sha224 = hashlib.sha224("hello".encode('utf-8')) 
+    print(sha224.hexdigest())   # ea09ae9cc6768c50fcee903ed054556e5bfc8347907f12598aa24193
     
     
     --Others 
     import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
     isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable
-    import sys    sys.getrefcount(var)   # return the number of variable using the reference var
     
     
     """
@@ -562,8 +619,12 @@ if __name__ == '__main__':
     aaa = 1
     review = Review()
     review.age = 18
-
+    print(time.localtime())
     a = 5 if 6<7 else 3
-    print(a)
+    d = datetime.date(2019, 6, 20)
+    now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)
+    random.seed(0)
+    sha224 = hashlib.sha224("hello".encode('utf-8'))
+    print(sha224.hexdigest())
 
 
