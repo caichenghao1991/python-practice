@@ -379,7 +379,7 @@ class Review:
     os.rmdir(path)   #   remove empty directory   otherwise raise OSError
     os.remove(path)   # remove file 
     os.chdir(path)   # switch current working directory to path
-    
+    os.getpid()      # get process id
     
     --Exceptions
     try:
@@ -586,17 +586,193 @@ class Review:
     print(sha224.hexdigest())   # ea09ae9cc6768c50fcee903ed054556e5bfc8347907f12598aa24193
     
     
+    --Regular Expression
+    import re
+    '''
+        . : any character except \n     ^ : search pattern from start     $ : search pattern till end    | : or 
+        [] : one character from range of option      \s : space      \d : digit    \w : [0-9a-zA-Z_]   \D : not digit   
+        \b: Matches at beginning or end empty string, or boundary between a \w and a \W character  (163|qq) : 163 or qq
+        counters  
+        * : >=0    + : >= 1    ? : 0,1    {m} : m character   {m,} : >= m characters   {m,n} : [m,n] characters
+        counters are greedy will return the longest matched string after one match  , add ? to make it not greedy
+              re.match(r'abc(\d+)','abc123de')  # abc123 ,  re.match(r'abc(\d+?)','abc123de')   # abc1
+        assign name to part of pattern:  ?P<name>  to assign later pattern in () with name, ?P=name to match the pattern
+        msg = '<html><h1>abc</h1></html>'   re.match(r'^<(?P<name1>\w+)><(?P<name2>\w+)>(.+)<?P=name2><?P=name1>'$)
+             or use number \1 to match first group()    re.match(r'^<(?P<name1>\w+)><(?P<name2>\w+)>(.+)</\2></\1>'$)
+    '''
+    msg = 'caichenghao@gmail.com';   
+    pattern = re.compile('^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$')
+    result = pattern.match(msg)      # <re.Match object; span=(0, 21), match='caichenghao@gmail.com'>
+    result = re.match(pattern,msg)   # return None if no match, match the pattern with beginning of the string one time,  
+                                     # span shows the index of matching
+    result = re.search(pattern, msg) # search can match the pattern not just from beginning, pattern add ^xxx$ to ensure 
+                                     # search from beginning and till the end, stop once one result is found
+    result = re.findall(pattern, msg)   # return a list of all matched results                        
+    result.span                      # (0, 21)    return matched position
+    result.group()                   # return the string matching the pattern, default parameter is 0
+    result.group(1)                  # return string match the first (xxx) pattern, index start with 1
+    m = re.match(r"(\d+)\.(\d+)", "4.16")     # ('4', '16')Return a tuple containing all the subgroups of the match, 
+                                     # r will suppress interpression of string \t,\b
+    result.groups()                  # groups need regular expression have (xxx) item as tuple item
+    result.groups('0')               # change default value from None to '0'
+    result = re.sub(r'\d+','90','{java:99,python:100}')  # replace, match 1st pattern with 3rd string, and replace 
+                                     # matched item with 2nd parameter (can be a function which return string)
+    result = re.split(r'[,:]','aa:b,c')  # ['aa','b','c']  return a list split the string by matched pattern 
+        
+    
+    --MultiProcess  (mainly used for large calculation)
+    concurrency: multiple tasks don't own the cpu entirely, cpu handle one task for a short period, and switch to next 
+        task, then next...
+    parallel: each task have dedicate cpu to handle the task 
+    process: execution unit where a program runs. basic block of system resource management
+        high stability, one failing won't affect others. demand more limited resource
+    
+    Linux use fork() function in os module to start new process    pid=os.fork() (<0 failed, 0 child process, else pid)
+    windows use multiprocessing module process class (__init__(), start(), terminate(), join()) 
+    Windows 
+    from multiprocessing import Process
+    n = 0   # global variable when accessed by a process will create own copy, not shared among other process
+    def task1(n):
+        while True:
+            time.sleep(n)
+            global n   
+            n+=1
+        return n   # needed if there is a callback function
+    def call_back(n):
+        print(n)
+    
+    p = Process(target=task1, name='job 1', args=(1,))   # child process, args can be tuple or list
+    p.start()                             # start and run process
+    print(p.name)  # job 1
+    p.run()                               # run process
+    p.terminate()                         # stop process
+    
+    self-defined process
+    class MyProcess(Process):
+        def __init__(self, name):    # override (optional)
+            super(MyProcess,self).__init__()
+            self.name=name
+        def run(self):     # override
+            time.sleep(1)
+    p = MyProcess('job')
+    
+    process pool: define number of max process n, if current process less than n, create a process, otherwise wait until
+        one process finish, and less than n process. pool will reuse pid when task finish. pool dies if main process die 
+    from multiprocessing import Pool
+    pool = Pool(5)   # max 5 processes 
+    for t in tasks:                                               # call back function execute after task finished          
+        pool.apply_async(task1, args=(t,), callback=call_back)    # async mode won't wait task finish to add next 
+        pool.apply(task1, args=(t,))                        # sync mode won't add new process until first task finished
+    pool.close();                                                 
+    pool.join()   # put pool inside call stack, main process won't stop until pool finish
+    
+    communication among processes  
+    from multiprocessing import Queue
+    q = Queue(5)    # max items inside the queue is 5
+    if not q.full()     # check queue is full or not  
+        q.put('A',timeout=3)      # add item into queue, if larger than max, the process will wait until queue have  
+                                  # empty space, can add timeout to raise error if wait more than 3 seconds
+    if not q.empty():     # check queue is empty or not  
+        print(q.get(timeout=3))    # will wait until have item in queue, can add timeout to raise error 
+    
+    def sender(q):
+        time.sleep(0.5)
+        q.put('message')
+    def receiver(q):
+        while True:
+            try:
+                msg = q.get(timeout=3)
+            except:
+                break
+    q = Queue(5)    # max items inside the queue is 5
+    p1, p2 = Process(target=sender, args=(q,)), Process(target=receiver, args=(q,))
+    p1.start();  p2.start();  p1.join(); p2.join(); print('end')
+    
+    
+    --Multi Threading  (mainly used for time consuming(IO) tasks)
+    Thread is an execution unit that is part of a process. thread is rely on its process
+    threads runs concurrently inside process 
+    thread state: new -> ready -> running -> sleep -> ready -> running -> end
+    import threading
+    ticket = 1000  # default add apply GIL (global interpreter lock) unless large computation
+                    # can cause problem when large number (release GIL when large computation), ticket -=1 is two step 
+                    # process, another thread can enter when second assign step haven't finished
+    t = threading.Thread(target=sender, name='',args=(q,))   # thread object
+    t.start()    # start and run thread, thread can access same global variable
+    t.join()     # put thread inside call stack, main process won't stop until thread finish
+    
+    # to avoid inaccuracy caused by multiple thread using shared resources, lock is introduced
+    lock = threading.Lock()
+    def seller():
+        lock.acquire(timeout=3)   # wait until the other lock holder release lock, timeout avoid deadlock
+        ticket -= 1
+        time.sleep(0.1)
+        lock.release()
+    
+    class MyThread(Thread):
+        def __init__(self, name):    # override (optional)
+        def run(self):   # override
+    # to avoid deadlock, either redo architecture, or add timeout in lock.acquire()
+    
+    import queue
+    def producer(q):
+        for i in range(10):
+            q.put('item')
+            time.sleep(0.5)
+        q.put(None)
+        q.task_done()     # Queue.task_done lets workers say when a task is done. Someone waiting for all the work to be
+                          # done with Queue.join will wait until enough task_done
+    def receiver(q):
+        while True:
+            item = q.get()
+            if item is None:
+                break
+            time.sleep(1)
+        q.task_done()     
+    q = queue.Queue(10)
+    tp,tc = threading.Thread(target=producer,args=(q,)), threading.Thread(target=consumer,args=(q,))  
+    tp.start(); tc.start(); tp.join(); tc.join(); print('end')
+    
+    
+    --Coroutines  (mainly used for time consuming(IO, web) tasks)
+    Coroutines allows to switch task, when the current task (non calculation related) takes longer time 
+    use yield or use greenlet (need specify switch task)  or use gevent (automatically switch task)
+    from greenlet import greenlet
+    import gevent 
+    yield:                           greenlet:                                gevent:  
+    def task1(n):                                                             # monkey.patch_all() ahead of tasks
+        for i in range(n):                                                    # monkey will change the native time module 
+            print(n)
+            yeild                    # gb.switch()  # manual switch to task2  # no need for gevent
+            time.sleep(0.5)
+             
+    g1,g2 = task1(10), task2(5)      # ga = greenlet(task1)                   # g1 = gevent.swpan(task1) 
+    while True:                      # gb = greenlet(task2)                   # g2 = gevent.swpan(task2) 
+        try:                         # ga.switch()                            # g1.join()    # gevent.joinall(g1, g2)
+            next(g1)                                                          # g2.join()
+            next(g2)  # raise error if no next item                                     
+        except:
+            pass
+    
+    
+    --Request
+    import requests  
+    import urllib.request
+    response = requests.get(url) # return string of source code of url
+    content = response.text
+    # response = urllib.request.urlopen(url)
+    # content = response.read()
+    with open('aa.jpg','wb') as ws:
+        ws.write(requests.get(path).content)
+    
     --Others 
     import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
-    isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable
-    
+    isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable 
     
     """
 
-
-
-
+if __name__ == '__main__':
     filename = ''
     s = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     for i in range(5):
@@ -606,25 +782,5 @@ class Review:
     list1 = [1, '2', True]
     print(list1)
 
-    __pin = 'a'
-
-    @property
-    def pin(self):  # must first have getter then setter, instance now can use ph.pin to get and set
-        return self.__pin
-
-    @pin.setter
-    def pin(self, pin):
-        self.__pin = pin
-if __name__ == '__main__':
-    aaa = 1
-    review = Review()
-    review.age = 18
-    print(time.localtime())
-    a = 5 if 6<7 else 3
-    d = datetime.date(2019, 6, 20)
-    now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)
-    random.seed(0)
-    sha224 = hashlib.sha224("hello".encode('utf-8'))
-    print(sha224.hexdigest())
 
 
