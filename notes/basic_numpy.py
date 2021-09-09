@@ -1,4 +1,4 @@
-import numpy as np
+import notes as np
 
 if __name__ == '__main__':
     # create np array

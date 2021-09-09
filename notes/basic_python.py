@@ -685,7 +685,7 @@ class Review:
             except:
                 break
     q = Queue(5)    # max items inside the queue is 5
-    p1, p2 = Process(target=sender, args=(q,)), Process(target=receiver, args=(q,))
+    p1, p2 = Process(target=sender, args=(q,)), Process(target=receiver, args=(q,), daemon=True) #daemon task
     p1.start();  p2.start();  p1.join(); p2.join(); print('end')
     
     
@@ -697,7 +697,7 @@ class Review:
     ticket = 1000  # default add apply GIL (global interpreter lock) unless large computation
                     # can cause problem when large number (release GIL when large computation), ticket -=1 is two step 
                     # process, another thread can enter when second assign step haven't finished
-    t = threading.Thread(target=sender, name='',args=(q,))   # thread object
+    t = threading.Thread(target=sender, name='',args=(q,))   # thread object daemon task
     t.start()    # start and run thread, thread can access same global variable
     t.join()     # put thread inside call stack, main process won't stop until thread finish
     
