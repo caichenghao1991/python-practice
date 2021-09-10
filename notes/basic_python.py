@@ -769,8 +769,19 @@ class Review:
     import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
     isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable 
+    pip install -U pip   # update pip  
+    pip install pymysql==0.9.2   # install specific version
+    pip freeze   # show all dependencies 
+    pip freeze > requirements.txt
+    pip install -r requirements.txt
     
+    # setup mirrors in china
+    cd .pip   ls  cat pip.conf        c:/Users/cai/pip/pip.ini  
+    [global]
+    index-url=https://pypi.doubanio.com/simple
+    #index-url=https://mirrors.aliyun.com/pipy/simple/
     """
+
 
 if __name__ == '__main__':
     filename = ''
