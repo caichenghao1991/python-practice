@@ -214,15 +214,16 @@
     or yum install redis  # older version
 
     redis-server &     # start redis server at backend tcp port 6379    --port 1234
-    redis-server --requirepass 123456 &    # add password     --appendonly yes  change way of saving
-    redis-client  auth password 123456      shutdown nosave
+    redis-server --requirepass 123456 &    # add password     --appendonly yes  change way of saving (aof), default rdb
+        --bind xxx.xxx.xx.xx > redis.log     get ip from ufconfig eth0     save console log to redis.log
     jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
     redis-server redis-5.0.4/redis.conf &   # use config file
-
+    redis-client  auth 123456      shutdown nosave
+    redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
 
     close redis server options: 1. server  ctrl+c    2. kill process # (ps -ef | grep redis)
         3. redis-cli   shutdown  quit
-    redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
+
     #windows
         https://github.com/microsoftarchive/redis/releases    download install Redis-x64-3.0.504.msi
         open redis-server   redis-cli
@@ -237,33 +238,80 @@
     ttl 12345            # (int) 25    check time to live
     mset k1 v1 k2 v2     # add multiple key value key value
     append username potter  # harrypotter   append values to key
-
     get username         # "harrypotter"    (nil): empty value
     getrange username 2 5  # return substring of value  index start 0,   [2,5] rryp
     mget username k1     # get multiple values from keys
-
     incr score           # add one to value of key score
     incrby score 10      # add 10 to value of key score
-
-    hashtable
-    hset dictname dictkey "dictvalue"   # HSET [hash] [field] [value] [field value …]
-                         # return 1 if added, if already exist return 0
-
-
-    save / bgsave        # save immediately    save at background immediately
     exists username      # return 1 if exist key username
     del username         # delete key username
     keys user*           # search key  * match any number character  ? match one character
                          # keys *   show all keys
+    hashtable
+    hset dictname dictkey "dictvalue"   # HSET [hash] [field] [value]
+                         # return 1 if added, if already exist return 0
+    hmset dictname k1 v1 k2 v2   # HMSET [hash] [field] [value] [field] [value]
+    hget dictname k1     # get dictname key k1 value
+    hmget dictname k1 k2     # get dictname key k1 value
+    hkeys dictname       # get dictname all keys
+    hvals dictname       # get dictname all values
+    hgetall dictname     # get dictname all keys
+    hdel dictname k1     # delete k1 v1 of dictname
+
+    list
+    lpush number 10 20 30  # on the left side adding 10 20 30
+    lrange number 0 -1   # "30" "20" "10"  check number index 0 to last
+    lpop number          # "30"  left side remove one item and return
+    lindex number 0      # 1  return the item at index 0, nil if index out of range
+    llen number          # 3  return the length of list number
+
+    set
+    sadd set1 10 20 10 30  # add item to set
+    srem set1 10 20      # remove 10, 20 from set1
+    smembers set1        # "10" "20" "30"  return all set items
+    scard set1           # 3  return count of items
+    sismember set1 10    # 1  true  0 false  check item is inside set
+    sinter set1 set2     # return intersection of sets
+    sunion set1 set2     # return union of sets
+    sdiff set1 set2      # return item only in set1
+    spop set1 2          # randomly delete 2 items in set1 and return
+
+    zset
+    zadd scoreboard 10 a 50 b 30 c  # add items and relative score to z set scoreboard
+    zrange scoreboard 0 -1     # "a" "c" "b"  return item with score small to large
+    zreverange scoreboard 0 -1  # "b" "c" "a"  return item with score large to small
+    zincrby scoreboard 50 a    # add 50 score to a in scoreboard
+
+    geography   (build with zset)
+    geoadd map 100.1 30.2 loc1 100.9 31.2 loc2   # add locations longitude latitude to map
+    geodist map loc1 loc2 km   # return line distance between loc1 and loc2 in km
+    georadius map 100 31 10 km  # "loc1" "loc2"  return locations within 10km radius of given longitude latitude
+        georadius map 100 31 10 km withdist   # result also show distance between given and answer location
+
+    save / bgsave        # save immediately    save at background immediately
+
     type username        # string   return type of key
-                         # redis data type: string, list, array, hashtable
+                         # redis data type: string, list, array, hash, set, zset (ordered set)
     select 1             # change to database 1, default 0. total default 16 databases
     randomkey            # randomly return a key in the database
     dbsize               # return total keys in current database
     flushdb              # empty database, delete all data in current database
     flushall             # delete all data in all databases
 
-    quit         # end redis-cli
-    redis-benchmark  # test speed   40000+ /sec
+    quit /shutdown        # end redis-cli
 
+    redis multi machine read write (master slave)
+    replica>  replicaof 120.33.22.13 6379   # assign this computer to the slave of ip 120.33.22.13 port 6379
+    replica> masterauth 123456    # type in the auth of master
+    or redis-server --replicaof 120.33.22.13 6379  --masterauth 123456 > redis.log &
+        # replica node can't write but can read master's data
+    slave> replicaof no one   # terminate slave state
+
+    master> info replication   # check whether have slaves
+
+    redis-benchmark  # test speed   40000+ /sec
+    redis-check-rdb --fix dumb.rdb  # check and repair dump.rdb for cached data which causing issue after crash
+    redis-check-aof --fix appendonlu.aof   # recover crash aof saving mode
+
+    connection problem: add ip to whitelist in server, check firewall
 """
