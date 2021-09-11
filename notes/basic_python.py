@@ -46,6 +46,7 @@ class Review:
         print("{} is {} years old.".format(name, age))
         print("{0} is {1} years old. I am {1} years old".format(name, age))
         print("{name} is {age} years old.".format(name='Harry', age=10))
+        print(f"{name} is nice")    # name variable is defined ahead
     variable with same string value share the same memory location (reference), but change one won't affect other
     slicing: s[start:end:step]  [start,end) :step is optional.   start, end can be negative, last char has index -1. 
         start, end can be empty, default to 0 and last index
@@ -249,7 +250,7 @@ class Review:
     name = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK' for first return  
     item = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # item: ('JK','1991-10')  put return items in a tuple
     name,date = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK', date is '1991-10' for 2nd return
-    
+        # **{'name':'JK','date':'1991-10'}   # name='JK', date='1991-10'  for parameters
     if immutable variable var, inside function, add: global var    var = 7  to change the global outside variable values
     a = 6; b = []  
     def sum():
@@ -580,6 +581,8 @@ class Review:
     
     --Hashlib
     import hashlib
+    md5, sha224 those are hash functions, generate a unique value, if modified the original data, this value will change 
+        as well. the unique value also known as electronic signature
     md5 = hashlib.md5("hello".encode('utf-8'))      # md5 sha224  sha256 not invertible        base64 is invertible
     print(md5.hexdigest())    #  5d41402abc4b2a76b9719d911017c592     save encoded password in database
     sha224 = hashlib.sha224("hello".encode('utf-8')) 
@@ -734,7 +737,7 @@ class Review:
     tp.start(); tc.start(); tp.join(); tc.join(); print('end')
     
     
-    --Coroutines  (mainly used for time consuming(IO, web) tasks)
+    --Coroutines  (mainly used for time consuming(IO, web) tasks, better than thread in IO)
     Coroutines allows to switch task, when the current task (non calculation related) takes longer time 
     use yield or use greenlet (need specify switch task)  or use gevent (automatically switch task)
     from greenlet import greenlet
@@ -780,6 +783,9 @@ class Review:
     [global]
     index-url=https://pypi.doubanio.com/simple
     #index-url=https://mirrors.aliyun.com/pipy/simple/
+    
+    chinese character encode decode different rule show gibberish code 
+    chinese character show ?? encoding wrong rule
     """
 
 

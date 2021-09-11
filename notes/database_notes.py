@@ -3,19 +3,24 @@
     relation database(SQL): need accuracy Oracle/ MySQL / MariaDB (similar to MySQL)   (row-column, 2d table)
         one line: a record    one column: attribute
         ACID
-        Atomic: All operations in a transaction succeed or every operation is rolled back.
+        Atomic: All operations in a transaction succeed or every operation is rolled back. (transaction)
         Consistent: On the completion of a transaction, the database is structurally sound.
+            instance consistent: ensure no redundancy via primary keys
+            relation consistent: ensure relation holds between instances via foreign keys.
+            field consistent: data consistency, via datatype, length, null check, default value, check constraint
         Isolated: Transactions do not contend with one another. Contentious access to data is moderated
             by the database so that transactions appear to run sequentially.
+            transactions don't know each other's intermediate state
         Durable: The results of applying a transaction are permanent, even in the presence of failures.
 
     non-relational database (NoSQL): faster flexible. MongoDB, Redis (key-value pair, cache),
-        Elasticsearch (search engine)
+        ElasticSearch (search engine)
         BASE
         Basic Availability: The database appears to work most of the time.
         Soft-state: Stores don’t have to be write-consistent, nor do different replicas have to be
             mutually consistent all the time.
         Eventual consistency: Stores exhibit consistency at some later point (e.g., lazily at read time).
+        document (MongoDB, ElasticSearch), key-value (Redis), wide-column, graph store  NoSQL database
 
     SQL: structured query language
         DDL data definition language:  create  drop  alter
@@ -27,6 +32,7 @@
 
     yum install -y mariadb mariadb-server  # install MariaDB
     systemctl start/stop/status mariadb  # start maria server on centos 8
+        # windows  inside bin    mariadbd.exe --console
     netstat -nap | grep 3306   # maria server default port 3306, open 3306 to specific ip, not to public
         process name mysqld: daemon (won't stop system shutdown, close app same time)
 
@@ -53,7 +59,7 @@
         stu_name varchar(20) not null comment 'student name',
         stu_gender bit default 1,    -- add default value
         stu_birth date,
-        tid int auto_increment,  -- auto increment no need specify when inserting
+        tid int auto_increment unique,  -- auto increment no need specify when inserting # unique value
         school_id  int,
         primary key (stu_id),    -- primary key: uniquely identify a record  (ex. id)
         -- foreign key (school_id) references t_school(sch_id)    --many to one
@@ -74,6 +80,9 @@
     alter table t_student add constraint stu_id_sch_id unique(stu_id, sch_id);   # unique constraint
     alter table t_emp add constraint fk_emp_mgr foreign key (mgr) references t_emp(e_id)
     # can reference to attribute in own table (t_emp has e_id and mgr (manager))
+    alter table t_emp add constraint ck_emp_dept check (dept between 0 and 100)
+        # constraint for t_emp.dept [1,100], mysql doesn't support check
+
 
     insert into t_student values (101, 'Harry', 1, '1991-10-30', 'Hogwarts')
     insert into t_student (stu_id, stu_name) values (102, 'Harry Potter')
@@ -168,6 +177,10 @@
     rollback;  # undo all operation
     start transaction
 
+    # one to one relationship
+    alter table t_id_card add constraint fk_card_pid foreign key(pid) reference t_person(p_id);
+    alter table t_id_card add constraint uni_card_pid unique (pid)
+        #pid varchar(20) unique,  during creation
 
     Important notes
     # recommend use lower case for table and database name
@@ -187,16 +200,70 @@
         but not helpful for <>, like '%keyword'
     # index slower insert update delete, faster search. use extra space
 
-    redis.io   redisdoc.commit
+
+    Redis
+    key-value database, save in memory. single thread+ async I/O (Coroutines)
+    high speed cache  (move frequently used data from database to memory)
+    message queue
+
+    redis.io   redisdoc.com
     wget http://download.redis.io/releases/redis-5.0.4.tar
     gunzip redis-5.0.4.tar.gz    tar -xvf redis-5.0.4.tar    cd redis-5.0.4/
     make && make install
     ~     redis-server --version    redis-cli --version        redis-sentinel --version
-    redis-server &     # start redis server at backend tcp port 6379
-    redis-server --requirepass 123456 &    #add password
+    or yum install redis  # older version
+
+    redis-server &     # start redis server at backend tcp port 6379    --port 1234
+    redis-server --requirepass 123456 &    # add password     --appendonly yes  change way of saving
     redis-client  auth password 123456      shutdown nosave
+    jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
+    redis-server redis-5.0.4/redis.conf &   # use config file
+
+
     close redis server options: 1. server  ctrl+c    2. kill process # (ps -ef | grep redis)
         3. redis-cli   shutdown  quit
+    redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
+    #windows
+        https://github.com/microsoftarchive/redis/releases    download install Redis-x64-3.0.504.msi
+        open redis-server   redis-cli
 
+    ping                  # return pong if connected
+
+    String key-value
+    set username harry    # set key value
+    setnx username ronald  # set key value only if key doesn't exist, else do nothing
+    set 12345 100 ex 30  # set key (12345) value (100) which expire in 30 sec
+                         # equivalent to setex 12345 30  100
+    ttl 12345            # (int) 25    check time to live
+    mset k1 v1 k2 v2     # add multiple key value key value
+    append username potter  # harrypotter   append values to key
+
+    get username         # "harrypotter"    (nil): empty value
+    getrange username 2 5  # return substring of value  index start 0,   [2,5] rryp
+    mget username k1     # get multiple values from keys
+
+    incr score           # add one to value of key score
+    incrby score 10      # add 10 to value of key score
+
+    hashtable
+    hset dictname dictkey "dictvalue"   # HSET [hash] [field] [value] [field value …]
+                         # return 1 if added, if already exist return 0
+
+
+    save / bgsave        # save immediately    save at background immediately
+    exists username      # return 1 if exist key username
+    del username         # delete key username
+    keys user*           # search key  * match any number character  ? match one character
+                         # keys *   show all keys
+    type username        # string   return type of key
+                         # redis data type: string, list, array, hashtable
+    select 1             # change to database 1, default 0. total default 16 databases
+    randomkey            # randomly return a key in the database
+    dbsize               # return total keys in current database
+    flushdb              # empty database, delete all data in current database
+    flushall             # delete all data in all databases
+
+    quit         # end redis-cli
+    redis-benchmark  # test speed   40000+ /sec
 
 """
