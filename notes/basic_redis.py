@@ -4,13 +4,13 @@ import redis
 def print_bin(*args):
     for _ in args:
         if type(_) is bytes:
-            print(_.decode())
+            print(_.decode())   # print bytes data
         else:
             try:
                 iterator = iter(_)
-                print([x.decode() for x in _])
+                print([x.decode() for x in _])   # print list of bytes data
             except TypeError:
-                print(_)
+                print(_)       # print normal data
 
 
 def main():

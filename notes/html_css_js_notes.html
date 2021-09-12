@@ -1,0 +1,317 @@
+<!--
+    use WebStorm / HBuilder X (green, standard) for frontend IDE
+    table>tr*4>td*5
+
+    TCP/IP protocol
+    Network layers design (bottom layer service for top layer, top layer only concern own layer function)
+    network interface (most bottom layer): slice data, verify data integrity
+    network (IP): addressing and routing
+    transmission: TCP (handshake and validate data, resend, window size consensus: data transmission speed,
+                        congestion control  )
+                  UDP (faster, no handshake, ex. send video)
+    application: HTTP / SMTP / POP3 / FTP / SSH
+
+    HTML: hyper-text markup language
+    HTTP: hyper-text transfer protocol
+        get: retrieve data from server
+        post: upload to server
+        delete: delete resource on server
+        put: modify resource on server
+        patch: update resource on server
+-->
+
+<!DOCTYPE html>  <!-- document type default html 5 -->
+<!--<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/hrml4/strict.dtd">  html 4 -->
+<!-- html tags: content,   css  render page,  javascript  interaction-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>html css javascript jquery notes</title>
+        <link rel="stylesheet" href="../resources/css/style.css">  <!--outer css, reusable, save band width -->
+        <style type="text/css"></style>  <!-- css: cascading style sheet -->
+
+        <style>   /* style default is css style */
+        /* inner css, faster load, gaurantee work, can be used for index page */
+            /* prioritization on css conflict: closer > further, id > class > tag selector,
+              important is highest priority*/
+              /* inline can't change height, can't have boarder, need change to display:inline-block  */
+            @font-face {      /* custom rare font. when use, specific font-family="my_font";   */
+                font-family: "my_font";
+                src: url('../resources/Pacifico.ttf')
+            }
+            * {
+                font-family: "Times New Roman", Times, serif;
+                margin: 0px;
+                padding: 0;
+            }
+            body {
+                margin: 0px 30px;
+            }
+            h1 {        /* select by tag  */
+                color: #ffff00 !important;  /* important is highest priority*/
+                font-size: 20px; /* em  200% */
+                font-family: "my_font";
+                background-color: grey;
+                text-align: center;
+                margin: 0px auto;  /* top/bottom 0px, left/right auto
+            }
+            .a {          /* select by class a */
+                color: rgba(0, 0, 255, 0.7);
+                letter-spacing: 5px;  /* add space between character */
+                border: 5px dotted black;
+                text-shadow: 2px 2px orange;  /* text shadow */
+                padding-top: 20px;
+                /* padding: 20px 50px; top bot 20px,  left right 50px */
+                /* padding: 20px 30px 50px; top 20px,  left right 30px, bottom 50px */
+                /* padding: 10px 20px 30px 50px;  top 10px, right 20px, bottom 30px, left 50px */
+            }
+            #form {    /* select by unique id */
+                font: italic bold 1.4em/36px "my_font";  /* need specific order, save code */
+                /*font-style: italic;   normal  oblique  inherit  */
+                /*font-weight: bold;   normal  bolder  lighter */
+            }
+            a, p {        /* select multiple item, comma separated */
+                color: black;
+                text-decoration: none;  /* underline; */
+            }
+            a:hover {
+                color: blue;
+                text-decoration: underline;
+            }
+            p:first-letter {  /* first character of first p in the body a */
+                font-size: 100%;
+                color: grey;
+            }
+            input[type=text], input[type=password]{    /* select by attribute */
+                border: none;
+                outline: none;  /* border appeared when cursor move on it */
+                border-bottom: 1px solid black;
+            }
+            form input[type=text]:focus {  /* select by child */
+                border-color: grey;
+            }
+            fieldset~h3 {  /* select by sibling, select h3 same level after fieldset */
+                color:blue;
+            }
+            fieldset+h3 {  /* select by sibling, select h3 beside fieldset */
+                color:green;
+            }
+            p>textarea { /* select by child (not grandchild)  select textarea inside form */
+                border-color: black;
+            }
+            #icon {
+                display:inline-block;  /* block, inline, none.   */
+                /* display none won't take space. visibility: hidden; will still hold the space */
+                /* inline can't change height, can't have boarder */
+                margin:0px;
+                width:30px;
+                height:28px;
+                background: url("../resources/images/hp.jpg") no-repeat no-repeat -58px -29px;
+                /* icon crop from an image with many icons */
+            }
+            table{
+                border: 0px;
+                border-collapse: collapse;
+            }
+            td, th {
+                border: 1px solid black;
+                text-align: center;
+            }
+            table th {
+                width: 20%;
+                color: #0000ff;;
+                overflow: hidden;  /* overflow: scroll; */
+                font-size: 1.5 em;
+                /* hide content after exceed boundary (specified height width) instead of switch to new line */
+            }
+            video {
+                position: relative; /* make the original position as base position and move relative to this position */
+                /* relative position move won't affect other elements  */
+                left: 200px;   /* move to right 200px  */
+                top: -10px;   /* move to top 10px  */
+            }
+            iframe {
+                position: absolute;  /* move relative to its parent position, here is body */
+                /* absolute position move cause bottom element shift up  */
+                left: 700px;
+                top:80px;
+            }
+            #ads {
+                position: fixed;  /* always keep position during scrolling page */
+                /*left: calc(100% - 120px);   always at  120 px from the bottom right corner */
+                /*top: calc(100% - 100px); */
+                right: 30px;  /* move right border left 30 px from the right edge */
+                bottom: 30px; /* move bottom border up 30 px from the bottom edge */
+            }
+            ol>li {
+                float:left;   /* clear: left; to remove float */
+                width: 150px;
+                height:30px;
+            }
+            #test_float {
+                margin: 0px;
+                border: 1px solid black;
+                overflow: auto;
+            }
+
+            ul {
+                list-style-type:none;
+            }
+        </style>
+    </head>
+    <body>
+        <!--browser right click inspect show error and line number in console, elements tab show css error -->
+        <!-- inline element: h1-h6  p  div  ul  ol  dl  table  br form  hr-->
+        <!-- block element: a  img  iframe  button  span  input  sub  em  del-->
+
+        <a name="top"></a>  <!-- anchor point for self direct anchor -->
+        <h1 class="a">HTML CSS JS Notes</h1>  <!-- level one title -->
+        <hr>  <!-- horizontal ruler -->
+        <p>
+
+            <h2><div id="icon"></div>
+            <span style="font-style: italic;color: orange;">Welcome</span> to Hogwarts!</h2>
+            <!-- inline css, not recommended. style="", separated by ; inside "" use '' -->
+            <br>  <!-- br switch line -->
+            <!-- can have multiple class, own both css properties   <span class="a b"> -->
+            H<sub>2</sub><em>O</em> is <del>precious</del>   <!-- <sub> subscript <em> strong  <del> line across-->
+            <!-- paragraph extra padding between line -->
+            <h3>HTML Character Entities</h3>
+            <p>use &ltp&gt or &ltbr&gt to switch line, &nbsp extra space </p>
+            <p> special character: &copy; &reg; &trade;</p>
+            <h3>List</h3>
+            <div id="test_float" >
+            <ol>  <!-- ordered list -->
+                <li>Harry Potter</li>  <!-- list item -->
+                <li>Ronald Weasley</li>
+                <li>Hermione Granger</li>
+            </ol>
+                <!--add clear float so it will expand the test_float div and show boarder-->
+                <!--<div style="clear:left"></div>-->
+                <!-- or add overflow:auto in the test_float div-->
+            </div>
+            <p>
+            <ul>  <!--unordered list-->
+                <li>Gryffindor</li>
+                <li>Hufflepuff</li>
+                <li>Ravenclaw</li>
+                <li>Slytherin</li>
+                <li> <!-- nested list -->
+                    <dl>  <!--definition list-->
+                        <!-- definition title,can be image, image from local file use relative path -->
+                        <dt><figure><img src="../resources/images/Albus_Dumbledore.jpg" width="100">
+                            <!-- better modified size of the pic ahead with photoshop, not in css -->
+                            <figcaption>Albus Dumbledore</figcaption>  <!--add description under image -->
+                        </figure></dt>
+                        <dd>Professor Albus Percival Wulfric Brian Dumbledore</dd>   <!-- definition description -->
+                        <dd>O.M. (First Class), Grand Sorc., D. Wiz., X.J. (sorc.), S. of Mag.Q.</dd>
+                    </dl>
+                </li>
+            </ul>
+            </p>
+            <h3>Table</h3>
+            <table border="1">
+                <caption>Character Strength Table</caption>  <!-- title for table -->
+                <thead>   <!-- optional, no change to result -->
+                    <tr>
+                        <th>name</th>       <!-- main row (bold center) -->
+                        <th>intelligence</th>
+                        <th>skill</th>
+                        <th>reputation</th>
+                        <th>growth</th>
+                    </tr>
+                </thead>
+                <tbody>  <!-- optional, no change to result -->
+                    <tr>
+                        <td rowspan="2">Harry Potter</td>
+                        <td colspan="2">3</td>
+                        <td>10</td>
+                        <td>5</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>8</td>
+                        <td>10</td>
+                        <td>8</td>
+                    </tr>
+                    <tr>
+                        <td>Hermione Granger</td>
+                        <td>9</td>
+                        <td>8</td>
+                        <td>7</td>
+                        <td>7</td>
+                    </tr>
+                </tbody>
+                <tfoot></tfoot>
+            </table>
+            <h3>Anchor</h3>
+            <p><a href="https://www.google.com">  <!-- target="_blank"   # open in a new tab, default "_self" -->
+                <!-- image from web link -->
+                <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="100">
+            </a></p> <!-- can link to local page <a href="html_css_js_notes.html"> -->
+            <p><a href="second_page.html">link to second page</a></p>
+            <p><a href="#top">back to top</a></p>  <!-- anchor link to self anchor point-->
+            <p><a href="second_page.html#top">next page</a> <!-- anchor link to other page anchor point -->
+                &nbsp &nbsp &nbsp
+                <!-- utility anchor, open other software -->
+                <a href="mailto:caichenghao1000@gmail.com">email me</a>
+            </p>
+            <h3>Form</h3>
+            <fieldset>  <!-- add a box surround the content -->
+                <legend id="form">User Profile</legend>  <!-- add name at top left of box -->
+                    <form action="" method="post" enctype="multipart/form-data" >
+                        <!-- method: get/post   action: which function on server will handle the data -->
+                        <!-- need enctype="multipart/form-data" if form have input type="file"-->
+                        <p>Username: <input type="text" name="username" maxlength="20" size="30" required></p>
+                        <!-- required: field can't be empty    maxlength: can't type more than max length
+                            readonly: can't overwrite-->
+                        <!-- server use name option as key to retrieve related data-->
+                        <p>Password: <input type="password" name="password" placeholder="Enter password" required></p>
+                        <p>Gender: <input type="radio" name="gender" value="1" checked>Male
+                            <!-- checked is default selected, server will get 1 for male in the gender item-->
+                                <input type="radio" name="gender" value="0">Female</p>
+                        <p>Skills: <input type="checkbox" name="skill" value="deformation">Deformation
+                                <input type="checkbox" name="skill" value="potion" checked>Potion
+                                <input type="checkbox" name="skill" value="botany">Botany
+                                <input type="checkbox" name="skill" value="magic_defence">Magic Defence</p>
+                        <p>House: <select name="house"><option value="0" selected>Gryffindor</option>
+                            <option value="1">Hufflepuff</option>
+                            <option value="2">Ravenclaw</option>
+                            <option value="3">Slytherin</option></select></p>
+                        <p>Birth: <input type="date" name="birthday"></p>
+                        <p>Email: <input type="email" name="email"></p>
+                        <p>Profile photo: <input type="file" name="photo"></p>
+                        <p>Introduce yourself: <textarea cols="50" rows="5" name="intro" ></textarea></p>
+                        <p><input type="submit" value="submit form"><input type="reset" value="clear form"></p>
+                    </form>
+            </fieldset>
+            <h3>Audio / Video</h3>
+            <p>
+            <audio  controls loop>  <!--autoplay-->
+                <source src="../resources/Harry_Potter_Theme.mp3">
+            </audio>
+            <video width="300" controls>
+                <source src="../resources/Harry_Potter_Trailer.mp4" >
+            </video>
+            </p>
+            <div id="ads"> <img src="../resources/images/hp2.jpg" width="100">
+            <button style="float:right;" onclick="showAuthor()" >X</button>
+            </div>
+
+            <button onclick="showAuthor()">show author</button> <!--when click button run js showAuthor function-->
+            <h3>IFrame</h3>
+            <iframe src="https://maps.baidu.com/" width="400" height="500" frameborder="0"></iframe>
+            <p>end</p>
+
+        </div>
+    <!-- <script type="text/javascript">-->
+    <script>  // script default is javascript
+        function showAuthor(){
+            window.alert('author: Harry Potter');
+        }
+        function closeAds(){
+            window.alert('author: Harry Potter');
+        }
+    </script>
+    </body>
+</html>
