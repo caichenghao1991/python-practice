@@ -18,6 +18,13 @@
         delete: delete resource on server
         put: modify resource on server
         patch: update resource on server
+
+    https://developer.mozilla.org/zh-CN/
+
+    Ajax (Asynchronous JavaScript and XML):
+        asynchronously send request for data in the background, and partial refresh on webpage
+
+
 -->
 
 <!DOCTYPE html>  <!-- document type default html 5 -->
@@ -46,6 +53,7 @@
             }
             body {
                 margin: 0px 30px;
+
             }
             h1 {        /* select by tag  */
                 color: #ffff00 !important;  /* important is highest priority*/
@@ -60,7 +68,7 @@
                 letter-spacing: 5px;  /* add space between character */
                 border: 5px dotted black;
                 text-shadow: 2px 2px orange;  /* text shadow */
-                padding-top: 20px;
+                padding-top: 1px;
                 /* padding: 20px 50px; top bot 20px,  left right 50px */
                 /* padding: 20px 30px 50px; top 20px,  left right 30px, bottom 50px */
                 /* padding: 10px 20px 30px 50px;  top 10px, right 20px, bottom 30px, left 50px */
@@ -76,7 +84,7 @@
             }
             a:hover {
                 color: blue;
-                text-decoration: underline;
+                /* text-decoration: underline; */
             }
             p:first-letter {  /* first character of first p in the body a */
                 font-size: 100%;
@@ -87,17 +95,17 @@
                 outline: none;  /* border appeared when cursor move on it */
                 border-bottom: 1px solid black;
             }
-            form input[type=text]:focus {  /* select by child */
+            form input[type=text]:focus {  /* select by child (grand child) */
                 border-color: grey;
+            }
+            p>textarea { /* select by child (not grandchild)  select textarea inside form */
+                border-color: black;
             }
             fieldset~h3 {  /* select by sibling, select h3 same level after fieldset */
                 color:blue;
             }
             fieldset+h3 {  /* select by sibling, select h3 beside fieldset */
                 color:green;
-            }
-            p>textarea { /* select by child (not grandchild)  select textarea inside form */
-                border-color: black;
             }
             #icon {
                 display:inline-block;  /* block, inline, none.   */
@@ -127,14 +135,14 @@
             video {
                 position: relative; /* make the original position as base position and move relative to this position */
                 /* relative position move won't affect other elements  */
-                left: 200px;   /* move to right 200px  */
-                top: -10px;   /* move to top 10px  */
+                left: 300px;   /* move to right 300px  */
+                top: -70px;   /* move to top 70px  */
             }
             iframe {
                 position: absolute;  /* move relative to its parent position, here is body */
                 /* absolute position move cause bottom element shift up  */
                 left: 700px;
-                top:80px;
+                top:110px;
             }
             #ads {
                 position: fixed;  /* always keep position during scrolling page */
@@ -143,7 +151,7 @@
                 right: 30px;  /* move right border left 30 px from the right edge */
                 bottom: 30px; /* move bottom border up 30 px from the bottom edge */
             }
-            ol>li {
+            ol>li {       /* ol>li:odd , ol>li:even filter by odd.even */
                 float:left;   /* clear: left; to remove float */
                 width: 150px;
                 height:30px;
@@ -153,9 +161,49 @@
                 border: 1px solid black;
                 overflow: auto;
             }
-
             ul {
                 list-style-type:none;
+            }
+            article {
+                width:600px;
+                float: left;
+                padding-right:20px;
+
+            }
+            aside {
+                width:400px;
+                height: 100%;
+                float: left;
+
+
+            }
+            #main {
+                overflow: hidden;
+                height: auto;
+
+            }
+            #footer {
+                background-color: gray;
+                height:30px;
+            }
+            ul>li {
+                width: 150px;
+                border: 1px solid black;
+                border-radius: 3px;
+                margin: 10px 0;
+                padding: 3px;
+                background-color: lightgray;
+            }
+            ul>li>a {
+                float: right;
+            }
+            ul input[type="text"] {
+                width: 100px;
+                margin-right:5px;
+            }
+            .clear {
+                background-color: yellow;
+                height: 13px;
             }
         </style>
     </head>
@@ -163,155 +211,433 @@
         <!--browser right click inspect show error and line number in console, elements tab show css error -->
         <!-- inline element: h1-h6  p  div  ul  ol  dl  table  br form  hr-->
         <!-- block element: a  img  iframe  button  span  input  sub  em  del-->
-
+        <div id="header">
         <a name="top"></a>  <!-- anchor point for self direct anchor -->
         <h1 class="a">HTML CSS JS Notes</h1>  <!-- level one title -->
+        </div>
         <hr>  <!-- horizontal ruler -->
-        <p>
+        <div id ="main">
+            <article>
+                <h2><div id="icon"></div>
+                <span style="font-style: italic;color: orange;">Welcome</span> to Hogwarts!</h2>
+                <!-- inline css, not recommended. style="", separated by ; inside "" use '' -->
+                <br>  <!-- br switch line -->
+                <!-- can have multiple class, own both css properties   <span class="a b"> -->
+                H<sub>2</sub><em>O</em> is <del>precious</del>   <!-- <sub> subscript <em> strong  <del> line across-->
+                <!-- paragraph extra padding between line -->
+                <h3>HTML Character Entities</h3>
+                <p>use &ltp&gt or &ltbr&gt to switch line, &nbsp extra space, &times multiply sign</p>
+                <p> special character: &copy; &reg; &trade;</p>
+                <h3>List</h3>
+                <div id="test_float" >
+                <ol>  <!-- ordered list -->
+                    <li>Harry Potter</li>  <!-- list item -->
+                    <li>Ronald Weasley</li>
+                    <li>Hermione Granger</li>
+                </ol>
+                    <!--add clear float so it will expand the test_float div and show boarder-->
+                    <!--<div style="clear:left"></div>-->
+                    <!-- or add overflow:auto in the test_float div-->
+                </div>
+                <p>
+                <ul>  <!--unordered list-->
+                    <li>Gryffindor<a href="javascript:;">&times</a></li>
+                    <!-- or href="javascript:void(0);"   prevent default action of the element,
+                        here will prevent send to new url or refresh -->
+                    <li>Hufflepuff<a href="javascript:void(0);">&times</a></li>
+                    <li>Ravenclaw<a href="">&times</a></li>
+                    <li>Slytherin<a href="">&times</a></li>
+                    <li> <!-- nested list -->
+                        <dl>  <!--definition list-->
+                            <!-- definition title,can be image, image from local file use relative path -->
+                            <dt><figure><img src="../resources/images/Albus_Dumbledore.jpg" width="100">
+                                <!-- better modified size of the pic ahead with photoshop, not in css -->
+                                <figcaption>Albus Dumbledore</figcaption>  <!--add description under image -->
+                            </figure></dt>
+                            <dd>Professor Albus Percival Wulfric Brian Dumbledore</dd>   <!-- definition description -->
+                            <dd>O.M. (First Class), Grand Sorc., D. Wiz., X.J. (sorc.), S. of Mag.Q.</dd>
+                        </dl>
+                    </li>
+                    <li><input type="text" placeholder="add new item"/><input type="button" value="submit"/></li>
+                </ul>
 
-            <h2><div id="icon"></div>
-            <span style="font-style: italic;color: orange;">Welcome</span> to Hogwarts!</h2>
-            <!-- inline css, not recommended. style="", separated by ; inside "" use '' -->
-            <br>  <!-- br switch line -->
-            <!-- can have multiple class, own both css properties   <span class="a b"> -->
-            H<sub>2</sub><em>O</em> is <del>precious</del>   <!-- <sub> subscript <em> strong  <del> line across-->
-            <!-- paragraph extra padding between line -->
-            <h3>HTML Character Entities</h3>
-            <p>use &ltp&gt or &ltbr&gt to switch line, &nbsp extra space </p>
-            <p> special character: &copy; &reg; &trade;</p>
-            <h3>List</h3>
-            <div id="test_float" >
-            <ol>  <!-- ordered list -->
-                <li>Harry Potter</li>  <!-- list item -->
-                <li>Ronald Weasley</li>
-                <li>Hermione Granger</li>
-            </ol>
-                <!--add clear float so it will expand the test_float div and show boarder-->
-                <!--<div style="clear:left"></div>-->
-                <!-- or add overflow:auto in the test_float div-->
-            </div>
-            <p>
-            <ul>  <!--unordered list-->
-                <li>Gryffindor</li>
-                <li>Hufflepuff</li>
-                <li>Ravenclaw</li>
-                <li>Slytherin</li>
-                <li> <!-- nested list -->
-                    <dl>  <!--definition list-->
-                        <!-- definition title,can be image, image from local file use relative path -->
-                        <dt><figure><img src="../resources/images/Albus_Dumbledore.jpg" width="100">
-                            <!-- better modified size of the pic ahead with photoshop, not in css -->
-                            <figcaption>Albus Dumbledore</figcaption>  <!--add description under image -->
-                        </figure></dt>
-                        <dd>Professor Albus Percival Wulfric Brian Dumbledore</dd>   <!-- definition description -->
-                        <dd>O.M. (First Class), Grand Sorc., D. Wiz., X.J. (sorc.), S. of Mag.Q.</dd>
-                    </dl>
-                </li>
-            </ul>
-            </p>
-            <h3>Table</h3>
-            <table border="1">
-                <caption>Character Strength Table</caption>  <!-- title for table -->
-                <thead>   <!-- optional, no change to result -->
-                    <tr>
-                        <th>name</th>       <!-- main row (bold center) -->
-                        <th>intelligence</th>
-                        <th>skill</th>
-                        <th>reputation</th>
-                        <th>growth</th>
-                    </tr>
-                </thead>
-                <tbody>  <!-- optional, no change to result -->
-                    <tr>
-                        <td rowspan="2">Harry Potter</td>
-                        <td colspan="2">3</td>
-                        <td>10</td>
-                        <td>5</td>
-                    </tr>
-                    <tr>
-                        <td>6</td>
-                        <td>8</td>
-                        <td>10</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>Hermione Granger</td>
-                        <td>9</td>
-                        <td>8</td>
-                        <td>7</td>
-                        <td>7</td>
-                    </tr>
-                </tbody>
-                <tfoot></tfoot>
-            </table>
-            <h3>Anchor</h3>
-            <p><a href="https://www.google.com">  <!-- target="_blank"   # open in a new tab, default "_self" -->
-                <!-- image from web link -->
-                <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="100">
-            </a></p> <!-- can link to local page <a href="html_css_js_notes.html"> -->
-            <p><a href="second_page.html">link to second page</a></p>
-            <p><a href="#top">back to top</a></p>  <!-- anchor link to self anchor point-->
-            <p><a href="second_page.html#top">next page</a> <!-- anchor link to other page anchor point -->
-                &nbsp &nbsp &nbsp
-                <!-- utility anchor, open other software -->
-                <a href="mailto:caichenghao1000@gmail.com">email me</a>
-            </p>
-            <h3>Form</h3>
-            <fieldset>  <!-- add a box surround the content -->
-                <legend id="form">User Profile</legend>  <!-- add name at top left of box -->
-                    <form action="" method="post" enctype="multipart/form-data" >
-                        <!-- method: get/post   action: which function on server will handle the data -->
-                        <!-- need enctype="multipart/form-data" if form have input type="file"-->
-                        <p>Username: <input type="text" name="username" maxlength="20" size="30" required></p>
-                        <!-- required: field can't be empty    maxlength: can't type more than max length
-                            readonly: can't overwrite-->
-                        <!-- server use name option as key to retrieve related data-->
-                        <p>Password: <input type="password" name="password" placeholder="Enter password" required></p>
-                        <p>Gender: <input type="radio" name="gender" value="1" checked>Male
-                            <!-- checked is default selected, server will get 1 for male in the gender item-->
-                                <input type="radio" name="gender" value="0">Female</p>
-                        <p>Skills: <input type="checkbox" name="skill" value="deformation">Deformation
-                                <input type="checkbox" name="skill" value="potion" checked>Potion
-                                <input type="checkbox" name="skill" value="botany">Botany
-                                <input type="checkbox" name="skill" value="magic_defence">Magic Defence</p>
-                        <p>House: <select name="house"><option value="0" selected>Gryffindor</option>
-                            <option value="1">Hufflepuff</option>
-                            <option value="2">Ravenclaw</option>
-                            <option value="3">Slytherin</option></select></p>
-                        <p>Birth: <input type="date" name="birthday"></p>
-                        <p>Email: <input type="email" name="email"></p>
-                        <p>Profile photo: <input type="file" name="photo"></p>
-                        <p>Introduce yourself: <textarea cols="50" rows="5" name="intro" ></textarea></p>
-                        <p><input type="submit" value="submit form"><input type="reset" value="clear form"></p>
-                    </form>
-            </fieldset>
-            <h3>Audio / Video</h3>
-            <p>
-            <audio  controls loop>  <!--autoplay-->
-                <source src="../resources/Harry_Potter_Theme.mp3">
-            </audio>
-            <video width="300" controls>
-                <source src="../resources/Harry_Potter_Trailer.mp4" >
-            </video>
-            </p>
-            <div id="ads"> <img src="../resources/images/hp2.jpg" width="100">
-            <button style="float:right;" onclick="showAuthor()" >X</button>
-            </div>
+                <h3>Table</h3>
+                <table border="1">
+                    <caption>Character Strength Table</caption>  <!-- title for table -->
+                    <thead>   <!-- optional, no change to result -->
+                        <tr>
+                            <th>name</th>       <!-- main row (bold center) -->
+                            <th>intelligence</th>
+                            <th>skill</th>
+                            <th>reputation</th>
+                            <th>growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>  <!-- optional, no change to result -->
+                        <tr>
+                            <td rowspan="2">Harry Potter</td>
+                            <td colspan="2">3</td>
+                            <td>10</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>8</td>
+                            <td>10</td>
+                            <td>8</td>
+                        </tr>
+                        <tr>
+                            <td>Hermione Granger</td>
+                            <td>9</td>
+                            <td>8</td>
+                            <td>7</td>
+                            <td>7</td>
+                        </tr>
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+                <h3>Anchor</h3>
+                <p><a href="https://www.google.com">  <!-- target="_blank"   # open in a new tab, default "_self" -->
+                    <!-- image from web link -->
+                    <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="100">
+                </a></p> <!-- can link to local page <a href="html_css_js_notes.html"> -->
+                <p><a href="second_page.html">link to second page</a></p>
+                <p><a href="#top">back to top</a></p>  <!-- anchor link to self anchor point-->
+                <p><a href="second_page.html#top">next page</a> <!-- anchor link to other page anchor point -->
+                    &nbsp &nbsp &nbsp
+                    <!-- utility anchor, open other software -->
+                    <a href="mailto:caichenghao1000@gmail.com">email me</a>
+                </p>
+                <h3>Form</h3>
+                <fieldset>  <!-- add a box surround the content -->
+                    <legend id="form">User Profile</legend>  <!-- add name at top left of box -->
+                        <form action="" method="post" enctype="multipart/form-data" >
+                            <!-- method: get/post   action: which function on server will handle the data -->
+                            <!-- need enctype="multipart/form-data" if form have input type="file"-->
+                            <p>Username: <input type="text" name="username" maxlength="20" size="30" required></p>
+                            <!-- required: field can't be empty    maxlength: can't type more than max length
+                                readonly: can't overwrite-->
+                            <!-- server use name option as key to retrieve related data-->
+                            <p>Password: <input type="password" name="password" placeholder="Enter password" required></p>
+                            <p>Gender: <input type="radio" name="gender" value="1" checked>Male
+                                <!-- checked is default selected, server will get 1 for male in the gender item-->
+                                    <input type="radio" name="gender" value="0">Female</p>
+                            <p>Skills: <input type="checkbox" name="skill" value="deformation">Deformation
+                                    <input type="checkbox" name="skill" value="potion" checked>Potion
+                                    <input type="checkbox" name="skill" value="botany">Botany
+                                    <input type="checkbox" name="skill" value="magic_defence">Magic Defence</p>
+                            <p>House: <select name="house"><option value="0" selected>Gryffindor</option>
+                                <option value="1">Hufflepuff</option>
+                                <option value="2">Ravenclaw</option>
+                                <option value="3">Slytherin</option></select></p>
+                            <p>Birth: <input type="date" name="birthday"></p>
+                            <p>Email: <input type="email" name="email"></p>
+                            <p>Profile photo: <input type="file" name="photo"></p>
+                            <p>Introduce yourself: <textarea cols="50" rows="5" name="intro" ></textarea></p>
+                            <p><input type="submit" value="submit form"><input type="reset" value="clear form"></p>
+                        </form>
+                </fieldset>
+                <h3>Audio / Video</h3>
+                <p>
+                <audio  controls loop>  <!--autoplay-->
+                    <source src="../resources/Harry_Potter_Theme.mp3">
+                </audio>
+                <video width="300" controls>
+                    <source src="../resources/Harry_Potter_Trailer.mp4" >
+                </video>
+                </p>
+                <div id="ads"> <img src="../resources/images/hp2.jpg" width="100">
+                <button style="float:right;" id="closeAds" >&times</button>
+                </div>
 
-            <button onclick="showAuthor()">show author</button> <!--when click button run js showAuthor function-->
-            <h3>IFrame</h3>
-            <iframe src="https://maps.baidu.com/" width="400" height="500" frameborder="0"></iframe>
-            <p>end</p>
+                <button onclick="showAuthor()">show author</button> <!--when click button run js showAuthor function-->
+                <p class ="clear">end </p>
+                <input type="button" id="clear" value="clear">
+                <p id ="university"> </p>
+                <input type="button" id="async" value="get university">
+            </article>
+            <aside>
+                <h3>IFrame</h3>
+                <iframe src="https://maps.baidu.com/" width="400" height="500" frameborder="0"></iframe>
+            </aside>
+
+
+
+        </div>
+        <div id="footer">
 
         </div>
     <!-- <script type="text/javascript">-->
+        <!-- js code at the end, otherwise page won't load until js is load first -->
+    <!--<script src="../resources/js/jquery-3.3.1.min.js"></script>-->
+    <!-- use cdn load jQuery faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>  // script default is javascript
-        function showAuthor(){
-            window.alert('author: Harry Potter');
-        }
-        function closeAds(){
-            window.alert('author: Harry Potter');
-        }
+        /*
+        Javascript in browser include:
+            ECMAScript  ES6  core grammar
+            BOM (browser object model): window
+            DOM (document oject model): document
+        window object load once page initialized, have many attributes (document,...) and function
+        function(){}   anonymous function
+        */
+
+        /*
+            const pi = 3.14  // constant value can't change
+            var y = parseInt(3 / 2)  // assign variable, get floor of number
+            &&  ||  !
+            let flag = true  // let declared variable only accessible inside { }
+            console.log(!flag)   // false, not flag. print in console
+            if (str)   // true if str not empty, false if str=''
+            1 == '1'  // true, switch type implicitly
+            1 === '1'   // false, don't switch type
+            typeof y  // "number"
+            typeof false  // "boolean"
+            typeof z  // "undefined"  haven't assigned yet
+            typeof [1,2,3]  // "object"
+            typeof function(){}  // "function"
+            typeof Symbol()  //"symbol"
+
+            var r = Math.random() // [0~1) random number   parseInt(Math.random() * size )
+            var st = ` I
+                  like movie`  // multiline string
+            if (str){
+            }
+            var flag = r > 0.5? true : false  // set flag= true if r>0.5 else set flag = false
+            var li = []
+            for(let i = 1; i <= 6; i += 1){
+                li.push(i)
+                let num = li[i]
+                document.write(`<p class="red">${num}</p>`)   // add context in html
+                // document.write('<p class="red">'); document.write(num); document.write('<p>');
+
+                l.splice(i, 1)  // remove 1 item at index i
+                l.splice(i, 2, 100)  // remove 2 items at index i, and replace with 100
+                l.sort((x, y)=> x - y)  //sort from big to small
+            }
+            // for if can write like this if just one line inside:    if (true) console.log(1)
+            li.forEach(function(e){console.log(e)})
+            li.forEach(e => console.log(e))
+            do{
+                console.log(1)
+            }while(1==1)
+
+            switch(case){
+                case 1: console.log(1)
+                    break
+                case 2: console.log(2);break
+                default: console.log('*')
+            }
+
+            function funActivity(para1, para2='default_val'){
+                //function name alphabet number _ $, not start with number
+                const ads = document.getElementById('ads')  //get dom id='ads' element assign to constant
+                ads.textContent = 'Hello'  // change text content
+                img.src='url'   img.title           //change src of image (property inside tag)
+                ads.style.display = 'none'  // change css style
+                ads.style.style.backgroundColor = 'red'  // all css attribute with '-' change to camel case
+                let msg = ads.innerHTML  // return content inside tag, can include tags
+
+                <div id="test"><span style="color:red">test1</span> test2</div>
+                ads.innerHTML  // <span style="color:red">test1</span> test2
+                ads.textContent // test1 test2
+
+                const divList = document.getElementsByTagName('div')  // return a list of items with <div> tag
+                const classList = document.getElementsByClassName('li_left')  // list of items with class="li_left"
+                const email = document.getElementsByName('email')[0]  // first of list of items with name="email"
+                const first = document.getElementById('button').firstChild
+                    // enter also count as child, so don't switch line in html.
+                    // .parentNode: get parent    .previousSibling / .nextSibling   get same level above/below element
+                    // .previousElementSibling / .nextElementSibling   only tag above/below element
+                const first = document.getElementById('ads').children[0] //first children tag, under item id="ads"
+                const img = document.querySelector('#ads>img')  // return one element query by css selector
+                const lis = document.querySelector('#ads>li')  // return elements query by css selector
+                ads.removeChild(lis[0]) // remove parent's child element
+                let li = document.createElement('li')  // create new element
+                ads.appendChild(li) // add element to parent last position
+                ads.insertBefore(li, ads.children[0]) // add element to specific position of parent
+
+                for(var i = 0; i<lis.length;i++){
+                    lis[i].addEventListener('click',function(evt){    // callback function
+                    // when mouse is clicked, browser will call this function with event as parameter
+                    // or use let i = 0 instead of var
+                        //lis[i].addEventListener('click',()=>{})
+                    // or use lis.forEach(li => {li..addEventListener('click',()=>{})
+                    let box = evt.target.firstChild  // evt.target return the item trigger the event
+                    evt.preventDefault()  //prevent default action  ex. <a href=''> won't refresh page
+                    box.checked = !box.checked
+                }
+            }
+
+            window.setInterval(funActivity, 1000)   // no () for function name, interval 1000 millisecond
+             or     setInterval(funActivity, 1000)   // first time run after 1 second
+            let now = new Date()  // current local date and time
+            let year = now.getFullYear()  //getMonth()  Date  Hours  Minutes  Seconds  Day (Sunday is 0)
+
+            // create single object
+            var person = {
+                name: 'Harry Potter',
+                age: 20,
+                fun: function(activity){
+                    alert(this.name + 'like' +activity)
+                }
+            }
+            person.fun('magic')
+
+            // create objects with constructor
+            function Person(name, age){   // constructor function
+                this.name = name
+                this.age = age
+            }
+            Person.prototype.fun = function(){   // bind function to class prototype
+                alert(this.name + 'like' +activity)
+            }
+            let person1 = new Person('Ronald Weasley', 21)
+            person1.fun('magic')
+
+            // create objects with class, es6+ browser supported
+            class Person{
+                constructor(name, age){
+                    this.name = name
+                    this.age = age
+                }
+                fun(activity){
+                    alert(`${this.name} like ${activity}`)
+                }
+            }
+
+
+            debug inside browser:
+            right click inspect -> sources tab -> click on js file -> click on line number add break point
+            -> step (one line down), step over jump to next line no matter has inner function, step into function,
+            step out of function -> inside scope show variable and value
+            -> resume will jump to next breakpoint if any -> click on line number again remove breakpoint
+        */
+        window.addEventListener('load',()=>{    // equivalent to main function, avoid global variable
+            // or (() => { alert('')})()
+            function showAuthor(){
+                var age = parseInt(prompt('type your age: '))
+                if ( age >= 0 && age < 20){
+                    let x = age
+                    window.alert('author: Harry Potter, older than you');
+                }else{
+                    window.alert('author: Harry Potter, younger than you');
+                }
+            }
+
+            var btn = document.getElementById('closeAds')
+            btn.addEventListener('click',function(){
+                var ads = document.getElementById('ads')
+                ads.style.display = 'none'
+            })
+
+            const img = document.querySelector('#ads>img')
+            const imgNames = ['hp2.jpg','hp3.jpg']
+            var index = 0
+
+            function switchImage(){
+                index %= imgNames.length
+                img.src = "../resources/images/" + imgNames[index]
+                index ++
+            }
+
+            var timerChange = setInterval(switchImage,3000)
+            img.addEventListener('mouseover', () => clearInterval(timerChange))
+            img.addEventListener('mouseout',()=>{timerChange = setInterval(switchImage, 3000)})
+
+            var ul = document.getElementsByTagName('ul')[0]
+            var anchors = document.querySelectorAll('ul>li>a')
+            anchors.forEach(a=>{
+                a.addEventListener('click',(evt) =>{
+                    // <a href="">
+                    evt.preventDefault()   // <a href="javascript:;"> or href="javascript:void(0);"
+                    ul.removeChild(a.parentNode)
+                })
+            })
+            var addBtn = document.querySelector('ul>li>input[type="button"]')
+            var text = addBtn.previousElementSibling
+            function addList(){
+                let name = text.value.trim()
+                if (name.length > 0){
+                    let li = document.createElement('li')
+                    li.textContent = name
+                    //ul.appendChild(li)
+                    ul.insertBefore(li, text.parentNode)
+                    text.value = ''
+                    text.focus()  // text.blur()
+                }
+            }
+
+            addBtn.addEventListener('click', addList)
+            text.addEventListener('keypress', (evt) => {
+                let code = evt.keyCode || evt.which
+                if (code == 13){
+                   addList()
+                }
+            })
+
+            let xhr = new XMLHttpRequest()  //create asynchronous request object
+            const request_content = document.getElementsByClassName('clear')[0]
+            // open parameters: request type, url, whether asynchronous (true)
+            xhr.open('get', 'http://universities.hipolabs.com/search?country=United+States',true)
+            // add callback function when finish receiving data
+            xhr.addEventListener('readystatechange',() =>{
+                if(xhr.readyState == 4 && xhr.status == 200){
+                    //request_content.textContent = xhr.responseText
+                    let json = JSON.parse(xhr.responseText)
+                    json.forEach((item) => {
+                        console.log(item.name)
+                        let p = document.createElement('span')
+                        p.textContent = item.name + "\t"
+                        request_content.appendChild(p)
+                    })
+                }
+            })
+            xhr.send() // send asynchronous request
+
+        })
+
+        //jQuery
+        // alert($)    show f(e,t){return new w.fn.init(e,t)}   means loading jquery successfully
+        // on: add event  off: remove event    one: respond only one time
+        // 1. $() parameter is anonymous function, input is callback function when browser after finish loading
+        $(() => {        // equivalent to main function, avoid global variable
+            // 2. $() parameter is css selector, acquire a jquery object with for the selected dom element
+            // jQuery object containing the native javascript object
+            $('#icon').on('mouseover',() => {
+                $('#icon').css('border','1px solid red')
+                //$('#icon').css({"background-color": "yellow", "font-size": "200%"})
+                })
+            $('#clear').on('mouseover',() => {
+                $('.clear').empty()   // clear text content
+             }).on('click',() => {
+                $('.clear').remove()   // remove content
+                $('#async').prev().empty()
+             }).on('mouseout',() => {
+                // 3. $() parameter is a html tag, create this tag and return as jquery object
+                $('.clear').append($('<p>').text('new line')).append($('<p>').html("<span>see you later</span>"))
+                // $('<p>').prepend($('<img>').attr('src', str))
+             })
+            $('form input').on('focus', (evt) => {
+                // 4. $() parameter is native js object, return corresponding jquery object
+                $(evt.target).parent().css({'color':'gray','font-weight':'bold'})  //.parent() get parent object
+                // .prev()  get previous sibling
+                // evt.stopPropagation()  stop default action of element
+            }).on('blur', (evt) => {
+                $(evt.target).parent().css({'color':'black','font-weight':'normal'})
+            })
+
+            $('#async').on('click', (evt) => {
+                $.getJSON('http://universities.hipolabs.com/search?country=United+States', (json)=>{
+                    json.forEach((item) =>{
+                        $(evt.target).prev().append('<span>'+item.name+'\t</span>');
+                    })
+                })
+
+
+            })
+        })
+
     </script>
     </body>
 </html>
