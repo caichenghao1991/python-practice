@@ -6,7 +6,7 @@ if __name__ == '__main__':
     print(a)  # [[1 2 3][4 5 6]]
     b = np.asarray([[1, 2, 3], [4, 5, 6]])
     b = a  # a and b are two names for the same ndarray object
-    c = a.view()  # c is a view of the data owned by a, c resize won't change a, but change entry value will change a
+    c = a.view()  # c is a views of the data owned by a, c resize won't change a, but change entry value will change a
     d = a.copy()  # d doesn't share anything with a
 
     # asarray like array, except it has fewer options, and copy=False. array has copy=True by default.

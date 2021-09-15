@@ -39,6 +39,7 @@ def insert(emp_list, conn):
 
 
 def select(conn):  # cursor default return tuple
+    data = []
     try:
         with conn.cursor() as cursor:
             cursor.execute('select d_id, d_name, d_address from t_dept')
@@ -47,11 +48,13 @@ def select(conn):  # cursor default return tuple
                 print(f'department name: {r[1]}')
                 print(f'department address: {r[2]}')
                 print('-' * 20)
+                data.append(r)
     except pymysql.MySQLError as error:
         print(error)
-
+    return data   # [(1, 'Information Technology', 'Hogwarts'),...]
 
 def select2():  # cursor return dictionary with cursorclass
+    data=[]
     conn = pymysql.connect(host='localhost', port=3306, user='cai', password='123456',
                            database='company', charset='utf8', cursorclass=pymysql.cursors.DictCursor)
     # default cursor return tuple, add cursorclass=pymysql.cursor.DictCursor to change to list of dictionary
@@ -65,11 +68,12 @@ def select2():  # cursor return dictionary with cursorclass
                 dept = Department(**r)
                 print(dept)
                 print('*' * 20)
+                data.append()
     except pymysql.MySQLError as error:
         print(error)
     finally:
         conn.close()
-
+    return data  # {'d_id': 1, 'name': 'Information Technology', 'address': 'Hogwarts'}
 
 def insert0(conn):
     try:

@@ -29,8 +29,8 @@
 
     frontend MVC frame work:  Vue.js
     M  model  (data)
-    V view  (presented page)
-    C controller   (link between model and view)
+    V views  (presented page)
+    C controller   (link between model and views)
 
 
 -->
@@ -495,6 +495,7 @@
                 const first = document.getElementById('ads').children[0] //first children tag, under item id="ads"
                 const img = document.querySelector('#ads>img')  // return one element query by css selector
                 const lis = document.querySelector('#ads>li')  // return elements query by css selector
+                word = document.querySelector('#input').innerText  // get text inside #input
                 ads.removeChild(lis[0]) // remove parent's child element
                 let li = document.createElement('li')  // create new element
                 ads.appendChild(li) // add element to parent last position
@@ -510,6 +511,10 @@
                     evt.preventDefault()  //prevent default action  ex. <a href=''> won't refresh page
                     box.checked = !box.checked
                 }
+                window.location.replace("b.html");   // http redirect
+                window.open('/harry', target='_self')
+                self.location='b.html';
+                window.location.href="b.html"
             }
 
             window.setInterval(funActivity, 1000)   // no () for function name, interval 1000 millisecond
@@ -742,7 +747,7 @@
                 }
             })
         })
-
+        // $(location).attr('href', 'http://www.baidu.com');
     </script>
     </body>
 </html>

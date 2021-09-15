@@ -129,12 +129,12 @@
     create index idx_stu_name on t_student(stu_name);   # use extra space, constant search time
     drop index idx_stu_name on t_student;
 
-    # create view  (snapshot of select query, create a temp table from query, query reuse (shorter code),
+    # create views  (snapshot of select query, create a temp table from query, query reuse (shorter code),
         limit visible column)
-    create view vw_stu_sch as
+    create views vw_stu_sch as
     select stu_name, univ_name from t_student t1 inner join t_school t2 on t1.school_id=t2.school_id;
     select * from vw_stu_sch
-    drop view vw_stu_sch
+    drop views vw_stu_sch
 
     # procedure   can't return value inside procedure, put return output inside input parameter
     # faster than use query, since answer is compiled andoptimized ahead
@@ -186,7 +186,7 @@
     # recommend use lower case for table and database name
     # data search result case sensitive or not depends on collate rules during database creation
         # utf8_general_ci not case sensitive,  utf8_bin  is case sensitive
-    # database object name better use prefix to distinguish: table, view, index, function, procedure, trigger
+    # database object name better use prefix to distinguish: table, views, index, function, procedure, trigger
     # not recommend use in, not in, distinct. consider use exists, no exists
     select 'x'  #'x'    select 'x' from dual  # 'x'  table dual is unique non exist table
     select 'x' from t_student  # how many row is how many 'x'
