@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+{% macro input(macroId, placeholder) %}
+    <input type=text id="input_{{macroId}}" placeholder="{{placeholder}}" class="input_field">
+{% endmacro %}
+{% macro menu(text) %}
+    <ul>
+        <li>Gryffindor</li>
+        <li>Hufflepuff</li>
+        <li>Ravenclaw</li>
+        <li>Slytherin</li>
+        <li>{{ text }}</li>
+    </ul>
+{% endmacro %}
+<!--{{ menu('a') }}-->
+</body>
+</html>

@@ -200,6 +200,15 @@
         but not helpful for <>, like '%keyword'
     # index slower insert update delete, faster search. use extra space
 
+    conn = pymysql.connect(host='localhost', port=3306, user='cai', password='123456',
+                           database='company', charset='utf8')
+    with conn.cursor() as cursor:
+        cursor.execute('SELECT * from table where id = %(some_id)d', {'some_id': 1234})
+        result = cursor.execute("INSERT INTO t_emp VALUES(%s,%s,%s,%s,%s, %s,%s,%s)",
+                    (int(e['id']), e['name'], int(e['gender']), int(e['mgr']), float(e['salary']),
+                     e['address'],e['birth'],int(e['dept'])))
+
+
 
     Redis
     key-value database, save in memory. single thread+ async I/O (Coroutines)

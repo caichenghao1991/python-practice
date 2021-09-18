@@ -102,6 +102,7 @@ def insert2(conn):
     except pymysql.MySQLError as error:
         print(error)
         conn.rollback()
+
     ''' 
          CREATE DATABASE company;
          USE company;

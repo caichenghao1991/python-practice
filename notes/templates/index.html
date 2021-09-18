@@ -1,0 +1,21 @@
+
+{% from "content.html" import menu with context %}
+
+{% extends "base.html" %}
+{% block title %} {{ super() }} {% endblock %}</title>
+{% block content %}
+<div>
+    <p>{{ session.login.school }}</p>
+    <p>{{ student.name }}</p>
+    <p>My Contacts:</p>
+    <ul>
+        {% for item in house %}
+         <li {% if loop.index % 2 != 0 %}class="odd" {% endif %}> {{ item }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{{ menu('a') }}
+{% endblock %}
+
+
+

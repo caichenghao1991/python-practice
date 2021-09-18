@@ -494,7 +494,7 @@
                     // .previousElementSibling / .nextElementSibling   only tag above/below element
                 const first = document.getElementById('ads').children[0] //first children tag, under item id="ads"
                 const img = document.querySelector('#ads>img')  // return one element query by css selector
-                const lis = document.querySelector('#ads>li')  // return elements query by css selector
+                const lis = document.querySelectorAll('#ads>li')  // return elements query by css selector
                 word = document.querySelector('#input').innerText  // get text inside #input
                 ads.removeChild(lis[0]) // remove parent's child element
                 let li = document.createElement('li')  // create new element
