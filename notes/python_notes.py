@@ -166,7 +166,8 @@ class Review:
     a, b,*c = my_tuple   # 1   2   [3,'x']
     my_tuple.count('x')  #1      my_tuple.index(1)   #0     len(my_tuple)   #4
     t = tuple(list1)  # convert list1 to tuple
-    from collections import namedtuple  # hashable named tuple variation
+    from collections import namedtuple  # hashable named tuple variation   
+    can use tuple.key to get value
     
     
     --Dictionary

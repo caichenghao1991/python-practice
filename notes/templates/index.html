@@ -7,12 +7,19 @@
 <div>
     <p>{{ session.login.school }}</p>
     <p>{{ student.name }}</p>
+
     <p>My Contacts:</p>
     <ul>
         {% for item in house %}
          <li {% if loop.index % 2 != 0 %}class="odd" {% endif %}> {{ item }}</li>
         {% endfor %}
     </ul>
+    <ul>
+        {% for item in dept %}
+         <li> {{ item }}</li>
+        {% endfor %}
+    </ul>
+
 </div>
 {{ menu('a') }}
 {% endblock %}

@@ -50,6 +50,8 @@
     return render_template('register_student.html', **data)   # , student=student
     # this will file the html {{ school }} {{ session.login.school }} {{ student.name }} with content
 
+    tests need add app.app_context().push()
+
     Filter process in html
     Welcome to {{school|reverse|upper|capitalize}}</h2> <!--{{school|capitalize}} title, trim    -->
     # default('value')   set default value if not specified
@@ -165,6 +167,71 @@
         correctly and avoid SQL injection
     using ORM link models(entries) to database tables, instances to rows, attributes to columns. operations on models
         is equivalent to operations in database
+    def save(entity):
+        print(dir(entity),[a for a in dir(entity) if not a.startswith('__')])  # print object normal attribute
+        print(entity.__dict__, {a:getattr(entity,a) for a indir(entity) if not a.startswith('__')}}
+        sql = "insert into %s(%s) values (%s)"
+        table = entity.__class__.__name__.lower()
+        columns = ','.join([c for c in user.__dict__])
+        placeholder = ','.join(["%%(%s)s" % c for c in user.__dict__])
+        sql = sql % (table, columns, placeholder)
+
+    check package __init__ for configuration
+    link to database path: dialect+driver://user:password@ip:port/db?charset=utf-8
+    inside settings.DEV  add
+        SQLALCHEMY_DATABASE_URI = 'mysql+pymsql://cai:123456@127.0.0.1:3306/company?charset=utf-8'
+        SQLALCHEMY_TRACK_MODIFICATIONS = True      # coexist with previous version
+        SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # commit transaction when destroy resources
+        SQLALCHEMY_ECHO = True       # display debug sql message
+
+    same as app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://cai:123456@127.0.0.1:3306/company'
+
+    inside  __init__.py for models directory
+    from flask-sqlalchemy import SQLAlchemy
+    db = SQLAlchemy()
+
+    entity class
+    class Emp(db.Model): #default class name is table name
+        d_id = db.column(db.Integer, primary_key=True)  # default column name is attribute name  #, autoincrement=True
+        name = db.column('d_name', db.String(50))  # default column name is attribute name  #, add 'd_name' to change name
+        d_address = db.column(db.String(100))     # ForeignKey('school.id'),       unique=True, nullable=False
+            # server_default=text('NOW()') default value for table      default=0  default for model attribute
+        # db.Text  db.Unicode  db.Date  db.DateTime   db.Boolean  db.Float
+
+    main script
+    from models.dept import t_dept
+    from models import db
+    app.config.from_object(settings.Dev)   # read flask config from file
+    db.init_app(app)
+
+    db.session.add(t_dept(10,'a','Hogwarts'))  # insert
+    t_dept.name = 'Gryffindor'  # update value, no need to commit
+    db.session.delete(t_dept.query.get(10))  #delete
+    db.session.commit()
+    t_dept.query.get(10)  # query by id
+    t_dept.query.all()   # find all       t_dept.query.count()   # total counts
+    print(t_dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
+    print(t_dept.query.filter(db.or_(t_dept.d_name.startswith('Inf'), t_dept.d_name == 'magic')).all())  # db.not_
+    for d in t_dept.query.filter(t_dept.d_name.contains('ryf')):  # startswith  endswith
+    for d in t_dept.query.filter(t_dept.id.__ge__(5)):  # startswith  endswith
+
+    for d in db.session.query(t_dept).all()  # return list of object
+    db.session.query(t_dept.id,t_dept.d_name)  # return list of namedtuple
+    for d in db.session.query(t_dept.id,t_dept.d_name).filter(t_dept.d_name.like('%ryf%')).all():  # one()
+        # session search, only for specific columns    filter use all(),one()     query use first(), all(), get(id)
+    order_by(t_dept.d_name, t_dept.d_address.desc())  # order by name if same then order by address, default asc()
+        can be used  after session.query and query, before or after filter
+    for d in t_dept.query.order_by(t_dept.id).offset(3).limit(3).all():  # paging   limit offset
+        can be used  after session.query and query, before or after filter, must after order_by
+    # from sqlalchemy import func
+    count = db.session.query(db.func.count(t_dept.d_id)).first()
+    count = db.session.query(t_dept.d_name, db.func.count(t_dept.d_id).label('cnt')).group_by(t_dept.d_name)
+        .having(db.func.sum(db.Column('cnt').__ge__(2)).order_by(db.Column('cnt').desc()).all()
+        # label: add alias  group_by return tuple
+
+
+    add \ to switch line
+
 
 """
 import sys
@@ -182,7 +249,7 @@ class Student:
     def __init__(self, name, age):
         self.name= name
         self.age=age
-def app(env, make_response):
+def app1(env, make_response):
     """
         PATH_INFO  (request path, start with /)
         REQUEST_METHOD (get, post, patch, delete, update)
@@ -264,9 +331,12 @@ def app2():
 
     # no need write out the path (emp/show/<data>), dynamically generate url_prefix
     # data is the input parameter of display request path
-
+    from models.dept import t_dept
+    from flask_sqlalchemy import SQLAlchemy
     app.config.from_object(settings.Dev)   # read flask config from file
-
+    from models import db
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://cai:123456@127.0.0.1:3306/company'
+    db.init_app(app)
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():
@@ -314,9 +384,30 @@ def app2():
     @app.route('/', methods=['GET', 'POST'])
     def index():
         student = Student('Harry Potter', 10)
-        data = {'house': ["Gryffindor","Hufflepuff","Ravenclaw","Slytherin"],'app':'app','student':student}
-
+        data = {'house': ["Gryffindor","Hufflepuff","Ravenclaw","Slytherin"], 'student': student,
+                'dept': t_dept.query.all()}
         session['login'] = {'school': 'Hogwarts'}
+
+        dept = t_dept(10, 'a', 'Hogwarts')
+        db.session.add(dept)
+        db.session.commit()
+        dept.d_name = 'Gryffindor'  # update commit automatically
+        db.session.delete(t_dept.query.get(10))
+        db.session.commit()
+        print(t_dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
+        print(t_dept.query.filter(db.or_(t_dept.d_name.startswith('Inf'), t_dept.d_name == 'magic')).all())  # db.not_
+        for d in t_dept.query.filter(t_dept.d_name.contains('ryf')):  # startswith  endswith
+            print(d)
+        for d in t_dept.query.filter(t_dept.id.__ge__(5)):  # startswith  endswith
+            print(d)
+        for d in db.session.query(t_dept.id,t_dept.d_name).filter(t_dept.d_name.like('%ryf%')).all(): # session search
+            print(d)
+        for d in t_dept.query.order_by(t_dept.id).offset(3).limit(3).all():  # paging
+            print(d)
+        print(db.session.query(db.func.count(t_dept.id)).first())
+        print(db.session.query(t_dept.d_name, db.func.count(t_dept.id).label('cnt')).group_by(t_dept.d_name) \
+        .having(db.func.sum(t_dept.id).__ge__(2)).order_by(db.Column('cnt').desc()).all())
+
         return render_template('index.html', **data)
 
     @app.errorhandler(404)
@@ -337,6 +428,7 @@ def app3():
     app.config.from_object(settings.Dev)  #  add secret_key, redis config
     server_session = Session()  # flask_session.Session, used for save session in server db/cache.
     server_session.init_app(app)
+
 
     @app.route('/stundent', methods=['GET', 'POST'])
     def regist_stundent():
@@ -380,14 +472,15 @@ if __name__ == '__main__':
     opt = int(input('python server: enter option(1-3): 1. native python   2. flask   3. flask mtv'))
     if opt == 1:    # http://localhost:8000/
         # native python web server
-        httpd = make_server('127.0.0.1', 8000, app)  # http daemon
+        httpd = make_server('127.0.0.1', 8000, app1)  # http daemon
         httpd.serve_forever(poll_interval=0.5)  # interval 0.5sec for listen response thread end
 
     elif opt == 2:    # http://localhost:5000/login?magic=yes
-        app2 = app2()
-        app2.run(host="localhost", port=5000)   # default single thread single process(extendable)
+        app = app2()
+        app.run(host="localhost", port=5000)   # default single thread single process(extendable)
                                                 # threaded=True  # processes=4   can't use both same time
     elif opt == 3:
-        app3 = app3()  # http://localhost:5000/stundent
-        app3.run(host="localhost", port=5000, debug=True, threaded=True)
+        app = app3()  # http://localhost:5000/stundent
+        app.run(host="localhost", port=5000, debug=True, threaded=True)
             # debug mode, change in code will restart server, will show error
+

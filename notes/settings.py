@@ -11,3 +11,11 @@ class Dev():
 
     # STATIC_URL_PARH = '/static'
     # STATIC_FOLDER = '/resource'
+
+    # sqlalchemy database orm
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://cai:123456@127.0.0.1:3306/company'
+    SQLALCHEMY_TRACK_MODIFICATIONS = True      # coexist with previous version
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # commit transaction when destroy resources
+    #SQLALCHEMY_ECHO = True       # display debug sql message
+class Prod():
+    pass
