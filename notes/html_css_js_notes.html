@@ -332,7 +332,8 @@
                     <legend id="form">User Profile</legend>  <!-- add name at top left of box -->
                         <form action="" method="post" enctype="multipart/form-data" >
                             <!-- method: get/post   action: which function on server will handle the data -->
-                            <!-- need enctype="multipart/form-data" if form have input type="file"-->
+                            <!-- need enctype="multipart/form-data" if form have input type="file"
+                                default is application/x-www-form-urlencoded. encoded before send -->
                             <p>Username: <input type="text" name="username" maxlength="20" size="30" required></p>
                             <!-- required: field can't be empty    maxlength: can't type more than max length
                                 readonly: can't overwrite-->

@@ -4,7 +4,7 @@ import requests
 import unittest
 from flask_notes import *
 from models import db
-from models.dept import t_dept
+from models.dept import Dept
 
 class TestEmp(unittest.TestCase):
 

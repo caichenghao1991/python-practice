@@ -1,6 +1,7 @@
 from models import db
 
-class t_dept(db.Model):
+class Dept(db.Model):
+    __tablename__ = 't_dept'
     id = db.Column('d_id', db.Integer, primary_key=True)
     d_name = db.Column(db.String(50))
     d_address = db.Column(db.String(100))

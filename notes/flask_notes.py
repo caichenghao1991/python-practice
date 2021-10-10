@@ -34,13 +34,13 @@
     request.method:  upper case request method
     request.base_url: url not including get parameter (after ?),  host_url: only ip and port,  path: routing path /find
         remote_addr: client ip
-
+      request.get_json()
     both request and response have headers and bodies
     response = requests.request(method, url)   # requests are used for testing, simulate browser send request
     response is the return object in the views functions
     from flask import render_template   (based on Jinja2 package)
-    app = Flask(__name__, template_folder=template_folder, static_folder='resource')  # set templates folder location, if
-        not under same parent and folder name is templates. static default folder is same parent, and named static
+    app = Flask(__name__, template_folder=template_folder, static_folder='resource')  # set templates folder location,
+        if not under same parent and folder name is templates. static default folder is same parent, and named static
         static_url_path='static'  default is /    # add request prefix for static folder item
         <link rel="stylesheet" href="/static/css/my.css">  to access the css file in resource/css folder
         same as set in config file: STATIC_FOLDER = '/resource'   STATIC_URL_PARH = '/static'
@@ -167,6 +167,7 @@
         correctly and avoid SQL injection
     using ORM link models(entries) to database tables, instances to rows, attributes to columns. operations on models
         is equivalent to operations in database
+    DAO
     def save(entity):
         print(dir(entity),[a for a in dir(entity) if not a.startswith('__')])  # print object normal attribute
         print(entity.__dict__, {a:getattr(entity,a) for a indir(entity) if not a.startswith('__')}}
@@ -193,16 +194,24 @@
     entity class
     class Emp(db.Model): #default class name is table name
         d_id = db.column(db.Integer, primary_key=True)  # default column name is attribute name  #, autoincrement=True
-        name = db.column('d_name', db.String(50))  # default column name is attribute name  #, add 'd_name' to change name
+        name = db.column('d_name',db.String(50))  # default column name is attribute name #, add 'd_name' to change name
         d_address = db.column(db.String(100))     # ForeignKey('school.id'),       unique=True, nullable=False
             # server_default=text('NOW()') default value for table      default=0  default for model attribute
         # db.Text  db.Unicode  db.Date  db.DateTime   db.Boolean  db.Float
+
+    class BaseModel(db.Model):  parent class used for extend
+        __abstract__ = True  # won't create table
+        id = Column(Integer, primary_key=True,autoincrement=True)
+    class Child(BaseModel):
+        __tablename__='role'  # change table name
 
     main script
     from models.dept import t_dept
     from models import db
     app.config.from_object(settings.Dev)   # read flask config from file
     db.init_app(app)
+    db.create_all()   # create table for models  need import model before calling method
+    db.drop_all()   # delete table for models
 
     db.session.add(t_dept(10,'a','Hogwarts'))  # insert
     t_dept.name = 'Gryffindor'  # update value, no need to commit
@@ -229,26 +238,97 @@
         .having(db.func.sum(db.Column('cnt').__ge__(2)).order_by(db.Column('cnt').desc()).all()
         # label: add alias  group_by return tuple
 
+    join search
+    db.session.query(t_emp.e_name, t_dept.d_name).filter(t_emp.e_dept == t_dept.d_id)
+    join()  outerjoin()  need foreign_keys
+
+    db.Column() methods:  label()  desc()  asc()  startswith()  endswith()  like()  contains()  le()  lt()
+        ge()  gt()  eq()  in_()  notin_()  isnot()
+
+    relationship
+    setup foriegn keys/ relation at many side table/entity
+    t_emp:
+        e_dept = db.Column(db.Integer, db.ForeignKey('t_dept.id'))
+        dept = db.relationship(t_dept, backref='emps')  # backref inverse search
+            #  db.relationship(t_dept, backref=db.backref('emps', lazy=True))  # default is lazy load
+                # lazy=False will use outer join fetch both table
+    dept = t_dept.query.get(1)
+    print(dept.emps)  #  inverse search, specified in relationship parameter
+    for emp in dept.emps:
+        print(emp.dept.d_name)   # dept specified in relationship output
+
+    for many to many relationship, create table for relationship
+    emp_dept = db.Table('emp_dept', Column('e_id',Integer, ForeignKey('t_emp.e_id')), Column('d_id',Integer,
+        ForeignKey('t_dept.id')) )   # 'emp_dept' table name
+    emp:
+        depts = db.relationship(t_dept, secondary=emp_dept)  # secondary for many to many relationship table
+
+
+    app.logger.info('student: %s -> school: %s' % (student, school))
+    noset, debug, info, warning, error, critical
+    can delete flask logger and use customized handler:
+        logging.StreamHandler/FileHandler       logging.handlers.HttpHandler/SMTPHandler
+
+        logger = logging.getLogger('learn_api')
+        def config_log():
+            fmt = Formatter(fmt='%(asctime)s %(name)s %(levelname)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S' )
+            io_handler = StreamHandler()
+            file_handler = FileHandler('app.log')  # file name for logging
+            file_handler.setLevel(logging.WARN)
+            file_handler.setFormatter(fmt)
+            http_handler = HTTPHandler(host='localhost:5000', url='/log',method='POST')
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(http_handler)
+        config_log()
+        logger.info('test')  # warning  error  critical
+
+        app.logger.removeHandler(default_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+
+    cache use redis or
+    flask Cache decorators  @cache.cached(timeout=xxx)
+    cache functions:  init_app(app)   get()  set()  add()  get_many()  set_many()  delete_many()  clear()
+    cached(timeout=None, key_prefix='view/%s',
+
+    @app.before_first_request
+    @app.before_request
+    @app.after_request
+    @app.teardown_request
+
+    @app.after_request     # specify common logic after recieving a request
+    def foot_log(environ):
+        if request.path != "/login":
+            print("some one visited",request.path)
+        return environ
+
+    flask-RESTful
+    flask-sqlacodegen
 
     add \ to switch line
 
 
+    environment
+    virualenv (small)   conda   docker
+
 """
-import sys
+import uuid
 from wsgiref.simple_server import make_server
 import os
-from flask import Flask, render_template, jsonify, make_response, session
+from flask import Flask, render_template, make_response, session, jsonify
 from flask import request
-from flask.cli import FlaskGroup
 from flask_session import Session
 import settings
 from views import emp
 from datetime import datetime
 
+
 class Student:
     def __init__(self, name, age):
-        self.name= name
-        self.age=age
+        self.name = name
+        self.age = age
+
+
 def app1(env, make_response):
     """
         PATH_INFO  (request path, start with /)
@@ -311,9 +391,6 @@ def app1(env, make_response):
 
 
 def app2():
-
-
-
     # create Flask object (Httpd web service object)
     app = Flask('harrypotter')  # app = Flask(__name__)   name need to be lowercase
     # method can be 'GET'  'POST'  'PUT'  'DELETE' (RESTFUL service action)
@@ -331,11 +408,11 @@ def app2():
 
     # no need write out the path (emp/show/<data>), dynamically generate url_prefix
     # data is the input parameter of display request path
-    from models.dept import t_dept
-    from flask_sqlalchemy import SQLAlchemy
-    app.config.from_object(settings.Dev)   # read flask config from file
+    from models.dept import Dept
+
+    app.config.from_object(settings.Dev)  # read flask config from file
     from models import db
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://cai:123456@127.0.0.1:3306/company'
+    # app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://cai:123456@127.0.0.1:3306/company'
     db.init_app(app)
 
     @app.route('/login', methods=['GET', 'POST'])
@@ -344,6 +421,7 @@ def app2():
         # get parameter in url after ?
         magic = request.args.get('magic', 'no')  # default value is pc if not retrieved any data
         cookie = request.cookies.get('username')  # get cookie value
+
         print(cookie)
         if magic.lower() != 'yes':
             return '''<h2>Use path: login?magic=yes href="/login">Retry</a></h2>  '''
@@ -374,48 +452,63 @@ def app2():
     def hi():
         data = 'Hi'
         response = make_response(data, 200)  # data need to be json (careful byte and date need to convert)
-            # default status code is 200, so same as make_response(data)
-        response.headers['Content-Type'] = 'text/html' # default value
-        response.set_cookie('username','harry', expires=datetime.strptime('2022-10-31 16:55:00','%Y-%m-%d %H:%M:%S'))
-            # or use max_age=10 (in second) instead of expires    add cookie  name, value, expires -1 forever
+        # default status code is 200, so same as make_response(data)
+        response.headers['Content-Type'] = 'text/html'  # default value
+        response.set_cookie('username', 'harry', expires=datetime.strptime('2022-10-31 16:55:00', '%Y-%m-%d %H:%M:%S'))
+        # or use max_age=10 (in second) instead of expires    add cookie  name, value, expires -1 forever
         response.delete_cookie('username')  # delete cookie
         return response
 
     @app.route('/', methods=['GET', 'POST'])
     def index():
         student = Student('Harry Potter', 10)
-        data = {'house': ["Gryffindor","Hufflepuff","Ravenclaw","Slytherin"], 'student': student,
-                'dept': t_dept.query.all()}
+        data = {'house': ["Gryffindor", "Hufflepuff", "Ravenclaw", "Slytherin"], 'student': student,
+                'dept': Dept.query.all()}
         session['login'] = {'school': 'Hogwarts'}
 
-        dept = t_dept(10, 'a', 'Hogwarts')
+        dept = Dept(10, 'a', 'Hogwarts')
         db.session.add(dept)
         db.session.commit()
         dept.d_name = 'Gryffindor'  # update commit automatically
-        db.session.delete(t_dept.query.get(10))
+        db.session.delete(Dept.query.get(10))
         db.session.commit()
-        print(t_dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
-        print(t_dept.query.filter(db.or_(t_dept.d_name.startswith('Inf'), t_dept.d_name == 'magic')).all())  # db.not_
-        for d in t_dept.query.filter(t_dept.d_name.contains('ryf')):  # startswith  endswith
+        print(Dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
+        print(Dept.query.filter(db.or_(Dept.d_name.startswith('Inf'), Dept.d_name == 'magic')).all())
+        # db.not_   db.and_
+        for d in Dept.query.filter(Dept.d_name.contains('ryf')):  # startswith  endswith
             print(d)
-        for d in t_dept.query.filter(t_dept.id.__ge__(5)):  # startswith  endswith
+        for d in Dept.query.filter(Dept.id.__ge__(5)):  # startswith  endswith
             print(d)
-        for d in db.session.query(t_dept.id,t_dept.d_name).filter(t_dept.d_name.like('%ryf%')).all(): # session search
+        for d in db.session.query(Dept.id, Dept.d_name).filter(Dept.d_name.like('%ryf%')).all():  # session search
             print(d)
-        for d in t_dept.query.order_by(t_dept.id).offset(3).limit(3).all():  # paging
+        for d in Dept.query.order_by(Dept.id).offset(3).limit(3).all():  # paging
             print(d)
-        print(db.session.query(db.func.count(t_dept.id)).first())
-        print(db.session.query(t_dept.d_name, db.func.count(t_dept.id).label('cnt')).group_by(t_dept.d_name) \
-        .having(db.func.sum(t_dept.id).__ge__(2)).order_by(db.Column('cnt').desc()).all())
+        print(db.session.query(db.func.count(Dept.id)).first())
+        print(db.session.query(Dept.d_name, db.func.count(Dept.id).label('cnt')).group_by(Dept.d_name) \
+              .having(db.func.sum(Dept.id).__ge__(2)).order_by(db.Column('cnt').desc()).all())
+        sql = "select d_id,d_name,d_address from t_dept where d_name = '%s' limit 3"  # native sql for complicate query
+        for d_id, name, addr in db.session.execute(sql % 'Gryffindor', ).cursor:
+            # pymysql.cursors.Cursor can be iterated, optional add fetchall()  fetchone()
+            print(d_id, name, addr)
 
+        token = uuid.uuid4().hex  # Generate a random UUID. hexadecimal uuid
+        print(token)
         return render_template('index.html', **data)
 
+    @app.errorhandler(Exception)
+    def exception_found(exception):
+        print(exception)
+        return jsonify({'msg': str(exception)})
+
+
     @app.errorhandler(404)
-    def notfound(err):
+    def not_found(err):
+        print(err)
+
         return '404 page'
 
     app.register_blueprint(emp.bp, url_prefix='/emp')  # put separate blue print for different model in the views folder
-        # url_prefix optional, add additional in the routing path. request path match the rounting path
+    # url_prefix optional, add additional in the routing path. request path match the rounting path
     return app
 
 
@@ -425,10 +518,9 @@ def app3():
     template_folder = os.path.join('..', 'resources', 'templates')  # not recommended
     app = Flask(__name__, template_folder=template_folder)
     # app.secret_key = "super secret key"
-    app.config.from_object(settings.Dev)  #  add secret_key, redis config
+    app.config.from_object(settings.Dev)  # add secret_key, redis config
     server_session = Session()  # flask_session.Session, used for save session in server db/cache.
     server_session.init_app(app)
-
 
     @app.route('/stundent', methods=['GET', 'POST'])
     def regist_stundent():
@@ -439,12 +531,12 @@ def app3():
             'date': datetime.now(),
             'error_message': ''
         }
-        #data = jsonify(data)  # jsonify({'school': 'Hogwarts','error_message': ''})
+        # data = jsonify(data)  # jsonify({'school': 'Hogwarts','error_message': ''})
 
         # return html templates at template_folder
         if request.method == 'GET':
             return render_template('register_student.html', **data)  # this will file the html {{school}} with content
-            #return render_template('register_student.html', **locals())
+            # return render_template('register_student.html', **locals())
         else:
             school = request.form.get('school_name', None)
             student = request.form.get('student_name', None)
@@ -453,7 +545,7 @@ def app3():
                 data['error_message'] = "school name and student name can't be empty"
                 return render_template('register_student.html', **data)
             app.logger.info('student: %s -> school: %s' % (student, school))
-            session['login'] = {'name': student,'school': school}
+            session['login'] = {'name': student, 'school': school}
             return '''
                     <h2>student registered successful</h2>
                     <script>alert(" %s is registered")</script>
@@ -462,25 +554,23 @@ def app3():
     @app.route('/hi', methods=['GET', 'POST'])
     def hi():
 
-        return "Hi, %s. %s welcome you." % (session.get('login').get('name'),session.get('login').get('school'))
-
+        return "Hi, %s. %s welcome you." % (session.get('login').get('name'), session.get('login').get('school'))
 
     return app
 
 
 if __name__ == '__main__':
     opt = int(input('python server: enter option(1-3): 1. native python   2. flask   3. flask mtv'))
-    if opt == 1:    # http://localhost:8000/
+    if opt == 1:  # http://localhost:8000/
         # native python web server
         httpd = make_server('127.0.0.1', 8000, app1)  # http daemon
         httpd.serve_forever(poll_interval=0.5)  # interval 0.5sec for listen response thread end
 
-    elif opt == 2:    # http://localhost:5000/login?magic=yes
+    elif opt == 2:  # http://localhost:5000/login?magic=yes
         app = app2()
-        app.run(host="localhost", port=5000)   # default single thread single process(extendable)
-                                                # threaded=True  # processes=4   can't use both same time
+        app.run(host="localhost", port=5000)  # default single thread single process(extendable)
+        # threaded=True  # processes=4   can't use both same time
     elif opt == 3:
         app = app3()  # http://localhost:5000/stundent
         app.run(host="localhost", port=5000, debug=True, threaded=True)
-            # debug mode, change in code will restart server, will show error
-
+        # debug mode, change in code will restart server, will show error

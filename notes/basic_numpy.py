@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # Compute the eigenvalues of a general matrix.
 
     # read txt file
-    file_data = np.genfromtxt('..//resources//data//numpy_data.txt', delimiter=',').astype('int32')  # default float
+    file_data = np.genfromtxt('..//resources//data//', delimiter=',').astype('int32')  # default float
     print(file_data)  # [[ -1   1  13 196   0][  3  42  12  33 766][  1  22  33  11 999]]
     print(file_data[file_data > 50])  # [196 766 999]
     print((~((file_data > 0) & (file_data < 100))))  # s<=0 or >=100

@@ -48,6 +48,9 @@ class Review:
         print("{0} is {1} years old. I am {1} years old".format(name, age))
         print("{name} is {age} years old.".format(name='Harry', age=10))
         print(f"{name} is nice")    # name variable is defined ahead
+        values = {'city': 'San Francisco', 'state': 'California'}
+        s = "I live in %(city)s, %(state)s" % values    # I live in San Francisco, California
+
     variable with same string value share the same memory location (reference), but change one won't affect other
     slicing: s[start:end:step]  [start,end) :step is optional.   start, end can be negative, last char has index -1. 
         start, end can be empty, default to 0 and last index
@@ -92,6 +95,7 @@ class Review:
     print(~7+1)  # -7          n << 3    # 7 * 2^3               n >> 2   # 7 // 4
     print(~7 + 1)  # -7           print(7 << 3)  # 7 * 2^3         print(7 >> 2)  # 7 // 4
     
+    token = uuid.uuid4().hex # Generate a random UUID. hexadecimal uuid
     
     --Condition
     if boolean condition:       
@@ -789,6 +793,47 @@ class Review:
     pip freeze   # show all dependencies 
     pip freeze > requirements.txt
     pip install -r requirements.txt
+    
+    # logging config    
+    LOGGING_CONFIG = { 
+        'version': 1,
+        'disable_existing_loggers': True,
+        'formatters': { 
+            'standard': { 
+                'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+            },
+        },
+        'handlers': { 
+            'default': { 
+                'level': 'INFO',
+                'formatter': 'standard',
+                'class': 'logging.StreamHandler',
+                'stream': 'ext://sys.stdout',  # Default is stderr
+            },
+        },
+        'loggers': { 
+            '': {  # root logger
+                'handlers': ['default'],
+                'level': 'WARNING',
+                'propagate': False
+            },
+            'my.packg': { 
+                'handlers': ['default'],
+                'level': 'INFO',
+                'propagate': False
+            },
+            '__main__': {  # if __name__ == '__main__'
+                'handlers': ['default'],
+                'level': 'DEBUG',
+                'propagate': False
+            },
+        } 
+    }
+    using:
+    from logging.config import dictConfig
+    logging.config.dictConfig(LOGGING_CONFIG) # Run once at startup:
+    log = logging.getLogger(__name__)  # Include in each module:
+    log.debug("Logging is configured.")
     
     # setup mirrors in china
     cd .pip   ls  cat pip.conf        c:/Users/cai/pip/pip.ini  
