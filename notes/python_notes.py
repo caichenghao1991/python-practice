@@ -181,6 +181,8 @@ class Review:
     Create
     my_dict = {'name': 'Andrei Neagoie', 'age': 30, 18: False}    dict1 = {}   dict2 = dict1.copy()
     dict2 = dict([('name','Harry'),('age',[10,1])])
+    dict2 = eval('{"name":"Harry", "age":10}')
+     dict2 = json.loads('{"name":"Harry", "age":10}')  # must double quote
     dict2 = dict.fromkeys(['name','age'], 1)   # create dictionary with keys and same default value   
     {k:v for k, v in dict1.items()}     {k: v for k, v in [('one',1),('two',2)]}
     Read
@@ -331,6 +333,8 @@ class Review:
     from functools import reduce
     print(reduce(lambda x, y: x+y, [1,2,3,4,5]))  # sum of array, or concat strings
     r = zip([1,2,3], {'one','two','three'});  print(set(r))  # {(1, 'one'), (2, 'two'), (3, 'three')}
+    print(list(r))  # [(1, 'one'), (2, 'two'), (3, 'three')]  
+    print(dict(r))  # {1:'one',2:'two', 3:'three'}
     # The zip() function returns an iterator of tuples (built by each iterable input).
     
     
@@ -369,7 +373,11 @@ class Review:
             print(my_file.readlines())
         except FileNotFoundError, IOError as err:
             print('file does not exist')
-
+        
+    with open('data.json') as f:
+        dic = json.load(f)   # load json file into dict
+        print(dic['age'])
+        
     import os   
     os.path.isabs(string)   # return bool check path is absolute path
     os.path.abspath('python_notes.py')  # return file name's absolute path
@@ -380,6 +388,7 @@ class Review:
     os.path.splitext(path)  # return tuple of file extension and directory+file name  ('C:\\path\\a','.txt')
     os.path.getsize(path)   # return file size in bytes
     os.path.join(os.getcwd(),'path','a.txt')     # return path with path\\a.txt inside current directory
+    os.path.abspath(os.path.join(os.getcwd(), '../..', 'media')) # return path ../media
     os.path.listdir(path)   # return a list containing all the file and directory under path
     os.path.exists(path)   # return bool   check path exist or not
     os.path.isfile(path)   # check path is file or not
@@ -597,7 +606,7 @@ class Review:
     md5.update("world")  # md5 is now calculating hash for: hello world
     print(md5.hexdigest())    #  5d41402abc4b2a76b9719d911017c592     save encoded password in database
     sha224 = hashlib.sha224("hello".encode('utf-8')) 
-    print(sha224.hexdigest())   # ea09ae9cc6768c50fcee903ed054556e5bfc8347907f12598aa24193
+    print(sha224.hexdigest())   # convert to hexadecimal ea09ae9cc6768c50fcee903ed054556e5bfc8347907f12598aa24193
     
     
     --Regular Expression
@@ -758,6 +767,7 @@ class Review:
         for i in range(n):                                                    # monkey will change the native time module 
             print(n)
             yeild                    # gb.switch()  # manual switch to task2  # no need for gevent
+    # yield n  # return n
             time.sleep(0.5)
              
     g1,g2 = task1(10), task2(5)      # ga = greenlet(task1)                   # g1 = gevent.swpan(task1) 
@@ -765,6 +775,7 @@ class Review:
         try:                         # ga.switch()                            # g1.join()    # gevent.joinall(g1, g2)
             next(g1)                                                          # g2.join()
             next(g2)  # raise error if no next item                                     
+            # x = next(g1)  # will get the yield return value 
         except:
             pass
     

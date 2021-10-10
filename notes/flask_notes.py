@@ -80,9 +80,10 @@
     content.html
     {% macro input(macroId, placeholder) %}
     <input type=text id="input_{{macroId}}" placeholder="{{placeholder}}" class="input_field"> {% endmacro %}
+
     index.html   # every additional {% %} {{}} code have to be inside {block}
     {% from "content.html" import input with context %}
-    {{ input('name', 'name') }}
+    {{ input('name', 'name') }} # call this macro inside other html template
     {% for item in house %}
          <li {% if loop.index % 2 != 0 %}class="odd" {% endif %}> {{ item }}</li>{% endfor %}
 
@@ -119,6 +120,12 @@
         if not data:
             #abort(403)  # status code. return error page with status code
             abort(Response("data not valid", 403))  # response page with error information
+
+    Reversing namespaced URLs: get url from path logic
+    # url_for('blue_print_name.function_name', **kwargs)  or url_for('function_name', **kwargs)
+    #  @bp.route('/show/<data>')
+    #  def display(data):
+    #      return redirect("%s" % url_for('emp.display', data=res))
 
     # catch exception
     @app.errorhandler(404)  # only catch 404 status code   # @app.errorhandler(Exception)  catch exception

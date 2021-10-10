@@ -357,6 +357,7 @@
                             <p><input type="submit" value="submit form"><input type="reset" value="clear form"></p>
                         </form>
                 </fieldset>
+                <p><img src="../resources/images/Albus_Dumbledore.jpg" onclick="this.src='../resources/images/hp2.jpg'"></p>
                 <h3>Audio / Video</h3>
                 <p>
                 <audio  controls loop>  <!--autoplay-->
@@ -513,7 +514,7 @@
                     box.checked = !box.checked
                 }
                 window.location.replace("b.html");   // http redirect
-                window.open('/harry', target='_self')
+                window.open('/harry', target='_self')  //or open('/harry', target='_self')
                 self.location='b.html';
                 window.location.href="b.html"
             }
@@ -646,6 +647,18 @@
             xhr.send() // send asynchronous request
 
         })
+
+        // ajax via fetch
+        opts={method:'POST', body: JSON.stringify({name:'harry', age: 10}), headers:{'Content-Type':'application/json;
+            charset=utf-8'}}
+        fetch(url, opts).then(function (response) {
+            return response.json()   //execute successful step one
+        }).then(function (returnedValue) {                                .then(response => response.text())
+            //execute successful step two                                 .then(text =>{document.write(text)})
+        }).catch(function (err) {
+            //unsuccessful step
+        })
+
 
         //jQuery
         // alert($)    show f(e,t){return new w.fn.init(e,t)}   means loading jquery successfully

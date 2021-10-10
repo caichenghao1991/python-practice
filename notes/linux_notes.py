@@ -85,6 +85,8 @@
                              # grep -E "\<\/?script.*\>" index.html  search <script> tags in index.html
                              #   grep -E "\<\/?script.*?\> index.html    non greedy search
                              # grep redis | grep -v auto  # search result have redis but no auto
+                             cut
+                             f4
     >  /  >>                 # redirect output to file    >> append
     2>  /  2>>               # error redirect output to file    >> append
 
