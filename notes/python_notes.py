@@ -10,6 +10,11 @@ import datetime
 class Review:
     """"""
     """
+    virtualenv env   # create env folder for project dependency
+        # add environment path to the path variable
+    which pip   # shows which environment is installing
+    python env/bin/pip install urllib   # force declare which pip
+    
     --Naming convention
     variable name: letter number _, can't start with number, case sensitive
     better use student_name than studentName (camel case)

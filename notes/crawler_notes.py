@@ -188,10 +188,130 @@
         links = selector.xpath('//p[contains(@class="lin")]/a[1]/text()')  # class name contain lin
 
 
-    scrappy
+    scrapy  (pyspider alternative)
+        depend on lxml, twisted, openssl
+        framework for scraping, use scrapy shell for debug (shelp fetch('url')
 
-'''
-# pass parameter for get method
+        pip install Scrapy
+
+        scrapy runspider basic_spider.py  # run single file
+
+        or create project scrapy startproject scrapy_basic   # project name
+        scrapy genspider example1 xiachufang.com  # scraper name  allowed domain
+        scrapy crawl example1
+
+        settings.py USER_AGENT = 'Mozilla/5.0'   set user-agent
+            ROBOTSTXT_OBEY = False    # allow print in parse()
+
+        start via a file
+        import scrapy
+        class BlogSpider(scrapy.Spider):
+            name = 'blogspider'   # spider name
+            start_urls = ['https://www.zyte.com/blog/']    # page start scraping
+
+            def parse(self, response):
+                blogs = response.css('div.oxy-post-wrap') # css selector  tag.classname
+                #blogs = response.xpath('//div[@class="oxy-post-wrap"]')
+                for blog in blogs:
+                    yield {'title': blog.css('div a.oxy-post-title::text').extract_first(),
+                                # extract and getall() will get the html content from selector, return a list
+                                # extract_first() and get() return one
+                            'author': blog.xpath('./div/div/div[@class="oxy-post-meta-author oxy-post-meta-item"]/text()
+                                ').get(),
+                           }
+
+                #for next_page in response.css('a.next'):  #
+                for next_page in response.css('a.next::attr(href)'):
+                #for next_page in response.xpath('//a[@class="next page-numbers"]/@href'):
+                    yield response.follow(next_page, self.parse)
+                        # response.follow can use relative url,
+
+                    person_url = response.urljoin(href)
+                    yield Request(person_url, callback=self.parse)
+
+
+        # scrapy runspider basic_spider.py   # print result in console
+        # scrapy runspider basic_spider.py -o blogs.json  # save result in file
+        # scrapy runspider basic_spider.py -o blogs.csv -t csv  # specifies output file format
+            # blogs = json.load(open('blogs.json'))
+            # print(json['title'])
+
+
+        # start a scrapy project
+        scrapy startproject scrapy_basic   # project name
+        cd scrapy_basic
+        scrapy genspider example1 amazon.com  # scraper name  start url
+            # create a template in scrapy_basic -> spiders -> example1.py
+        scrapy crawl example1      # run project
+        from __future__ import absolute_import   # solve same module name cause no module found
+        class Example1Spider(scrapy.Spider):
+            name = 'example1'
+            allowed_domains = ['xiachufang.com']  # allowed domain for scraping
+            start_urls = ['https://www.xiachufang.com/']  # url start to scraping, can have multiple
+
+            def parse(self, response):
+                items = response.xpath('//div[@class="left-panel"]/ul/li')
+                for item in items:
+                    detail = item.css('a::attr(href)').extract_first()
+                    if detail:
+                        url = response.urljoin(detail)
+                        category = item.css('a span::text').extract_first()
+                        # request need urljoin to get the full url
+                        request = scrapy.Request(url,
+                                                 callback=self.parse_page2,
+                                                 cb_kwargs=dict(main_url=response.url))
+                        request.cb_kwargs['category'] = category  # add more arguments for the callback
+                        yield request
+                        # yield response.follow(detail, self.parse_page2, cb_kwargs=dict({'main_url':response.url,
+                        #    'category':category}))   # self.parse_page2  is the call back functuon
+
+
+            def parse_page2(self, response, main_url, category):
+                response = response.replace(body=response.text.replace('\n', '').replace('\t', ''))
+                items = response.css('p.name a::text').getall()  # return list of string
+                for i in range(len(items)):
+                    items[i] = items[i].strip()
+                    if items[i]:
+                        dish = DishItem()
+                        if not category:
+                            category = ""
+                        dish['d_category'] = category
+                        dish['d_name'] = items[i]
+
+                        yield{
+                            'd_name': items[i],    # d_name is the item key
+                            'd_category': category
+                        }
+
+        items.py   # used for define object from scraped data
+        class DishItem(scrapy.Item):  # define object retrieve from scraping
+            d_name = scrapy.Field()  # define the fields for your item
+            d_category = scrapy.Field()
+
+        pipeline.py   # needed for preparation and process item
+            uncomment settings.py  ITEM_PIPELINES = {'scrapy_basic.pipelines.ScrapyBasicPipeline': 300,}
+        class ScrapyBasicPipeline:
+            def open_spider(self, spider):    # run once before open scrapy spider, optional
+                self.conn = pymysql.connect(host='127.0.0.1', port=3306, db='company',
+                                     user='cai', password='123456')
+                self.cur = self.conn.cursor()
+                self.cur.execute('delete from t_dish')
+                self.conn.commit()
+
+            def close_spider(self, spider):  # run once after scrapy spider finish, optional
+                self.cur.close()
+                self.conn.close()
+
+            def process_item(self, item, spider):  # run everytime when item is created through yield, required
+                keys = item.keys()
+                values = list(item.values())
+                sql = "insert into t_dish ({}) values ({})".format(','.join(keys), ','.join(['%s'] * len(values)))
+                self.cur.execute(sql, values)
+                self.conn.commit()
+                return item  # must return item
+
+    '''
+
 import os
 import re
 import threading
@@ -210,6 +330,7 @@ from bs4 import BeautifulSoup
 # get method with parameters
 from lxml import etree
 
+# pass parameter for get method
 def urllib_sample():
     params = urllib.parse.urlencode({'Harry Potter': 10, 'Ronald Weasley': 11})
     url = 'http://httpbin.org/get?%s' % params

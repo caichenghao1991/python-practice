@@ -1,6 +1,6 @@
 import scrapy
 
-
+# setting file USER_AGENT = 'Mozilla/5.0'
 class BlogSpider(scrapy.Spider):
     name = 'blogspider'   # spider name
     start_urls = ['https://www.zyte.com/blog/']    # page start scraping
@@ -20,4 +20,8 @@ class BlogSpider(scrapy.Spider):
 
 
 
-# scrapy runspider basic_spider.py
+# scrapy runspider basic_spider.py   # print result in console
+# scrapy runspider basic_spider.py -o blogs.json  # save result in file
+# scrapy runspider basic_spider.py -o blogs.csv -t csv  # specifies output file format
+    # blogs = json.load(open('blogs.json'))
+    # print(json['title'])
