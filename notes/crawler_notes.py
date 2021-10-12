@@ -200,8 +200,11 @@
         scrapy genspider example1 xiachufang.com  # scraper name  allowed domain
         scrapy crawl example1
 
+
         settings.py USER_AGENT = 'Mozilla/5.0'   set user-agent
             ROBOTSTXT_OBEY = False    # allow print in parse()
+            TTPCACHE_ENABLED = True  # if need cache static page
+            #CONCURRENT_REQUESTS = 32  # max concurrent request
 
         start via a file
         import scrapy
@@ -248,6 +251,7 @@
             name = 'example1'
             allowed_domains = ['xiachufang.com']  # allowed domain for scraping
             start_urls = ['https://www.xiachufang.com/']  # url start to scraping, can have multiple
+            user_agent = 'Mozilla/5.0'
 
             def parse(self, response):
                 items = response.xpath('//div[@class="left-panel"]/ul/li')
@@ -261,12 +265,17 @@
                                                  callback=self.parse_page2,
                                                  cb_kwargs=dict(main_url=response.url))
                         request.cb_kwargs['category'] = category  # add more arguments for the callback
+                        request.meta['test'] = 1   # send meta data through request, some keyword is taken for settings
+                                           # in single request override settings.py, while setting.py has global setting
+                                           # meta data won't save in cache
                         yield request
                         # yield response.follow(detail, self.parse_page2, cb_kwargs=dict({'main_url':response.url,
-                        #    'category':category}))   # self.parse_page2  is the call back functuon
+                        #    'category':category}))   # self.parse_page2  is the call back function
+                            # add  dont_filter=True   # scrape the scarped site again, default generate site md5 set
 
 
             def parse_page2(self, response, main_url, category):
+                print("test===", response.meta['test'])  # receive meta in response
                 response = response.replace(body=response.text.replace('\n', '').replace('\t', ''))
                 items = response.css('p.name a::text').getall()  # return list of string
                 for i in range(len(items)):
@@ -288,28 +297,169 @@
             d_name = scrapy.Field()  # define the fields for your item
             d_category = scrapy.Field()
 
+
+        uncomment settings.py
+            ITEM_PIPELINES = {'scrapy_basic.pipelines.RedisPipeline': 299,
+                'scrapy_basic.pipelines.ScrapyBasicPipeline': 300,}
+                # pipeline items have order, integer 0-1000 smaller first execute
+                # default number in scrapy package settings default_settings.py
         pipeline.py   # needed for preparation and process item
-            uncomment settings.py  ITEM_PIPELINES = {'scrapy_basic.pipelines.ScrapyBasicPipeline': 300,}
-        class ScrapyBasicPipeline:
-            def open_spider(self, spider):    # run once before open scrapy spider, optional
-                self.conn = pymysql.connect(host='127.0.0.1', port=3306, db='company',
-                                     user='cai', password='123456')
-                self.cur = self.conn.cursor()
-                self.cur.execute('delete from t_dish')
-                self.conn.commit()
+            class RedisPipeline(object):
+                def open_spider(self, spider):
+                    self.r = redis.Redis(host='127.0.0.1', port=6379,  db=2)  #password=123456,
 
-            def close_spider(self, spider):  # run once after scrapy spider finish, optional
-                self.cur.close()
-                self.conn.close()
+                def close_spider(self, spider):
+                    self.r.close()
+                def process_item(self, item, spider):
+                    if self.r.sadd('dishes', item['d_name']):
+                        return item
+                    raise DropItem
+            class ScrapyBasicPipeline:
+                def open_spider(self, spider):    # run once before open scrapy spider, optional
+                    self.conn = pymysql.connect(host='127.0.0.1', port=3306, db='company',
+                                         user='cai', password='123456')
+                    self.cur = self.conn.cursor()
+                    self.cur.execute('delete from t_dish')
+                    self.conn.commit()
 
-            def process_item(self, item, spider):  # run everytime when item is created through yield, required
-                keys = item.keys()
-                values = list(item.values())
-                sql = "insert into t_dish ({}) values ({})".format(','.join(keys), ','.join(['%s'] * len(values)))
-                self.cur.execute(sql, values)
-                self.conn.commit()
-                return item  # must return item
+                def close_spider(self, spider):  # run once after scrapy spider finish, optional
+                    self.cur.close()
+                    self.conn.close()
 
+                def process_item(self, item, spider):  # run everytime when item is created through yield, required
+                    keys = item.keys()
+                    values = list(item.values())
+                    sql = "insert into t_dish ({}) values ({})".format(','.join(keys), ','.join(['%s'] * len(values)))
+                    self.cur.execute(sql, values)
+                    self.conn.commit()
+                    return item  # must return item
+
+
+        spider send request of start url to engine -> engine send requests to scheduler for sorting order of execution
+            -> scheduler return sorted requests to engine -> engine send request to downloader -> downloader retrieve
+            information from internet and send back engine response -> engine send response to spiders -> spider sends
+            items/requests(call back) to engine -> engine send items to item pipeline, requests to scheduler
+
+        middleware
+            (RobotsTxt, HttpAuth, DowloadTimeout, DefaultHeaders, UserAgent, Retry, MetaRefresh, HttpCompression,
+                Redirect, Cookies, HttpProxy, DownloaderStats, HttpError, Offsite, Referer, UrlLength, Depth)
+            process_request() called when engine send to downloader -> return response to engine -> return
+                a. None: continue other middleware; b. Response:go to process_response; c. Request: go to scheduler;
+                d. IgnoredRequest: handle by process_exception, if none then request.errback, if none ignored
+            process_response() called when return response to engine -> return a.Response: go to other
+                process_response; b. Request: go to scheduler; c. IgnoredRequest: handle by request.errback, if none
+                ignored
+            process_exception() called when exception in downloader or process_request() return IgnoreRequest ->
+                return a. Respone: start  process_response(); b. Request: go to scheduler; c. None: continue other
+                process_exception
+            from_crawler(cls, crawler) used for build middleware -> return middleware object
+        middlewares between engine and spiders, engine and downloader
+
+        scrapy sends various signals and have callback function for asynchronous processing, based on twisted
+            library.
+
+        custom middleware
+        middlewares.py
+            class RandomHttpProxyMiddleware:
+                override methods: __init__()   from_crawler()    process_request()   process_response()
+                process_exception() based on needs
+            then add middleware in settings.py
+
+
+        extensions:  bind signal to function
+        settings.py
+            EXTENSIONS = {
+            #    'scrapy.extensions.telnet.TelnetConsole': None,
+                'scrapy_basic.extensions.SpiderOpenCloseLogging': 1,
+            }
+            MYEXT_ENABLED =True  # enable own extension, override setting in extension.py
+            MYEXT_ITEMCOUNT = 10   # log every 10 items, override setting in extension.py
+
+        extension.py
+        logger = logging.getLogger(__name__)
+
+        class SpiderOpenCloseLogging:
+
+            def __init__(self, item_count):
+                self.item_count = item_count
+                self.items_scraped = 0
+                self.items_dropped = 0
+
+            @classmethod
+            def from_crawler(cls, crawler):
+                # first check if the extension should be enabled and raise
+                # NotConfigured otherwise
+                if not crawler.settings.getbool('MYEXT_ENABLED'):
+                    raise NotConfigured
+
+                # get the number of items from settings
+                item_count = crawler.settings.getint('MYEXT_ITEMCOUNT', 1000)
+
+                # instantiate the extension object
+                ext = cls(item_count)
+
+                # connect the extension object to signals
+                crawler.signals.connect(ext.spider_opened, signal=signals.spider_opened)
+                crawler.signals.connect(ext.spider_closed, signal=signals.spider_closed)
+                crawler.signals.connect(ext.item_scraped, signal=signals.item_scraped)
+                crawler.signals.connect(ext.item_dropped, signal=signals.item_dropped)
+                # return the extension object
+                return ext
+
+            def spider_opened(self, spider):
+                logger.info("opened spider %s", spider.name)
+
+            def spider_closed(self, spider):
+                logger.info("closed spider %s", spider.name)
+
+            def item_scraped(self, item, spider):
+                self.items_scraped += 1
+                if self.items_scraped % self.item_count == 0:
+                    logger.info("scraped %d items", self.items_scraped)
+
+            def item_dropped(self, item, spider,response, exception):
+                self.items_dropped += 1
+                if self.items_dropped % self.item_count == 0:
+                    logger.info("dropped %d items", self.items_dropped)
+
+
+        scrapy-redis: allow distributed concurrent scraping
+            pip install scrapy-redis
+
+            settings.py
+                REDIS_URL = 'redis://127.0.0.1:6379'  #'redis://user:pass@hostname:port'
+                SCHEDULER = "scrapy_redis.scheduler.Scheduler"  # Enable scheduling storing requests queue in redis
+                DUPEFILTER_CLASS = "scrapy_redis.dupefilter.REPDupeFilter"  # enable all spiders share same duplicates
+                                                                            # filter through redis
+                SCHEFULER_PERSIST = True  # don't cleanup redis queues, allow pause/resume crawls
+
+                #ITEM_PIPELINES add 'scrapy_redis.pipelines.RedisPipeline':301  # optional, save items in redis (memory)
+
+            extend RedisSpider to create long live crawler waiting for url (can perform on multiple machine)
+            from scrapy_redis.spiders import RedisSpider
+            class Example1Spider(RedisSpider):
+                # remove url
+            then in redis-cli:  lpush example1:start_urls https://www.xiachufang.com/    #scraper name in class starturl
+
+
+    selenium   control browser
+        from selenium import webdriver
+        driver = webdriver.Chrome()
+        driver.get(https://www.google.com)
+            driver functions: find_element[s]_by (name, id, class_name, css_selector, xpath...)
+                get_cookie, get_cookies, forward, back, refresh, quit, title, current_url,
+        element = driver.find_element_by_xpath('//div[@id="u1"]/a[1]')   # return WebElement
+            element function: find_element[s]_by (name, id, class_name, css_selector, xpath...)
+                id, location, get_property, get_attribute, is_displayed, parent, location, send_keys, click, text,
+                tag_name, size, rect, is_enabled, is_selected, value_of_css_property, submit
+        text = driver.find_element_by_xpath('//div[@id="u1"]/a[1]').text  # don't put text() inside xpath
+
+        driver.find_element_by_id('keyword').send_keys('Hogwarts')   # type in search input
+        driver.find_element_by_id('sub').click()                     # click search
+        h3_list = driver.find_elements_by_tag_name('h3')             # find all result page title
+        driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')    # scroll to the bottom
+        driver.find_element_by_class_name('nex').click()                     # click next page button
+        driver.quit()          # quit browser
     '''
 
 import os
@@ -331,6 +481,10 @@ from bs4 import BeautifulSoup
 from lxml import etree
 
 # pass parameter for get method
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+
+
 def urllib_sample():
     params = urllib.parse.urlencode({'Harry Potter': 10, 'Ronald Weasley': 11})
     url = 'http://httpbin.org/get?%s' % params
@@ -531,12 +685,26 @@ def multi_thread_download():
         t.join()
     print('download finished. take %.2f seconds' % (time.time()-start_time))
 
+def selenium_sample(word):
+    option = webdriver.ChromeOptions()
+    option.add_experimental_option('detach', True)
+    driver = webdriver.Chrome(executable_path='../resources/chromedriver.exe', options=option)
+    driver.get('https://www.baidu.com/')
+    driver.find_element_by_id('kw').send_keys(word)
+    driver.find_element_by_id('kw').send_keys(Keys.RETURN)
+    time.sleep(5)
+    links = driver.find_elements_by_xpath('//h3/a')
+    title = [_.text for _ in links]
+    url = [_.get_attribute('href') for _ in links]
+    print(dict(zip(title, url)))
+    driver.quit()
 
 
 if __name__=='__main__':
-    urllib_sample()
-    requests_sample()
-    beautiful_soup_sample()
-    practice1()
-    practice2()
-    multi_thread_download()
+    #urllib_sample()
+    #requests_sample()
+    #beautiful_soup_sample()
+    #practice1()
+    #practice2()
+    #multi_thread_download()
+    selenium_sample('Harry Potter')

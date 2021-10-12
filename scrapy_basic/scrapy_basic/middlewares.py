@@ -2,11 +2,13 @@
 #
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import random
 
 from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+from scrapy.exceptions import NotConfigured
 
 
 class ScrapyBasicSpiderMiddleware:
@@ -56,17 +58,19 @@ class ScrapyBasicSpiderMiddleware:
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class ScrapyBasicDownloaderMiddleware:
+class RandomHttpProxyMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
+    def __init__(self,settings):
+        self.proxies = settings.getlist('HTTP_PROXIES')
 
     @classmethod
     def from_crawler(cls, crawler):
         # This method is used by Scrapy to create your spiders.
-        s = cls()
-        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
-        return s
+        if not crawler.settings.get('HTTP_PROXIES'):
+            raise NotConfigured
+        return cls(crawler.settings)
 
     def process_request(self, request, spider):
         # Called for each request that goes through the downloader
@@ -78,6 +82,8 @@ class ScrapyBasicDownloaderMiddleware:
         # - or return a Request object
         # - or raise IgnoreRequest: process_exception() methods of
         #   installed downloader middleware will be called
+        if not request.meta.get('proxy'):
+            request.meta['proxy'] = random.choice(self.proxies)
         return None
 
     def process_response(self, request, response, spider):

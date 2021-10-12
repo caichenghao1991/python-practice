@@ -32,7 +32,16 @@
     V views  (presented page)
     C controller   (link between model and views)
 
+    chrome debugger
+        cookie: network tab, click on img, under Cookie tab)
+        content-length: network tab, click on img, under headers tab
+        debug inside browser:
+            right click inspect -> sources tab -> click on js file -> click on line number add break point
+            -> step (one line down), step over jump to next line no matter has inner function, step into function,
+            step out of function -> inside scope show variable and value
+            -> resume will jump to next breakpoint if any -> click on line number again remove breakpoint
 
+            network -> initiator check the js call flow
 -->
 
 <!DOCTYPE html>  <!-- document type default html 5 -->
@@ -557,11 +566,7 @@
             }
 
 
-            debug inside browser:
-            right click inspect -> sources tab -> click on js file -> click on line number add break point
-            -> step (one line down), step over jump to next line no matter has inner function, step into function,
-            step out of function -> inside scope show variable and value
-            -> resume will jump to next breakpoint if any -> click on line number again remove breakpoint
+
         */
         window.addEventListener('load',()=>{    // equivalent to main function, avoid global variable
             // or (() => { alert('')})()
