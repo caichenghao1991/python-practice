@@ -442,24 +442,101 @@
             then in redis-cli:  lpush example1:start_urls https://www.xiachufang.com/    #scraper name in class starturl
 
 
+        css encrypt: crawl css. tinycss parse css file,  find svg img, characters in svg image(x,y coordinate)
+        font encrypt: download the random font file, analyze font and character  (TTFont)
+        restriction: add cookie inside header, ip frequency restrict (need proxy (tinyproxy)), concurrency restrict
+            validation code(hard to decrypt, might able to take detour path to evade validation(hidden field for extra
+            piece info in form, send valid validation code and check header data send etc, use visual lib detect simple
+            validation code(pytesseract)), or paid real person validation code typing platform(captcha human bypass) )
+
     selenium   control browser
+        perform mouse key actions, retrieve elements on automatic control browser
+        return error if can't find element
+        slower than scrapy, and more unstable. but easier to perform, no need analyze dynamic backend js and trace api
+        to get data, (request param, response result, json data, css, font) might be encrypted
+
         from selenium import webdriver
-        driver = webdriver.Chrome()
+        option = webdriver.ChromeOptions()
+        option.add_experimental_option('detach', True)  # solve chrome browser quit automatically
+        option.add_argument('--headless')   # don't show browser, no need browser driver,
+                                            # might cause website authorization after several runs
+        driver = webdriver.Chrome(executable_path='../resources/chromedriver.exe', options=option)
+            # specify chromedriver location or set driver in path
         driver.get(https://www.google.com)
-            driver functions: find_element[s]_by (name, id, class_name, css_selector, xpath...)
+            driver functions: find_element[s]_by (name, id, class_name, css_selector, xpath, link_text...)
+                find element return WebElement, find elements return list[WebElement]  throw error if can't find
                 get_cookie, get_cookies, forward, back, refresh, quit, title, current_url,
         element = driver.find_element_by_xpath('//div[@id="u1"]/a[1]')   # return WebElement
             element function: find_element[s]_by (name, id, class_name, css_selector, xpath...)
                 id, location, get_property, get_attribute, is_displayed, parent, location, send_keys, click, text,
                 tag_name, size, rect, is_enabled, is_selected, value_of_css_property, submit
-        text = driver.find_element_by_xpath('//div[@id="u1"]/a[1]').text  # don't put text() inside xpath
 
+        # find element
         driver.find_element_by_id('keyword').send_keys('Hogwarts')   # type in search input
         driver.find_element_by_id('sub').click()                     # click search
         h3_list = driver.find_elements_by_tag_name('h3')             # find all result page title
-        driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')    # scroll to the bottom
         driver.find_element_by_class_name('nex').click()                     # click next page button
+        print(driver.find_element_by_class_name('nex').rect)   # {'height': 38, 'width': 394, 'x': 135, 'y': 17}
+        print(driver.find_element_by_class_name('nex').tag_name)   # input  <input type="submit" class="nex"/>
+        continue_link = driver.find_element_by_link_text('Continue')   # <a href="continue.html">Continue</a>
+        continue_link = driver.find_element_by_partial_link_text('Conti')
+
+        # element methods
+        link = driver.find_element_by_xpath('//div[@id="u1"]/a[1]').text  # don't put text() inside xpath
+        link = driver.find_elements_by_css_selector('h3 a').text
+        print(driver.find_element_by_class_name('nex').get_attribute('type')   # submit
+        print(driver.find_elements_by_css_selector('h3 a').get_property('href')))  # href url,  same as get_attribute
+        print(driver.find_elements_by_css_selector('h3 a').value_of_css_property('color'))  #rgba(36, 64, 179, 1)
+
+        # execure js
+        driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')    # scroll to the bottom
+        driver.execute_async_script('xxx')  # async js function
+
+        # browser functions
+        driver.save_screenshot('1.png')  # save screenshot 1.png in current path
+        driver.back()  # backward page
+        print(driver.current_url)  # current url
+        driver.forward()  # forward page
+        driver.refresh()  # refresh page
+
+        # wait
+        driver.implicitly_wait(10)  # implicit wait (wait all dom loaded for at most 10 sec,raise error if not finished)
+        links = driver.find_elements_by_xpath('//h3/a')
+        links = WebDriverWait(driver,10).until(expected_conditions.presence_of_all_elements_located((By.XPATH,'//h3/a')))
+            # explicit wait until element[s] loaded. poll(exam) frequency 0.5s
+            # By.ID CLASS_NAME  CSS_SELECTOR   NAME  TAG_NAME
+            # presence_of_all_elements_located  don't work with   option.add_argument('--headless')
+
+
         driver.quit()          # quit browser
+
+
+    Splash
+        faster than selenium, slower than scrapy
+        install via docker recommended
+        open local host in vm 8050  or ifconfig  and run that ip:8050
+        render the desired page in web page
+        show js after rendering
+
+        curl "http://host ip:8050/render.html?url=desire_page" -o output.html
+        f =open('output.html')
+        text = f.read()
+        selector = etree.HTML(text)
+        link = selector.expath('//a/text()')
+
+        can work together with scrappy
+            https://github.com/scrapy-plugins/scrapy=splash
+            pip install scrapy-splash
+            docker run -p 8050:8050 scrapinghub/splash
+
+            add downloader middleware, spider_middlewares
+            DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+            HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+
+            settings.py
+                SPLASH_URL = 'http://serverip:8050'
+            yield SplashRequest(url, self.parse_result)
+
     '''
 
 import os
@@ -471,6 +548,7 @@ from queue import Queue
 
 import certifi
 import pycurl
+import pyexcel
 import requests
 import json
 import urllib
@@ -482,7 +560,10 @@ from lxml import etree
 
 # pass parameter for get method
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 def urllib_sample():
@@ -688,17 +769,50 @@ def multi_thread_download():
 def selenium_sample(word):
     option = webdriver.ChromeOptions()
     option.add_experimental_option('detach', True)
+    #option.add_argument('--headless')   # don't show browser, don't work together with WebDriverWait
     driver = webdriver.Chrome(executable_path='../resources/chromedriver.exe', options=option)
     driver.get('https://www.baidu.com/')
-    driver.find_element_by_id('kw').send_keys(word)
-    driver.find_element_by_id('kw').send_keys(Keys.RETURN)
-    time.sleep(5)
-    links = driver.find_elements_by_xpath('//h3/a')
-    title = [_.text for _ in links]
-    url = [_.get_attribute('href') for _ in links]
-    print(dict(zip(title, url)))
-    driver.quit()
+    inp = driver.find_element_by_id('kw')
+    inp.send_keys(word)
+    inp.send_keys(Keys.RETURN)
+    print(inp.rect)   #{'height': 38, 'width': 394, 'x': 135, 'y': 17}
+    print(inp.tag_name)   # input
+    #time.sleep(5)
 
+    driver.implicitly_wait(10)  # implicit wait (wait all dom loaded for at most 10 sec, raise error if not finished)
+    links = driver.find_elements_by_css_selector('h3 a')
+    print(links[1].text, links[1].value_of_css_property('color'), links[1].get_property('href'))
+    #links = WebDriverWait(driver,10).until(expected_conditions.presence_of_all_elements_located((By.XPATH,'//h3/a')))
+        # explicit wait until element[s] loaded. poll(exam) frequency 0.5s
+        # By.ID CLASS_NAME  CSS_SELECTOR   NAME  TAG_NAME
+        # presence_of_all_elements_located  don't work with   option.add_argument('--headless')
+    title = [_.text for _ in links]
+    driver.save_screenshot(os.path.join('..', 'resources', 'images', '1.png'))  # save screenshot in current path
+    url = [_.get_attribute('href') for _ in links]
+    d = dict(zip(title, url))
+    rows=[]
+    for k,v in d.items():
+        row = {}
+        row['title'] = k
+        row['link'] = v
+        rows.append(row)
+    print(rows)
+    pyexcel.save_as(records=rows, dest_file_name=os.path.join('..', 'resources', '%s.xls' % word))
+    driver.back()  # backward page
+    print(driver.current_url)
+    driver.forward()  # forward page
+    driver.refresh()  # refresh page
+    #driver.quit()
+
+def selenium_sample2(word):
+    option = webdriver.ChromeOptions()
+    option.add_experimental_option('detach', True)
+    driver = webdriver.Chrome(executable_path='../resources/chromedriver.exe', options=option)
+    driver.get('https://www.google.com/')
+    driver.find_element_by_xpath('//form/div/div/div/div/div/input').send_keys(word)
+    driver.find_element_by_xpath('//form/div/div/div/div/div/input').send_keys(Keys.RETURN)
+
+    driver.quit()
 
 if __name__=='__main__':
     #urllib_sample()

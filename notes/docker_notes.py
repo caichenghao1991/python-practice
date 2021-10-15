@@ -1,7 +1,14 @@
 '''
     docker
+        VM: infrastructure, Hosting Operating system, Hypervisor, Guest OS, Bins/Libs, Apps
+        Docker: infrastructure, Hosting Operating system, Docker Engine, Bins/Libs, Apps
+            fast, small, can runs many docker
+        docker image can't be changed unless create new one. running multiprocess program not recommended
         based on container technology (virtualization), contain docker hub, image, container. docker.io default has two
         process (server(daemon), client). one image can run multiple times, create many containers (child process)
+        complicated image build on simpler image
+
+        ali cloud and tencent cloud accelerator for chinese docker image
 
         apt install docker.io  # unbuntu
         apt install openssh-server      sudo service ssh start
@@ -16,12 +23,19 @@
         docker build -t redis1:v2 .   # build image . is context path if needed from pc running the container
                                 # -t specify image name
         docker tag xxxx redis1:v2         # specify image id change name to image name
-
+        docker inspect containerid    # check container info
 
         # docker container command
         docker run --name redis1 redis        # specifies container name, image name
             # run on current terminal window in sync mode
-        docker ps -a            # show all container
+            # docker run ubuntu:latest /bin/echo helloworld
+            # add additional command to override default command after start container
+            # docker run --name -v /data/redis:/data redis   # map container data to host machine, allow access data in
+                # new container after the old container is destroyed
+                # /data/redis  host directory,  /data  container directory
+            # -rm  remove container automatically after finish running job
+        docker ps a            # show all container (stopped as well, check for container id)
+                u: show program based on user     # x show all program      # ps aux  # can write together
         docker run -dit --name redis1 -p 6378:6379 redis      # -d:backend, -i:can enter container, -t:can open terminal
             # 6378 ubuntu machine port(place running docker commands),  6379 container port  run in backend
         docker start redis1
@@ -35,6 +49,7 @@
             or  docker save -o ~/redis.tar redis1  # save imageID/name snapshot
                 docker load --input ~/redis.tar   or   docker load < ~/redis.tar
         docker logs   # check logs
+        docker top containerid   # check container statys
 
         Dockerfile
             FROM: ubuntu-dev:latest   # base:image version
