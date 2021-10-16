@@ -1,4 +1,3 @@
-
 '''
 
 
@@ -51,7 +50,8 @@
         # aggregate functions
         print(np.min(a), np.min(a, axis=1), np.sum(a, axis=0)) or a.sum(axis=0)   # 0 [0 0] [4 3 0]
             prod,  mean, std, var, argmin, argmax, median, precentile, any, all, power
-            np.nan  # empty value (not a number)
+            np.nan  # empty value (not a number, float type, able to calculate, but result is nan)
+                # pandas will convert None to np.nan
             np.nansum(a)  # don't consider np.nan in sum
 
         # other operations
@@ -130,7 +130,11 @@
                 color.iloc[0:3]   # index [0,3)
                 color[0]  # not recommended, can't distinguish explicit or implicit indexing
 
-            attribute
+            # add value
+            color['d'] = np.nan
+            color = color.append(pd.Series(['Orange','Black']))  # default index start at 0, {"e":'Orange', "f":'Black'}
+
+            # attribute
             color.shape  # (3,)         color.size  # 3
             color.index   Index(['a', 'b', 'c'], dtype='object')
             color.values # array(['Red', 'Blue', 'White'])
@@ -148,18 +152,60 @@
             aggregate function same as numpy a.sum()
 
         DataFrame: 2 dimensional
-            car_data = pd.DataFrame({"Car make": brand, "Color": color})  #takes in dictionary or 2 series
+            each row or column is a Series
+
+            # create dataframe
+            df = pd.DataFrame(data=np.random.randint(0, 100, size=(2, 2)), index=['Magic Defense', 'Magic Spell'],
+                columns=['Harry','Ronald'])   # data: 2D list/np.array, index:list, column:list
+            df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)},
+                index=['Magic Defense','Magic Spell'])   # dictionary: key:column name, value:list;  index:list
+            df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)})
+            df.index = ['Magic Defense','Magic Spell']  # assign later
+
             car_sales = pd.read_csv("car-sales.csv")   #import from structure data csv
             axis = 0: row      axis = 1:column
             car_sales = pd.read_csv("car-sales.csv", parse_date=["sale_date"])   #convert to date object
             df["Year"] = df.saledate.dt.year
-
             car_sales.to_csv("new-sales.csv", index=False)  # export to csv file, excluding index column
-        Functions (with()) and Attribute:
-            .dtypes   #show column datatype
-            .columns   # return list of column name
-            .index    # return  rangeIndex object contain start, end, step
 
+            # access column/columns via column index
+            df['Harry']   # Magic Defense    81
+                            Magic Spell      32
+                            Name: Harry, dtype: int32
+                # or df.Harry   # not recommended, can't have space in column name
+            df[['Harry','Hermione']]   # select columns
+            df.iloc[:, 0:2]   # select columns  iloc  [0,2)
+
+            # access row/rows via row index
+            df.loc['Magic Defense']  # explicit index
+            df.iloc[0]  # implicit index
+            df.loc['Magic Defense':'Magic Spell']   # ['Magic Defense','Magic Spell']  inclusive
+            df2.iloc[0:1]  # rows [0, 1)
+
+            # add/remove column
+            df['Hermione'] = [99,98]     # pd.Series([99,98])
+            df['Hermione'] = 100   # 100 for all rows
+            df = df.drop("Hermione", axis = 1)   # drop column Hermione
+
+            #add row
+            df = df.append(pd.DataFrame({'Harry':88, 'Ronald':60, ''Hermione':97}, index=['Magic Creature']))
+            df.loc['Magic Creature'] = pd.Series({'Harry': 88, 'Ronald': 60, 'Hermione': 97})
+
+            # access data cell
+            df.loc['Magic Defense', 'Hermione']  # recommended, first row then column
+                # df.loc['Magic Defense', 'Hermione'] = 100
+                # df2.iloc[0,2] = 98  # iloc first row then column
+            # not recommended
+                df['Hermione'].loc['Magic Defense'] # first column then row, chain index might cause issue during update
+                df['Hermione']['Magic Defense']
+                df.loc['Magic Defense'].loc['Hermione']  # first row then column
+
+            #Functions (with()) and Attribute:
+            .dtypes    # show column datatype
+            .columns   # return list of column name
+            .index     # Index(['Magic Defense', 'Magic Spell'], dtype='object')
+            .values    # data inside table (2d np.array)
+            .shape     # values (data) shape (2,2)
 
             .describe()   # return statistic information of numerical columns
             .info()    # information of index + dtypes
@@ -171,12 +217,7 @@
             .tail()     # last 5 rows
             .sort_values(by=["saledate"], inplacce=True, ascending=True)
 
-            .loc[3]   # return item with index 3
-            car_sales.loc[1, "price"] =3000   # set value for a cell
-            .iloc[3]  # return item at row 4    .iloc[:3]   # return row 1-4
-            car_sales["Doors"].plot()  # return doors column in plot
-                or  car_sales.Doors can't have space in name
-                %matplotlib inline   import matplotlib.pyplot as plt   if plot not show up
+            car_sales["Harry"].plot()  # return doors column in plot
             car_sales[car_sales["Doors"]  == 4]   # return cars with 4 doors
             pd.crosstab(car_sales["Make"], car_sales["Doors"] )    #return table of 2 selected columns as x
                 and y
@@ -184,20 +225,19 @@
             .plot()   .hist() # histogram
             .value_counts()  # return count of series unique item
 
+
+            pd.isnull(df)    pd.notnull()    df.isnull()   df.notnull()
+            df.isnull().any()  # return each column boolean whether has nan, default axis=0
+            df = df.dropna()  # delete roll with na, default axis=0, how='any'    (how='all': drop row full nan)
+                # same as df.dropna(inplace = True)  # default inplace = False, need assign
+                # df.dropna(subset=['Harry','Ronald'])   only drop for nan in certain column
+            df.fillna(value=100)   # fill nan with 100
+            df = df.fillna(axis=0, method='bfill')  # fill nan with value below. backfill, pad(fill with left), ffill
+                # limit=2   max fill 2 consecutive nan
+            df['Hermione'].fillna(df['Hermione'].mean(), inplace=True)
+
             car_sales["Make"] = car_sales["Make"].str.lower()   #change make column to lower case,
                 need reassign if any change of column
-            car_sales["Doors"].fillna(car_sales["Doors"].mean(), inplace=True)    # fill missing value cell
-                replacing NaN with average value, inplace don't need reassign, change in place
-            car_sales = car_sales.dropna()   #remove row with nan
-            car_sales.dropna(subset=["Target"], inplace=True)   # remove row with target is na
-
-            Add/remove new column
-            car_sales["Seats"] = pd.Series([5,4,5,6])   #add a seat column with 4 rows
-                car_sales["Seats"]  = [5,4,5,6,9,10]     # need have same rows as original table
-                car_sales["Seats"] = 4   # all 4 seats
-            car_sales = car_sales.drop("Seats", axis = 1)   # drop column seats
-
-
             car_sales = car_sales.sample(frac=0.6)    # shuffle and use 60% data, index same, row change
             car_sales = car_sales.reset_index(drop=True)  # reset the index from 0 step 1, don't add new
                 index
@@ -205,24 +245,32 @@
                 function to change column value
             car_sales["Price"] = car_sales["Price"].astype(int)  pd.to_numeric(car_sales["Price"])
             zip
-        # change string column to category
-        for label, value in df.items():
-            if pd.api.types.is_string_dtype(value):
-                df["label"] = value.astype("category").cat.as_ordered()   # change string column to
-                    category order by alphabet. change to int underneath,
-                df.state.cat.codes  # show int code of category column "state"
-            pd.Categorical(df["state"])  #list of states (categorical)
-        #check null
-        for label, value in df.items():
-            if pd.api.types.is_numeric_dtype(value):
-                if pd.isnull(value).sum():
-                    df[lanel+"_is_misiing"] = pd.isnull(value)
-                    df[label] = value.fillna(value.median())
-            if not pd.api.types.is_numeric_dtype(value):
-                df[lanel+"_is_misiing"] = pd.isnull(value)
-                df[label] = pd.Categorical(value).codes + 1  #default na category code is -1
+            # change string column to category, default nan category code is -1
+            for label, value in df.items():
+                if pd.api.types.is_string_dtype(value):
+                    df["label"] = value.astype("category").cat.as_ordered()   # change string column to
+                        category order by alphabet. change to int underneath,
+                    df.state.cat.codes  # show int code of category column "state"
+                pd.Categorical(df["state"])  #list of states (categorical)
 
 
+            # math operation
+            don't have broadcast, fill NaN if missing (number add NaN is NaN)
+            python None can't used to calculate, pandas convert None to np.nan. np.nan math operation always return nan
+            +, -, *, /  apply to all number elements
+            a + b (same explicit index base operation ex.a.loc[0,0]+b.loc[0,0]..., if one is NaN, return NaN)
+            a.add(b, fill_value=0)    # instead of fill NaN, fill 0, need both dataframe, only same type can use
+                subtract()/sub()    multiply()/mul()   divide()/div()    floordiv()   mod()  pow()
+            # data frame and series operation default based on column index and series index, use add() and axis='index'
+                to switch to dataframe row index and series index
+            # dataframe and series operation based on df column index and series index
+            delta = pd.Series([10, -2], index = ['Harry','Hermione'])
+            print(df2 + delta) # add 10 for Harry column and minus 2 for Hermione column, missing column fill NaN
+                or df2.iloc[:,:] = df2.iloc[:,:]-[10,0,-2]
+            # dataframe and series operation based on df row index and series index
+            delta2 = pd.Series([0, 0, -10], index=['Magic Defense', 'Magic Spell', 'Magic Creature'])
+            print(df2.add(delta2, axis='index'))  # minus 10 for Magic Creature row
+                or df2.iloc[2:, :] = df2.iloc[2:, :] - 10  # df+number operation for each item
 
     matplotlib
         %matplotlib inline     # show plot/figure in console
@@ -313,8 +361,8 @@ def numpy_basic():
     # Compute the eigenvalues of a general matrix.
 
     # read txt file
-    file_data = np.genfromtxt(os.path.join('..','resources','data','numpy_data.txt'), delimiter=',').astype('int32')
-        # default float
+    file_data = np.genfromtxt(os.path.join('..', 'resources', 'data', 'numpy_data.txt'), delimiter=',').astype('int32')
+    # default float
     print(file_data)  # [[ -1   1  13 196   0][  3  42  12  33 766][  1  22  33  11 999]]
     print(file_data[file_data > 50])  # [196 766 999]
     print((~((file_data > 0) & (file_data < 100))))  # s<=0 or >=100
@@ -324,5 +372,68 @@ def numpy_basic():
     print(np.where(a < 1, a, -1))  # if element < 1, return element, otherwise -1 [[ 0 -1  0][-1 -1  0]]
 
 
+def pandas_basic():
+    # Series
+    brand = pd.Series(["BMW", "Toyota", "Honda"])  # create by list
+    color = pd.Series(np.array(["Red", "Blue", "White"]), index=list('abc'))  # create by np.array assign custom index
+    color_array = np.array(["Red", "Blue", "White"])
+    color = pd.Series(color_array.copy(), index=[0, 3, 9])  # assign custom index
+    color = pd.Series({"a": "Red", 'b': "Blue", 'c': "White"})  # create by dictionary
+    color['a'] = "Green"  # update    need pd.Series(arr.copy()) if arr is np.array with number, otherwise update will
+        # change np.array value as well
+    # explicit index
+    print(color.loc['a'])  # retrieve value,
+        # print(color['a']) # not recommended, can't distinguish explicit or implicit indexing
+    print(color.loc['a':'c'])  # index ['a','c']
+    # implicit index
+    print(color.iloc[0])
+    print(color.iloc[0:2])  # index [0,2)
+        # print(color[0])  # not recommended, can't distinguish explicit or implicit indexing
+    print(color.shape)  # (3,)         color.size  # 3
+    print(color.index)   # Index(['a', 'b', 'c'], dtype='object')
+    print(color.values)   # array(['Red', 'Blue', 'White'])
+    print(color.head(), color.head(2))   # first 5 elements ,  or head(8)  first 8 elements
+    color.name = 'color'  # assign name for series
+
+    color['d'] = np.nan
+    color = color.append(pd.Series(['Orange','Black']))  # {"e":'Orange', "f":'Black'}   default index start at 0
+    print(color)  # a Green, b Blue, c White, d NaN, 0 Orange, 1 Black
+    print(pd.isnull(color))  # return index and boolean of null check for np.NaN
+        #pd.notnull(color)    color.isnull()  color.notnull()
+    a = pd.Series(np.arange(0,3))   # [0,3)
+    b = pd.Series(np.arange(1,4), index=[1,2,3])
+    print(a+b)  # 0 NaN    1 2.0       2 4.0      3 NaN
+        # same explicit index base operation ex.a.loc[1]+b.loc[1]..., if one is NaN, return NaN
+    print(a.add(b, fill_value=0))   # 0 0.0    1 2.0       2 4.0      3 3.0
+        # instead of fill NaN, fill 0  subtract()/sub(), multiply()/mul(), divide()/div(), floordiv(), mod(), pow()
+
+
+
+    # DataFrame
+    df = pd.DataFrame(data=[[1,2],[3,4]], index=['Magic Defense', 'Magic Spell'],
+                                             columns=['Harry','Ronald'])  # data: list/np.array, index:list, column:list
+    df2 = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)}, index=
+        ['Magic Defense','Magic Spell'])   # dictionary with column as key and list of value as value, index: list
+    df2['Hermione'] = [99, 99]
+    #df2 = df2.append(pd.DataFrame({'Harry': 88, 'Ronald': 60, 'Hermione':97}, index=['Magic Creature']))
+    df2.loc['Magic Creature'] = pd.Series({'Harry': 88, 'Ronald': 60, 'Hermione': 97})
+    df2.loc['Magic Defense', 'Hermione'] = 100
+    df2.iloc[0,2] = 98
+    print(df2)
+    print(df2.iloc[:, 0:2])
+    print(df2[['Harry','Hermione']] )
+    delta = pd.Series([10, 0, -2], index = ['Harry','Ronald', 'Hermione'])
+        # add 10 for Harry column and minus 2 for Hermione column
+    delta2 = pd.Series([0, 0, -10], index=['Magic Defense', 'Magic Spell', 'Magic Creature'])
+        # minus 10 for Magic Creature row
+    print(df2.add(delta))
+    print(df2.add(delta2, axis='index'))
+    print(df2)
+    #df2.iloc[:,:] = df2.iloc[:,:]-[0,5,10]
+    df2.iloc[1:, :] = df2.iloc[1:, :] - 10
+    print(df2)
+    df2.iloc[2,2] =np.nan
+
 if __name__ == '__main__':
-   numpy_basic()
+    # numpy_basic()
+    pandas_basic()
