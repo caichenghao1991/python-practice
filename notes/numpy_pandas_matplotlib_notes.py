@@ -113,11 +113,15 @@
         2 main datatypes: series, dataframe
         Series: 1 dimension
             import pandas as pd
-            create series: can be created using np.array or list or dictionary
+            # create series: can be created using np.array or list or dictionary
             brand = pd.Series(["BMW", "Toyota", "Honda"])    #takes in list
             color = pd.Series(["Red", "Blue", "White"], index=[0,3,9])  # assign custom index
             color = pd.Series(np.array(["Red", "Blue", "White"]), index=list('abc'))  # assign custom index
             color = pd.Series({"a":"Red", 'b':"Blue", 'c':"White"})
+
+            # hierarchical index
+            color = pd.Series(["Red", "Blue", "White"], index=[['Light','Light','Dark'],[0,3,9]])
+
 
             color['a'] = "Green"  # update    need pd.Series(arr.copy()) if arr is np.array with number, otherwise
                 update will change arr value as well
@@ -149,7 +153,8 @@
             a + b (same explicit index base operation ex.a.loc[1]+b.loc[1]..., if one is NaN, return NaN)
             a.add(b, fill_value=0)    # instead of fill NaN, fill 0
                 subtract()/sub()    multiply()/mul()   divide()/div()    floordiv()   mod()  pow()
-            aggregate function same as numpy a.sum()
+            aggregate function same as numpy a.sum()  # add numeric, concatenate string
+                prod,  mean, std, var, argmin, argmax, median, precentile, any, all, power
 
         DataFrame: 2 dimensional
             each row or column is a Series
@@ -161,6 +166,7 @@
                 index=['Magic Defense','Magic Spell'])   # dictionary: key:column name, value:list;  index:list
             df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)})
             df.index = ['Magic Defense','Magic Spell']  # assign later
+
 
             car_sales = pd.read_csv("car-sales.csv")   #import from structure data csv
             axis = 0: row      axis = 1:column
@@ -200,6 +206,38 @@
                 df['Hermione']['Magic Defense']
                 df.loc['Magic Defense'].loc['Hermione']  # first row then column
 
+
+            # hierarchical index
+            df = pd.DataFrame(data=np.random.randint(0, 100, size=(2, 2)), index=[['Grade1', 'Grade2'], ['Magic Defense'
+                ,'Magic Spell']],columns=[['Male','Male']['Harry','Ronald']])
+            # 3 ways: pd.MultiIndex.from_arrays, from_tuples, product
+            df = pd.DataFrame(data=np.random.randint(0, 100, size=(3, 3)), index=pd.MultiIndex.from_arrays([['Grade1',
+                'Grade1','Grade3'], ['Magic Defense','Magic Spell','Magic Creature']]),columns=pd.MultiIndex.from_tuples
+                ([('Male','Harry'),('Male','Ronald'),('Female','Hermione')]))
+                # index=pd.MultiIndex.from_product([[Grade1, Grade2], ['Magic Defense','Magic Spell']])
+                    # Cartesian product, all combination
+
+            df.loc['Grade1']  # all rows with Grade1
+            df.loc['Grade1','Magic Defense']   # row of Magic Defense
+            df.iloc[[0]]  # first row as a dataframe
+            df.loc[('Grade1','Magic Defense'):('Grade1','Magic Spell')]  # slice first 2 rows
+            df.iloc[0:2]  # slice first 2 rows
+            df.loc['Grade1','Magic Defense']['Male','Harry']   # cell Magic Defense, Harry
+                # df.loc[('Grade1','Magic Defense'),('Male','Harry')]
+            df.iloc[0:2,0]  # [0,2) row, first item
+
+
+            df['Male','Harry']  # Harry column
+            df.loc[:, ('Male', ['Harry','Ronald'])]   # slice first 2 column
+            df.iloc[:, 0:2]   # slice [0,2) column
+
+            df.stack()  # column become 'Male','Female', convert inner column index 'Harry','Ronald','Hermione' to most
+                inner row index (total 3 layers row index), can generate additional  np.nan
+                # df.stack(level=0, fill_value=0)  # convert level 0 index ('Male','Female') to column index
+            df.unstack()  # row become 'Grade1','Grade1','Grade2', convert 'Magic Defense','Magic Spell','Magic
+                Creature'  to most inner column index (total 3 layers column index)
+
+
             #Functions (with()) and Attribute:
             .dtypes    # show column datatype
             .columns   # return list of column name
@@ -209,13 +247,18 @@
 
             .describe()   # return statistic information of numerical columns
             .info()    # information of index + dtypes
-            .mean()     # return mean of numerical columns
-            .sum()    # sum of numerical columns, concatenate object column
             len(car_sales)   # return rows count
             .head()     # return default show 5 rows of data
                 .head().T   # if too many columns and truncated
             .tail()     # last 5 rows
             .sort_values(by=["saledate"], inplacce=True, ascending=True)
+            df = df.astype(dtype=np.int16)  or df['Harry'] = df['Harry'].astype(int)  # change datatype
+
+            aggregate function  # add numeric, concatenate string, return dataframe
+                df.sum()  #  for each column sum a value, return dataframe
+                df.sum(axis=1)  # each row sum a value(same column)
+                df.sum(axis=1,level=0)  # each level 0 row index sum a value (same column)
+                prod,  mean, std, var, argmin, argmax, median, precentile, any, all, power
 
             car_sales["Harry"].plot()  # return doors column in plot
             car_sales[car_sales["Doors"]  == 4]   # return cars with 4 doors
@@ -433,6 +476,20 @@ def pandas_basic():
     df2.iloc[1:, :] = df2.iloc[1:, :] - 10
     print(df2)
     df2.iloc[2,2] =np.nan
+
+    df = pd.DataFrame(data=np.random.randint(0, 100, size=(3, 3)), index=pd.MultiIndex.from_arrays([['Grade1','Grade1',
+        'Grade3'],['Magic Defense','Magic Spell','Magic Creature']]),columns=pd.MultiIndex.from_tuples([('Male',
+        'Harry'), ('Male','Ronald'),('Female','Hermione')]))
+    print(df)
+    print(df.iloc[0:2])  # slice first 2 rows
+    print(df['Male','Harry'])
+    print(df.loc[:, ('Male', ['Harry','Ronald'])])
+    print(df.loc['Grade1'])
+    print(df.loc[('Grade1','Magic Defense'):('Grade1','Magic Spell')])
+    print(df.stack())
+    print(df.unstack())
+    print('x',df.sum().iloc[0:2])
+
 
 if __name__ == '__main__':
     # numpy_basic()
