@@ -355,6 +355,10 @@
                 df.plot(kind='kde')  #kernel density estimate(install scipy), curve for density for input (distribution)
                 df.plot(x='Harry',y='Ronald',kind='scatter')  # check 2 column/(1D) data relation
 
+                add addition matplotlib functions, detail check below
+                plt.xticks(np.arange(0, 9, 1))
+
+
             pd.plotting.scatter.matrix(df, figsize=(16,16), alpha=0.6, diagonal='kde')
                 # alpha default 0.5, [0,1] transparency, smaller more transparent
                 # show all scatter plots for 2 columns combination
@@ -461,51 +465,170 @@
         plt.show()  # add in pycharm to show all the plots declared above in one figure
 
 
+        convert to gray image
+            # for each pixcel replace with  max/min/mean value in rgb channel
+            hp = plt.imread('./resources/images/Albus_Dumbledore.jpg')
+            hp_max = hp.max(axis=2) #color at axis=2 (x axis=0, y axis =1)   # max of three channel, image lighter
+            hp_min = hp.min(axis=2)    # min of three channel, image darker
+            hp_mean = hp.mean(axis=2)  # mean of three channel
 
+            # for each pixcel replace with weighted sum of rgb channel
+                # val = 0.299 Red + 0.587 Blue +0.114 Green
+            hp_weighted = np.dot(hp, [0.299, 0.587, 0.114])/3    # (255+255+255)/3
 
-        x=[1,2,3]  y=[4,5,6]   plt.plot(x,y)   # default line chart
+            fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(10, 5))
+            ax1.imshow(hp)
+            ax2.imshow(hp_max, cmap='gray')     # plt.imshow
+            ax3.imshow(hp_min, cmap='gray')
+            ax4.imshow(hp_mean, cmap='gray')
+            ax5.imshow(hp_weighted, cmap='gray')
+            plt.show()
+
+        fig = plt.figure()   # return matplotlib.figure.Figure object
+            # facecolor='white'  # set background color, default white
+            # figsize=(6,5)   # set figure size 6*5 inch
+
+        plt.plot() # line chart
+            # don't have kind='hist'..., use plt.bar, plt.hist... instead
+            # return A list of `.Line2D` objects representing the plotted data.
+
+            x=[1,2,3]  y=[4,5,6]   plt.plot(x,y)
+            # x axis is not must have, if not provided, use y axis index as x axis
+            plt.plot([4,7,6])   # line chart pass points (0,4),  (1,7), (2,6)
+                # plt.plot()   add more line (different color) in same figure
+                # add plt.show() to start new figure
+            # lw=3   # change line weight (width)
+            # ls='-'  # '-': solid line,  '--': dashed line   '-.': dashed dotted line   ':': dotted line
+            # dashes=[4,2,1,3,4,2]  # custom length repeated dashed dot line (dash, space, dot, space, dash... length)
+
+            # marker='1'  # marker style for point, default ','(pixel) other style: '.', 'o', '+', '1'-'4', 's', 'p',
+                # 'h', 'D', 'd', 'H', '*', '|', '_', 'v', '^', '<', '>'
+                markersize=10, markerfacecolor='red', markeredgecolor='orange'  markeredgewidth=2
+
+            # alpha=0.5   # transparency, default 1  [0,1]
+            # '>--r'   specify marker, ls, color together
+
+            plt.plot(x, x, x, y)  # plot (x,x) and (x,y)  # can't use digit combine with letter
+                # plt.plot(x, y, 'r--d', x, 2y,'g-o', lw=2)  # later options (lw) are shared style
+
+            # oop
+            l1, = plt.plot([4,7,6])    # return list .Line2D if just 1 line, use ','
+                l1.set_color('red')   # can set other attributes as well: set_marker, set_linestyle...
+                plt.setp(l1, 'color','red')
+
+        plt.xticks()  # modify display of x axis tick value
+           plt.xticks([0,1,2,3,4,5])  # make x tick value 0-5
+            plt.xticks([0,1,2,3],['zero','one','two','three'])  # make x tick value 0-3 and display zero,one...
+                # display greek letter use $\   ex. 3pi/2  '3$\pi/2'
+                # set_xticks()  and set_xticklabels() in oop
+            # fontsize=20
+
+        plt.grid()   # add grid lines for x and y axis
+            # lw=1,2,...  # line width start 1  (0: no grid)
+            # color = 'gray'   # set grid color   'r' (red) for some common color,  '#eeefff'  # hex code
+            # ls='-'  # '-': solid line,  '--': dashed line   '-.': dashed dotted line   ':': dotted line
+            # alpha=0.5   # transparency, default 1  [0,1]
 
         plt.scatter(df.age[df.target==0], df.heartrate[df.target==0], c="blue");
 
-        #1st method
-            fig = plt.figure()
-            ax = fig.add_subplot()
-            plt.show()
+        plt.axis()   # (min_x, max_x,min_y, max_y)   return tuple of x axis and y axis range
+            # plt.axis([-1,1,-1,1])  # set x, y axis range to [-1,1]
+            # plt.axis(xmin=-1, xmax=1)  # only set x axis range, with default y range
+            # plt.axis('tight') default  (Set limits just large enough to show all data);
+                # 'equal' / 'scaled': x,y axis same scale
+                # 'off'/False  Turn off axis lines and labels  'on'/True  Turn on axis lines and labels
 
-        #2nd method
+        plt.xlim(xmin=-1, xmax=1)  # only set x axis range
+
+        plt.xlabel('X')   # add x axis label below scale at middle
+            # fontdict=dict(fontsize=10)
+            # rotation=0    # default xlabel rotation is 0
+            # position=(-0.2,0)  # change x axis position (first one), 0: chart left edge, 1: chart right edge
+
+        plt.title('Title name')   # set figure title
+            # rotation, position same as xlabel
+
+        plt.legend()  # add discription for each plot, must add after plot, and inside plot add label
+            plt.plot([4,5,6], label='a')   # label name don't start with '_'
+            plt.legend()
+                # plt.legend(['a','b']) # declare label here if not declared in plot, not recommended
+            # loc=0  # default (best location for legend)   [0,10]
+                # loc=(0,1)  use relative position  (0,0) at figure left bottom corner
+            # ncol=2   # instead of 1 column of labels change to 2 column
+
+        .savefig()  # must use figure object to call this method
+            fig = plt.figure()  # initialize figure
+            fig.savefig("images/sample_plot.png")   # jpg, png, pdf, ps, svg, eps
+            # dpi=100  # default dots per inch
+            # facecolor='white'  # default white background
+
+        subplots
+            # method 1   recommended
+            fig = plt.figure(figsize=(2*6,5))  # 6*5 size each for 2 subplots
+            fig.suptitle("Title for whole figure", fontsize=16)
+            axes1 = plt.subplot(1, 2, 1, facecolor='gray')   # return .axes.SubplotBase class
+            x = np.linspace(-20,20,1000)
+            axes1.plot(x, np.sin(x))
+            axes1.grid()
+            axes1.set_title('title for axes 1', fontsize=16)
+
+            axes2 = plt.subplot(1, 2, 2)
+            axes2.plot(x, np.cos(x))
+            axes2.set(title="Simple Plot", xlabel="x-axis", ylabel="y-axis")  # set all at one time for axes object
+
+            # method 2
+            figure = plt.figure(figsize=(2*6,5))
+            axes1 = figure.add_subplot(1, 2, 1)
+            axes1.plot(x, np.sin(x))
+
+            # method 3
             fig = plt.figure()
             ax = fig.add_axes([1,1,1,1])
             ax.plot(x,y)
             plt.show()
 
-        # 3rd method (recommended, OOP for advanced plotting)
-            fig, ax =plt.subplots(figsize=(15, 8))
-            ax.plt(x, y);
-            ax.set(title="Simple Plot", xlabel="x-axis", ylabel="y-axis")
-            fig.savefig("images/sample_plot.png")
-
-        subplots:
-            #option 1
+            # method 4
                 fig,((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2, figsize=(10,5))
-                ax1.plot(x,y)
-            #option 2
+                ax1.plot(x,y)   ax2.imshow(hp)
+            # method 5
                 fig, ax =plt.subplots(nrows=2, ncols=2, figsize=(10,5), sharex=True)
                     #share x label remove xlabel
                 ax[0, 0].plot(x,y)
 
-        ax.scatter(x, y)    # scatter plot
-        ax.bar(dict.keys(), dict.values())
-        ax.hbar(list(dict.keys()), list(dict.values()))
-        ax.hist(x)
+        plt.hist()
+            plt.hist(np.random.randint(0, 10, size=10))
+            # bins=10  # change bins number, default 10
+            # density=False  # default false count occurance. True change to percentage/bin width
+            # color='red'  # change bins color
+            # orientation='vertical'  # change bins orientation default vertical, can change to horizontal
 
-        df = pd.Series(np.random.randn(1000), index=pd.date_range)"1/1/2020", periods=1000))
-        df=t.cumsum()
-        df.plot(x="column name 1",y="column name 1")
-        df.plot.bar()
-        df.plot.hist(bins=10, figsize=(10,30),subplots=True)  #plot all columns, same scale
-        plt.legend(["Female", "Male"])
-        plt.xticks(rotation=0)  #rotate the scale ticks on x-axis
-        plt.xticks(np.arrange(0, 101, 10))
+        plt.bar()    # must have x, y input
+            plt.bar(no.arange(0,10), np.random.randint(0, 10, size=10))
+            # width=1   # change bars width
+            # color='red'
+
+        plt.barh()    # horizontal bar graph
+            plt.barh(no.arange(0,10), np.random.randint(0, 10, size=10))
+            # height=1   # change bars width
+
+        plt.pie()
+            plt.pie([0.1, 0.2, 0.5])  # add together less than 1 (not full circle pie chart )
+            plt.pie([1, 2, 3])   # add together greater than 1 (full circle pie chart with scaled proportion)
+
+            # autopct='%.2f%%'   # add percentage label (ex. 20%) for each slice of pie
+            # pctdistance=0.8   # adjust percentage label distance from center, 1 land right at pie edge
+            # explode =[0.1, 0.2, 0.3]  # each slice move outward from center specified length
+            # shadow=True   # add shadow, default False
+            # labels=list('ABC')  # add label for each slice of pie, default none, add outside pie
+            # labeldistance=1.1   # adjust label distance from center, default 1.1, 1 land right at pie edge
+            # colors = ['r', 'g', 'b']
+            # startangle=60  # start angle for the first slice right edge, default 0 (3 oclock direction)
+            # textprops=dict(size=20)
+
+        ax.scatter(x, y)    # scatter plot
+
+
+
 
         #correlation matrix heat map
         corr_mat = df.corr()  #correlation matrix for all columns vs all columns, max value 1, min value -1,
@@ -513,11 +636,6 @@
         fig, ax = plt.subplots(figsize=(15,10))
         ax = sns.heatmap(corr_mat, annot=True, linewidths=0.5, fmt=".2f", cmap="YlGnBu")
 
-        #mix pandas and oop
-        fig, ax =plt.subplots(figsize=(15, 8))
-        ax.plt(kind='scatter', x="age", y="chol",c="target", ax=ax);
-        ax.set_xlim([45,100])
-        fig.savefig("images/sample_plot.png")
 
         #oop
         fig, ax =plt.subplots(figsize=(15, 8))
@@ -525,27 +643,12 @@
         ax.set(title="Heart disease", xlabel="Age", ylabel="Cholesterol")
         ax.legend(*scatter.legend_elements(), title="Target")
         ax.axhline(y, linestyle="--", color="blue")
-        fig.suptitle("Overall title", fontsize=16, fontweight="bold")
         ax.legend().set_visible(True)
 
         plt.style.available   # show available plot style
         plt.style.use('seaborn-whitegrid')
 
-        #方法1：先创建窗口，再创建子图。（一定绘制）
-        fig = plt.figure(num=1, figsize=(15, 8),dpi=100)     #开启一个窗口，同时设置大小，分辨率
-        ax1 = fig.add_subplot(2,1,1)  #通过fig添加子图，参数：行数，列数，第几个。
-        ax2 = fig.add_subplot(2,1,2)  #通过fig添加子图，参数：行数，列数，第几个。
-        print(fig,ax1,ax2)
-        #方法2：一次性创建窗口和多个子图。（空白不绘制）
-        fig,axarr = plt.subplots(4,1)  #开一个新窗口，并添加4个子图，返回子图数组
-        ax1 = axarr[0]    #通过子图数组获取一个子图
-        print(fig,ax1)
-        #方法3：一次性创建窗口和一个子图。（空白不绘制）
-        ax1 = plt.subplot(1,1,1,facecolor='white')      #开一个新窗口，创建1个子图。facecolor设置背景颜色
-        print(ax1)
-        #获取对窗口的引用，适用于上面三种方法
-        # fig = plt.gcf()   #获得当前figure
-        # fig=ax1.figure   #获得指定子图所属窗口
+
 
 
     Scipy
@@ -590,6 +693,21 @@
         face_slice = face_zoom[180:320, 400:600]  # slice from top 180 px to 320 px. from left 400 to 600px
         plt.imshow(face_slice)
             # add cmap='gray' if gray scale image
+
+
+        # image filter
+        # gaussian  sigma bigger cause blur (lose detail), small cause miss noise
+        face_gaussian = ndimage.gaussian_filter(face_noise,sigma=1)
+        plt.imshow(face_gaussian)
+
+        # median filter
+        face_median = ndimage.median_filter(face_noise, size=4)
+        plt.imshow(face_median)
+
+        # wiener filter
+        face_wiener = signal.wiener(face_noise2, mysize=5)
+        plt.imshow(face_wiener, cmap='gray')
+
 '''
 import os
 
@@ -806,6 +924,7 @@ def matplotlib_basic():
     pd.Series(np.random.randint(0, 10, size=10)).plot()
     plt.show()
 
+
 def scipy_basic():
     # Use Fourier transform
     moon = plt.imread('../resources/images/moon.png')  # shape (824, 1203, 3)
@@ -905,5 +1024,5 @@ def scipy_basic():
 if __name__ == '__main__':
     # numpy_basic()
     # pandas_basic()
-    #matplotlib_basic()
-    scipy_basic()
+    matplotlib_basic()
+    #scipy_basic()
