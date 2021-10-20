@@ -161,6 +161,8 @@
                 plt.show()  #needed for pycharm to show figure
                 # same as dataframe, check below
 
+            color.tolist()   # convert series to list
+
             math operation: don't have broadcast, fill NaN if missing (number add NaN is NaN)
             +, -, *, /  apply to all number elements
             a + b (same explicit index base operation ex.a.loc[1]+b.loc[1]..., if one is NaN, return NaN)
@@ -229,6 +231,7 @@
 
             df.loc['Grade1']  # all rows with Grade1
             df.loc['Grade1','Magic Defense']   # row of Magic Defense
+            df.iloc[0]  # first row as a series
             df.iloc[[0]]  # first row as a dataframe
             df.loc[('Grade1','Magic Defense'):('Grade1','Magic Spell')]  # slice first 2 rows
             df.iloc[0:2]  # slice first 2 rows
@@ -267,6 +270,7 @@
             .columns   # return list of column name
             .index     # Index(['Magic Defense', 'Magic Spell'], dtype='object')
             .values    # data inside table (2d np.array)
+                .values.tolist()   # convert to list
             .shape     # values (data) shape (2,2)
 
             .describe()   # return statistic information of numerical columns
@@ -423,6 +427,7 @@
                 #pd.read_excel, read_html, read_json, read_sql
             # stock = pd.read_csv('http://xxx/stock.csv')
             # stock = pd.read_excel('../resources/data/EH.xlsx', sheet_name=2)
+            # stock = pd.read_table('../resources/data/EH.tsv', header=None)
             # conn = sqlite3.connect('../resources/data/student.sqlite')
                 # conn = pymsql.connect(host='127.0.0.1', port=3306, user='cai', password='123456', database=
                                 # 'company', charset='utf-8'
@@ -454,7 +459,7 @@
 
 
 
-    matplotlib
+    matplotlib  (alternative: seaborn, pyecharts)
         %matplotlib inline     # show plot/figure in the jupyter notebook console
         import matplotlib.pyplot as plt
         img = plt.imread('./resources/images/hp2.jpg')   # return ndarray (matrix) of image.  need pillow if not png file
@@ -526,6 +531,8 @@
         plt.grid()   # add grid lines for x and y axis
             # lw=1,2,...  # line width start 1  (0: no grid)
             # color = 'gray'   # set grid color   'r' (red) for some common color,  '#eeefff'  # hex code
+                # color=(0.1,0.2,0.9)  proportion of r,g,b  between [0,1]
+                # color=(0.1,0.2,0.9,0.5)  # r, g, b, alpha
             # ls='-'  # '-': solid line,  '--': dashed line   '-.': dashed dotted line   ':': dotted line
             # alpha=0.5   # transparency, default 1  [0,1]
 
@@ -555,6 +562,10 @@
             # loc=0  # default (best location for legend)   [0,10]
                 # loc=(0,1)  use relative position  (0,0) at figure left bottom corner
             # ncol=2   # instead of 1 column of labels change to 2 column
+            # mode='expand'   # expand the legend width
+            # borderaxespad=0   # add padding between plot and legend
+            # bbox_to_anchor=[0,1,1,0.05]   # control legend box location (x, y coordinate of bottom left corner),
+                length, distance to axes
 
         .savefig()  # must use figure object to call this method
             fig = plt.figure()  # initialize figure
@@ -625,10 +636,24 @@
             # startangle=60  # start angle for the first slice right edge, default 0 (3 oclock direction)
             # textprops=dict(size=20)
 
-        ax.scatter(x, y)    # scatter plot
+        plt.scatter()    # scatter plot
+            plt.scatter(np.linspace(0,10,100), np.sin(np.linspace(0,10,100)))
+            # s=100   # change point size
+            # color='r'   # point color
+            # marker='d'   # point style
 
 
+        plt.text()
+            plt.text(0,0, 'y=sin(x)') # x, y coordinate using plot axis, 'sting to display'
 
+        plt.figtext()
+            plt.figtext(0,0, 'y=sin(x)') # x, y coordinate for the figure, (0,0) at bottom left corner of figure
+
+        plt.annotate()
+            plt.annotate('this spot must \n mean something',(np.pi/2, 1), (2.5, 1.25), arrowprops=dict(width=5,
+                headwidth=10, headlength=20, shrink=0.1, color='b'))  # shrink:% empty space between point and text loc
+                # annotate text, point(x,y) to annotate, location (x,y) to place text (using plot axis)
+                # arrowprops=dict(arrowstyle='<->')   # preset style, don't use together with other key
 
         #correlation matrix heat map
         corr_mat = df.corr()  #correlation matrix for all columns vs all columns, max value 1, min value -1,
@@ -648,7 +673,24 @@
         plt.style.available   # show available plot style
         plt.style.use('seaborn-whitegrid')
 
+        # 3D plot
+            from mpl_toolkits.mplot3d.axes3d import Axes3D
+            x, y = np.linspace(0,10,100), np.linspace(0,10,100)
+            X, Y = np.meshgrid(x,y)  # X:[[0, .1, .2,...,10],[0, .1, .2,...,10]...]]  Y:[[0,0,...,0],[.1,.1,...,.1]...]]
+            Z = np.sin(X) + np.cos(Y) + 2
+            axes = plt.subplot(projection='3d')
+                # or  plt.gca(projection='3d')  # get current axes
+            axes = axes.plot_surface(X, Y, Z)
+                # cmap='rainbow'   # generate heat map
+                # plt.colorbar(axes, shrink=0.5)  # add a scale bar indicating value vs color if using cmap
 
+            # 3D scatter plot
+            axes.scatter(X, Y, Z)
+
+        # polar plot  (polar axes, have extra direction info than bar chart)
+            axes = plt.subplot(projection='polar')
+            data, range = np.array([5,12,24,9,11,5,0,1]), np.arange(0, 2*np.pi, 2*np.pi/8)
+            plt.bar(range, data, width=2*np.pi/8)
 
 
     Scipy
@@ -749,6 +791,7 @@ def numpy_basic():
     print(np.zeros(3), np.ones((2, 2)), np.full((2, 2), 3, dtype='int16'), np.full_like(a, 8))
     # full_like specify shape like one other array
     print(np.random.rand(3, 2), np.random.normal(0, 2, (3, 3)), np.random.randint(4, 7, size=(2, 2)))
+        # loc=0, scale=2, size (3, 3)
     # rand generate [0, 1) even distribution;  mean 2, std 2, normal distribution; [4, 7) even distribution;
     print(np.arange(0, 3, 1))  # [0,3) step 1  [0, 1, 2]
     print(np.linspace(2.0, 3.0, num=5))  # [2,3] divide 5 points 1  [2.   2.25 2.5  2.75 3.  ]
@@ -924,6 +967,15 @@ def matplotlib_basic():
     pd.Series(np.random.randint(0, 10, size=10)).plot()
     plt.show()
 
+    from mpl_toolkits.mplot3d.axes3d import Axes3D
+    x, y = np.linspace(0, 10, 100), np.linspace(0, 10, 100)
+    X, Y = np.meshgrid(x, y)  # X:[[0, .1, .2,...,10],[0, .1, .2,...,10]...]]  Y:[[0,0,...,0],[.1,.1,...,.1]...]]
+    Z = np.sin(X) + np.cos(Y) + 2
+    axes = plt.subplot(projection='3d')
+    # or  plt.gca(projection='3d')  # get current axes
+    axes = axes.plot_surface(X, Y, Z)
+    plt.colorbar(axes, shrink=0.5)
+    plt.show()
 
 def scipy_basic():
     # Use Fourier transform

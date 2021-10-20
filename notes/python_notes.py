@@ -10,7 +10,10 @@ import datetime
 class Review:
     """"""
     """
-    virtualenv env   # create env folder for project dependency
+    Pycharm 
+        read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
+    
+    virtualenv venv   # create env folder for project dependency
         # add environment path to the path variable
     which pip   # shows which environment is installing
     python env/bin/pip install urllib   # force declare which pip
