@@ -49,6 +49,7 @@
 
         print(np.linspace(2.0, 3.0, num=5))  # [2,3] divide 5 points 1  [2.   2.25 2.5  2.75 3.  ]
             # add endpoint=False, not include 3,  # retstep return a tuple with list and step size
+        print(np.logspace(0,2,3))   # [  1.  10. 100.]
         print(np.identity(2))   print(np.eye(2))  # identity matrix [[1. 0.][0. 1.]]
         np.eye(2, k=1)  # daigpnal shift up 1 position
 
@@ -76,6 +77,20 @@
         np.unique([1,1,2,3])  # array([1,2,3]) return np.array with unique value
         np.histogram(np.array([1,1,2,3,5]))
 
+        x, y = np.linspace(0, 10,101), np.linspace(0,10,101)
+
+        X, Y = np.meshgrid(x,y)  # X:[[0,.1,.2,...,10],[[0,.1,.2,...,10]]...]  Y:[[0,0,...,0],[[.1,.1,...,.1]]...]
+        XY = np.c_[X.ravel(), Y.ravel()]
+            # X.ravel(): return 1d array  [0,.1,.2,...,10,0,.1,.2,...10]
+            # XY: [[0,0],[.1,0],[.2,0],...[.9,10],[10,10]]
+            # np.c_ join together X,Y with result rows as both
+            # np.r_ join together X,Y with result columns as both
+            # XY get all coordinates of mesh crossing points
+        knn.fit(X_train.iloc[:, 0:2], y_train)   # only use first 2 column to train for easier visualization
+        y_=knn.predict(XY)
+        #plt.scatter(XY[:, 0], XY[:, 1], c=y_)  # slower
+        plt.pcolormesh(X, Y, y_.reshape(1000,1000))  # faster
+
         # entry value modification
         print(a * 2, a + 2, a ** 2, a * a, np.sin(a), np.sqrt(a), np.exp(a), np.log([1, 2]))
         # doesn't change array unless assign, each value times 2, sin(), log()
@@ -89,9 +104,14 @@
         # matrix modification
         print(np.matmul(a, a.transpose()))  # matrix multiplication  same as a.T
         print("x", np.dot(a, a.transpose()))  # matrix product same as a @ a.transpose()
+            The matmul() function broadcasts the array like a stack of matrices as elements residing in the last two
+            indexes, respectively. The numpy.dot() function, on the other hand, performs multiplication as the sum of
+             products over the last axis of the first array and the second-to-last of the second.
+            matmul() function cannot multiply array with scalar values.
         # For 2-D arrays it is equivalent to matrix multiplication, and for 1-D arrays to inner product of vectors (without
         # complex conjugation). For N dimensions it is a sum product over the last axis of a and the second-to-last of b
         a*b    # same size matrix a and b same position multiplication, return same size matrix
+            # same as np.multiply()
         print(np.inner([1, 2, 3], [0, 1, 4]))  # 14  1*0+2*1+3*4  (1*3)*(3*1)=(1*1)
         # inner product: sum of multiplication of a and b same position element, b's projection on a
         print(np.cross([1, 2, 3], [0, 1, 4]))
@@ -99,6 +119,9 @@
         print("z", np.outer([1, 2, 3], [0, 1, 4]))  # [[ 0  1  4][ 0  2  8][ 0  3 12]]  outer product of a and b is ab^T
         print(np.dot(np.array([1, 2, 3]).reshape(3, 1), [[0, 1, 4]]))  # [[ 0  1  4][ 0  2  8][ 0  3 12]]  (3*1)*(1*3)=(3*3)
             np.dot(a,b) != np.dot(b,a)
+        print(np.linalg.matrix_rank([[2, 1], [4, 2]]))  # 1  rank of matrix
+            # singular matrix rank less than row count
+        print(np.linalg.inv([[1, 2], [3, 4]]))   # inverse matrix, must be square matrix and non singular
         print(np.linalg.det([[1, 2], [3, 4]]))  # -2  input can be list or np.array
         # np.linalg.svd (Singular Value Decomposition)
         print(np.linalg.eigvals([[1, 2], [3, 4]]))  # square matrix [-0.37228132  5.37228132]
@@ -115,6 +138,7 @@
         print(np.any([[True, False], [False, False]], axis=0))  # [ True False]
         print(np.all([[True, False], [False, False]], axis=0))  # [False False]
         print(np.where(a < 1, a, -1))  # if element < 1, return element, otherwise -1 [[ 0 -1  0][-1 -1  0]]
+
 
 
     pandas
@@ -200,7 +224,7 @@
             # add/remove column
             df['Hermione'] = [99,98]     # pd.Series([99,98])
             df['Hermione'] = 100   # 100 for all rows
-            df = df.drop("Hermione")   # drop column Hermione
+            df = df.drop("Hermione")   # drop column Hermione, or use inplace=True
 
             #add row
             df = df.append(pd.DataFrame({'Harry':88, 'Ronald':60, ''Hermione':97}, index=['Magic Creature']))
@@ -362,8 +386,8 @@
                 add addition matplotlib functions, detail check below
                 plt.xticks(np.arange(0, 9, 1))
 
-
-            pd.plotting.scatter.matrix(df, figsize=(16,16), alpha=0.6, diagonal='kde')
+            # scatter plot matrix (n*n) plots, n = #column
+            pd.plotting.scatter_matrix(df, figsize=(16,16), alpha=0.6, diagonal='kde')
                 # alpha default 0.5, [0,1] transparency, smaller more transparent
                 # show all scatter plots for 2 columns combination
                 # same column will show histogram default, diagonal='kde' (only kde or hist option)
@@ -386,21 +410,26 @@
 
             # change string column to category, default nan category code is -1
             for label, value in df.items():
-                if pd.api.types.is_string_dtype(value):
+                if pd.api.types.is_string_dtype(value):  # check value is string type
                     df["label"] = value.astype("category").cat.as_ordered()   # change string column to
-                        category order by alphabet. change to int underneath,
-                    df.state.cat.codes  # show int code of category column "state"
+                        # category order by alphabet. change to int underneath,
+                    df["label"] = df.state.cat.codes  # assign series int code to the category column
                 pd.Categorical(df["state"])  #list of states (categorical)
 
 
             aggregate function
-                df.sum()  #  for each column sum a value, return dataframe  (add numeric, concatenate string)
-                df.sum(axis=1)  # each row sum a value(same column)
+                df.sum()  # for each column sum a value, return dataframe  (add numeric, concatenate string)
+                df.sum(axis=1)  # return series each row sum a value(same column)
                 df.sum(axis=1,level=0)  # each level 0 row index sum a value (same column)
                 prod,  mean, std, var, argmin, argmax, median, abs, precentile, any, all, power
 
                 df[~((df-df.mean()).abs() > 3 * df.std()).any(axis=1)]  # filter out row has greater than 3 std value
                 df.groupby('Make')['Price'].apply(mean)    df.groupby('Make')['Price'].transform(mean)
+
+            transform()
+                def min_max(x): return (x-x.min())/(x.max()-x.min())
+                for col in df.columns:
+                    df[col] = df[col].transform(min_max)
 
             # math operation
             don't have broadcast, fill NaN if missing (number add NaN is NaN)
@@ -503,7 +532,7 @@
                 # plt.plot()   add more line (different color) in same figure
                 # add plt.show() to start new figure
             # lw=3   # change line weight (width)
-            # ls='-'  # '-': solid line,  '--': dashed line   '-.': dashed dotted line   ':': dotted line
+            # ls='-'  # '-': solid line,  '--': dashed line   '-.': dashed dotted line  ':': dotted line 'None': no line
             # dashes=[4,2,1,3,4,2]  # custom length repeated dashed dot line (dash, space, dot, space, dash... length)
 
             # marker='1'  # marker style for point, default ','(pixel) other style: '.', 'o', '+', '1'-'4', 's', 'p',
@@ -642,6 +671,8 @@
             # color='r'   # point color
             # marker='d'   # point style
 
+        plt.crosstab()  # cross table
+            pd.crosstab(index=y_test, columns=y_pred, rownames=['True value'], colnames='Predicted value', margin=True)
 
         plt.text()
             plt.text(0,0, 'y=sin(x)') # x, y coordinate using plot axis, 'sting to display'
@@ -817,6 +848,7 @@ def numpy_basic():
     a *= 1  # this will update original matrix
 
     # matrix modification
+
     print(np.matmul(a, a.transpose()))  # matrix multiplication  same as a.T
     print("x", np.dot(a, a.transpose()))  # matrix product same as a @ a.transpose()
     # For 2-D arrays it is equivalent to matrix multiplication, and for 1-D arrays to inner product of vectors (without

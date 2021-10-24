@@ -406,7 +406,7 @@ class Review:
     os.remove(path)   # remove file 
     os.chdir(path)   # switch current working directory to path
     os.getpid()      # get process id
-    
+    os.listdir(path)  # return files and directory in path or current path if no input
     --Exceptions
     try:
         pass
