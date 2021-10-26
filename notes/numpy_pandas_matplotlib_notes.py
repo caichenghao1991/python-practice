@@ -43,6 +43,7 @@
         np.random.randint(4, 7, size=(2, 2)))  # [4, 7) even distribution;
         print(np.random.randn(2, 4))  # 2*4 array random distribution, mean 0, std 1
         np.random.permutation([0,1,2,3])  # return a random permutation of array with all elements
+        np.random.shuffle(arr)  # shuffle array by row
 
         print(np.arange(3))  # default step 1, start 0
         print(np.arange(0, 3, 1))  # [0,3) step 1  [0, 1, 2], not consistent with decimal, use linspace
@@ -76,6 +77,8 @@
             # final result and original same size in axis dimension
         np.unique([1,1,2,3])  # array([1,2,3]) return np.array with unique value
         np.histogram(np.array([1,1,2,3,5]))
+        np.logical_xor(data[:, 0] > 0, data[:, 1] > 0)   # return array of true(2,4 quadrant) and false(1,3 quadrant)
+            logical_or, logical_and, logical_not
 
         x, y = np.linspace(0, 10,101), np.linspace(0,10,101)
 
@@ -292,6 +295,7 @@
             #Functions (with()) and Attribute:
             df.dtypes    # show column datatype
             .columns   # return list of column name
+                df.columns = ['A', 'B']   # set column name
             .index     # Index(['Magic Defense', 'Magic Spell'], dtype='object')
             .values    # data inside table (2d np.array)
                 .values.tolist()   # convert to list
@@ -716,7 +720,7 @@
                 # plt.colorbar(axes, shrink=0.5)  # add a scale bar indicating value vs color if using cmap
 
             # 3D scatter plot
-            axes.scatter(X, Y, Z)
+            axes.scatter3D(X, Y, Z)
 
         # polar plot  (polar axes, have extra direction info than bar chart)
             axes = plt.subplot(projection='polar')

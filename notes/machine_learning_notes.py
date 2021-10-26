@@ -28,6 +28,7 @@
 
         LogisticRegression()  # bad for too many features
             lr = LogisticRegression(max_iter=1000)
+                # C  # penalty coeficient default 1.0, positive float, smaller stronger regularization
                 # solver='lbgfs' default
                 # liblinear  for small data set   L1/L2 loss
                 # lbgfs, sag, newton-cg for large multiclass dataset    L2 loss
@@ -36,12 +37,21 @@
 
 
         LinearSVC()   svm classifier
+            better performance than SVC(kernel='linear')
             svc = LinearSVC()   # can handle string target column, not data string column
+            # rbf
+            # gamma  coefficient for nonlinear kernel. greater gamma, more complicate model and more overfitting
+            # C  # penalty coeficient default 1.0, positive float, smaller stronger regularization
+            # kernel = 'rbf' (radical based kernel function,decision boundary circular arc) default, 'linear',
+                'poly'(decision boundary polynomial) 'sigmoid'
             svc.get_params()  # get input param
             svc.set_params(key=value)  # set input param
             svc.fit(X_train, y_train)  # train model
             print(svc.predict(X_test))  # 2D array (dataframe/[[]]) as input
             print(svc.score(X_train, y_train), svc.score(X_test, y_test))
+            svc.support_vectors_
+            svc.coef_,  svc.intercept_
+            svc.decision_function((x,y))  # return distance of point to decision hyperplane
 
         LinearSVR()  svm regressor, regresion scre closer to 1 better
             svr = LinearSVR()
@@ -68,6 +78,19 @@
             lasso.fit(X,y)
 
         KNeighborsRegressor()  K nearest neighbor regressor
+            ridge = Ridge(alpha=0.1)    # alpha=1 default is λ in the equation   [0.1-0.00001]
+            ridge.fit(X,y)
+
+        KMeans()
+            # ISODATA algorithm get desired k
+            # if data is dirty, cause long slim shape clustering, or each column has different std, or each cluster have
+                # huge difference in counts, those can cause less accurate result
+
+            # n_clusets=3  # default 8 centers to cluster
+            km = KMeans(n_clusets=3)
+            km.fit(data)
+            km.cluster_centers    # np array of centers coordinates
+            km.labels_   # array of label of center belong to for data
 
 
         Normalization (min-max scaling)  x=(x-x.min)/(x.max-x.min)
@@ -95,18 +118,23 @@
             loaded_model = joblib.load("random_forest.joblib")
             loaded_model.score(X_test, y_test)
 
+        Bayes: only for classification
+        GaussianNB(): continuous data, data gaussian distribution
+        MultinomialNB(): positive descrete data, multinomial distribution
+        BernoulliNB(): binary descrete data, bernoulli distribution
 
-
+        SVM: small data set regression/ classification
 '''
 import os
 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
 from sklearn.compose import ColumnTransformer
-from sklearn.datasets import load_diabetes,load_iris
+from sklearn.datasets import load_diabetes, load_iris, load_sample_image
 from sklearn.linear_model import LinearRegression, Ridge, LogisticRegression
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, silhouette_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier, KNeighborsRegressor
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
@@ -115,7 +143,7 @@ from sklearn.datasets import make_blobs
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB
-
+from sklearn.feature_extraction.text import TfidfVectorizer
 def classifier_basic():
     #df = pd.read_excel('../resources/data/movie.xlsx', sheet_name='movie')
     df = pd.read_csv('../resources/data/Iris.csv')
@@ -284,7 +312,7 @@ def cifar10():
     y_pred = svc.predict(X_test)
     print(svc.score(X_train,y_train), svc.score(X_test, y_test))
     '''
-    lr = LogisticRegression(solver='newton-cg',max_iter=10)#solver='newton-cg',max_iter=100
+    lr = LogisticRegression(solver='newton-cg',max_iter=10) #solver='newton-cg',max_iter=100
     lr.fit(X_train, y_train)
     y_pred = lr.predict(X_test)
     print(lr.score(X_train, y_train), lr.score(X_test, y_test))
@@ -488,6 +516,7 @@ def naive_bayes():
     data = load_iris()
     data, target = data['data'][:, 0:2], data['target']
     X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.2, random_state=1)
+
     estimators = {'gaussian': GaussianNB(), 'multinomial': MultinomialNB(), 'bernoulli': BernoulliNB()}
     for k, est in estimators.items():
         est.fit(X_train, y_train)
@@ -502,6 +531,122 @@ def naive_bayes():
         plt.scatter(data[:, 0], data[:, 1], c=target, cmap='rainbow')
         plt.show()
 
+
+
+    # spam sms detect
+    sms = pd.read_csv('../resources/data/spam.csv', sep=',', encoding="ISO-8859-1")
+    sms = sms.iloc[1:, 0:2].reset_index(drop=True)
+    X_train, X_test = sms.iloc[:5000, 1], sms.iloc[5000:, 1]
+    y_train, y_test = sms.iloc[:5000, 0], sms.iloc[5000:, 0]
+
+    # tokenize sentence
+    tf = TfidfVectorizer()  # convert sentence to a long array of words features with value 0,1
+    # tf.fit(data)  # tf_data=tf.transform(data).toarray()   # same as fit_transform
+    X_train = tf.fit_transform(X_train).toarray()  # convert to numpy array (5000*8220) , mostly 0
+    X_test = tf.transform(X_test).toarray()
+
+    # predict data
+    x, y = sms.iloc[-20:, 1], sms.iloc[-20:, 0]
+    x_tf = tf.transform(x).toarray()
+    print(x)
+    estimators = {'gaussian': GaussianNB(), 'multinomial': MultinomialNB(), 'bernoulli': BernoulliNB()}
+    for k, est in estimators.items():
+        est.fit(X_train, y_train)
+        print(est.score(X_train, y_train), est.score(X_test, y_test))
+
+        y_ = est.predict(x_tf)
+        print(y.tolist(), y_)
+
+def svm():
+    np.random.seed(8)
+    data, target = make_blobs(n_samples=200, centers=2, random_state=2)
+
+    svc = SVC(kernel='linear', C=0.1)   # default C=1, smaller C stronger regularization
+    svc.fit(data, target)
+    # z = w1*x1 + w2*x2 + b   on the slicing plane(line): 0 = w1*x + w2*y + b
+    w1, w2 = svc.coef_[0, 0], svc.coef_[0, 1]
+    b = svc.intercept_
+    x = np.linspace(-4,3,100)
+    y = -w1/w2 * x - b/w2
+    plt.scatter(data[:,0], data[:,1], c=target)
+    plt.plot(x, y, c='r')
+
+    #print(svc.support_vectors_)
+    # [[-1.5841884  -6.8961805 ][-0.72864791 -7.18926735][ 1.10320057 -3.20707537][-0.32431771 -3.31914574]]
+    b_up = svc.support_vectors_[2][1] - (-w1/w2) * svc.support_vectors_[2][0]
+    b_down = svc.support_vectors_[1][1] - (-w1 / w2) * svc.support_vectors_[1][0]
+    plt.plot(x, (-w1 / w2) * x + b_up, ls='--', c='g')
+    plt.plot(x, (-w1 / w2) * x + b_down, ls='--', c='k')
+    plt.scatter(svc.support_vectors_[:,0], svc.support_vectors_[:,1], c=(1,2,3,4), s=200, alpha=0.4, cmap='rainbow' )
+    plt.show()
+
+
+    data = np.random.randn(200,2)
+    target = np.logical_xor(data[:, 0] > 0, data[:, 1] > 0)  #
+
+    svc = SVC(kernel='rbf')
+    svc.fit(data, target)
+    x = np.linspace(data[:, 0].min(), data[:, 0].max(), 1000)
+    y = np.linspace(data[:, 1].min(), data[:, 1].max(), 1000)
+    X, Y = np.meshgrid(x, y)
+    XY = np.c_[X.ravel(), Y.ravel()]
+    distance = svc.decision_function(XY)   # distance to decision plane
+    plt.figure(figsize=(6,6))
+    plt.imshow(distance.reshape(1000,1000), extent=[data[:, 0].min(),data[:, 0].max(),data[:, 1].min(), data[:, 1].max()], cmap='PuOr_r')
+    plt.contour(X, Y, distance.reshape(1000,1000))
+    plt.scatter(data[:, 0], data[:, 1], c=target)
+    plt.show()
+
+
+def kmeans():
+    np.random.seed(8)
+    data, target = make_blobs(n_samples=200, centers=3, random_state=2)
+    kmeans = KMeans(n_clusters=3)
+    kmeans.fit(data)
+    centers = kmeans.cluster_centers_
+    plt.scatter(data[:, 0], data[:, 1], c=kmeans.labels_)
+    plt.scatter(centers[:, 0], centers[:, 1], c=[0,1,2], s=300, alpha=0.5, cmap='rainbow')
+    plt.show()
+
+def kmeans2():
+    image = load_sample_image(image_name='china.jpg')
+    data = np.array(image.reshape(-1, 3))
+    data_shuffled = data.copy()
+    np.random.shuffle(data_shuffled)
+    n_clusters = [8, 16, 32, 64, 128]
+
+    plt.figure(figsize=(10 * 2, 8 * 3))  # 2*3 plots   10*8 size
+    axes1 = plt.subplot(2, 3, 1)
+    axes1.imshow(image)
+
+
+    for i in range(len(n_clusters)):
+        clf = KMeans(n_clusters=n_clusters[i])
+        clf.fit(data_shuffled[:1000])   # train on sampling pixcels
+        #s = silhouette_score(,)
+        main_colors = clf.cluster_centers_
+        labels = clf.predict(data)
+        #new_image = np.array(np.floor(main_colors[labels]).reshape(*image.shape), dtype=np.uint8)
+        w, h, c = image.shape[0],image.shape[1],image.shape[2]
+        new_image = np.ones(shape=(w,h,c), dtype=np.uint8)
+        count = 0
+        for j in range(image.shape[0]):
+            for k in range(image.shape[1]):
+                color = main_colors[labels[count]]
+                new_image[j, k] = color
+                count += 1
+
+        axes = plt.subplot(2, 3, i + 2)
+        axes.imshow(new_image)
+
+        plt.imsave('../resources/images/china%s.png' % i, new_image/255)  # 144,219, 300, 367kb size
+        #plt.imsave('../resources/images/china%s.jpg' % i, new_image)
+        # jpg size decrease ignorable since already compressed
+
+
+
+
+    plt.show()
 if __name__ == '__main__':
     #classifier_basic()
     #regressor_basic()
@@ -509,4 +654,6 @@ if __name__ == '__main__':
     #linear_regression()
     #logistic_regression()
     #decision_tree()
-    naive_bayes()
+    #naive_bayes()
+    #svm()
+    kmeans2()
