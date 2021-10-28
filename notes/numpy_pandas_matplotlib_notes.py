@@ -79,6 +79,9 @@
         np.histogram(np.array([1,1,2,3,5]))
         np.logical_xor(data[:, 0] > 0, data[:, 1] > 0)   # return array of true(2,4 quadrant) and false(1,3 quadrant)
             logical_or, logical_and, logical_not
+        arr = np.sort(arr)  # default sort on axis=1
+        index = np.argsort(arr)  # return index
+
 
         x, y = np.linspace(0, 10,101), np.linspace(0,10,101)
 
@@ -223,6 +226,8 @@
             df.iloc[0]  # implicit index
             df.loc['Magic Defense':'Magic Spell']   # ['Magic Defense','Magic Spell']  inclusive
             df2.iloc[0:1]  # rows [0, 1)
+            df.loc[df.Gender=='male', 'name']  get name column with data.gender=male
+
 
             # add/remove column
             df['Hermione'] = [99,98]     # pd.Series([99,98])
@@ -244,6 +249,7 @@
                 df['Hermione'].loc['Magic Defense'] # first column then row, chain index might cause issue during update
                 df['Hermione']['Magic Defense']
                 df.loc['Magic Defense'].loc['Hermione']  # first row then column
+
 
 
             # hierarchical index
@@ -425,6 +431,7 @@
                 df.sum()  # for each column sum a value, return dataframe  (add numeric, concatenate string)
                 df.sum(axis=1)  # return series each row sum a value(same column)
                 df.sum(axis=1,level=0)  # each level 0 row index sum a value (same column)
+                (df['Gender']=='male').sum()
                 prod,  mean, std, var, argmin, argmax, median, abs, precentile, any, all, power
 
                 df[~((df-df.mean()).abs() > 3 * df.std()).any(axis=1)]  # filter out row has greater than 3 std value
@@ -560,6 +567,7 @@
                 # display greek letter use $\   ex. 3pi/2  '3$\pi/2'
                 # set_xticks()  and set_xticklabels() in oop
             # fontsize=20
+            # colums=list('ABCDEF')  # add column label
 
         plt.grid()   # add grid lines for x and y axis
             # lw=1,2,...  # line width start 1  (0: no grid)
