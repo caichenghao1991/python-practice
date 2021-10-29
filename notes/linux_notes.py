@@ -206,6 +206,9 @@
     git status                 # check status
     git commit -m "mesg"       # commit code move cache to repository
     git push                   # sync with server
+                               # first time push
+                                   # git remote add git@github.com:username/project.git
+                                   # git push -u origin master
     git pull                   # receive code changes in server
     git checkout -- a.py / .   # revert deleted (all) file
     git log                    # show previous commit history
@@ -213,4 +216,19 @@
     git reflog                 # show forward commit
 
     git clone url              # clone project to local
+    git branch new-branch      # create branch named new-branch
+    git checkout new-branch    # switch to new branch
+    git checkout a.py          # revert changes in a.py to remote repository version
+    git checkout <commit id>   # revert to previous commit, id from git log
+    git diff master new-branch # show difference of two branch
+        git difftool --tool=vimdiff   # use tool to show branch difference
+    git merge new-branch       # merge branch changes to current branch
+
+    only: clone, push, pull communicate with remote server
+
+    ssh-keygen                 # generate ssh key, enter, enter default
+                               # default under ~/.ssh   create id_rsa.pub and id_rsa (private key)
+                               # add id_rsa.pub   setting ssg and gpg keys add public key to github
+
+
 '''
