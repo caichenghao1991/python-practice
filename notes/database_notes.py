@@ -73,6 +73,9 @@
         foreign key(school_id) references t_school(sch_id)
         # need update/drop t_student before update/drop t_school after foreign key created
         #or use cascade during foreign key creation, not recommended
+        # foreign keys limitation: performance, not available for distributed clusters deployment
+            # for large scale system use to build relation instead
+
     alter table t_student add constraint fk_student_sch_id foreign key(school_id) references
         t_school(sch_id) on delete cascade on update cascade
         # on delete set null (not violating not null column)        restrict: default

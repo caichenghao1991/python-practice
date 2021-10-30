@@ -14,6 +14,7 @@ class Review:
         read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
     
     virtualenv venv   # create env folder for project dependency
+        # or python -m venv venv   # create virtual env after python 3.5
         # add environment path to the path variable
     which pip   # shows which environment is installing
     python env/bin/pip install urllib   # force declare which pip
@@ -509,7 +510,7 @@ class Review:
         def getPin(self):
             return self.__pin
         # alternative approach of getter and setter, use property decorator  
-        @property
+        @property        # read only if no setter, still a function
         def pin(self):            # must first have getter then setter, instance now can use ph.pin to get and set
              return self.__pin
         @pin.setter            
@@ -533,6 +534,9 @@ class Review:
     dir(ph)  or ph.__dir__()  # return all the attributes of the object and parent (methods and non-private variables)
     review.pin=10  # with property decorator
     print(review.pin)  # 10
+    hasattr(ph, 'brand')  # check whether ph object has attribute brand
+    
+    
     
     polymorphism： same method base on input type (isinstance(var, type)), run different code block
     
@@ -587,12 +591,15 @@ class Review:
     time.strptime('2019/06/20','%Y/%m/%d')  # return named tuple of time 
     time.sleep(n)   # sleep for n seconds
     import datetime
-    d = datetime.date(2019,6,20)
+    birthday = datetime.date(2019,6,20)
+        # today = datetime.date.today()
     print(d.day)  # 20         print(datetime.date.ctime(d))  # Thu Jun 20 00:00:00 2019
     datetime.date.today()   # 2021-09-07     
     now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
-    print(now, now-delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
+    print(now, now - delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
     
+    x = birthday - today  # datetime.timedelta
+    x.years  # return difference years
     
     --Random
     import random
