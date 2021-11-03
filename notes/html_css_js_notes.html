@@ -21,16 +21,47 @@
         put: modify resource on server
         patch: update resource on server
         put: update multiple resource on server
+        head: retrieve page header from server, usually for testing large site
+        options: show allowed action above
+
+    HTTP based on TCP, short connection protocol, need make connection every time send request and receive response,
+        then end connection.
+
+    TCP: ensure data transferred is not corrupted (client and server can send message concurrently), slower than UDP
+        3 handshake initialize connection: client send server SYN, server reply ACK+SYN, client reply ACK
 
     https://developer.mozilla.org/zh-CN/
 
     Ajax (Asynchronous JavaScript and XML):
         asynchronously send request for data in the background, and partial refresh on webpage
 
+
     frontend MVC frame work:  Vue.js
     M  model  (data)
     V views  (presented page)
     C controller   (link between model and views)
+
+    json data format:
+        double quote for key, value
+        must have "code"(status code, 0 for no exception),
+        "data"(dict data) key for data transfered
+        {
+            "code":0,
+            "data": {
+                "user":{
+                    "uid": 12345,
+                    "sex": "male"
+                },
+                "date": "2021-10-31"
+            }
+        }
+
+
+    frontend, backend separation:
+        define data transferred(json, xml, protobuf, yaml)
+        need documentation for each api (data format, interface, status code, path, method, description, params and
+            return)
+
 
     chrome debugger
         cookie: network tab, click on img, under Cookie tab)

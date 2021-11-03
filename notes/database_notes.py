@@ -13,6 +13,7 @@
             transactions don't know each other's intermediate state
         Durable: The results of applying a transaction are permanent, even in the presence of failures.
 
+
     non-relational database (NoSQL): faster flexible. MongoDB, Redis (key-value pair, cache),
         ElasticSearch (search engine)
         BASE
@@ -22,10 +23,16 @@
         Eventual consistency: Stores exhibit consistency at some later point (e.g., lazily at read time).
         document (MongoDB, ElasticSearch), key-value (Redis), wide-column, graph store  NoSQL database
 
+
     SQL: structured query language
         DDL data definition language:  create  drop  alter
         DML data manipulation language:  select insert delete update    crud
         DCL data control language:   grant  revoke
+
+        can only put one item in a cell, create a new table for list(one to many) item, while non-relational database
+            can put a list in a cell
+
+
 
     rpm -ivh mysql-5.7.25-1.el7.x86_64.rpm    # install MySQL
     rpm -e mysql-5.7.25-1  # uninstall mysql
@@ -212,7 +219,24 @@
                      e['address'],e['birth'],int(e['dept'])))
 
 
+    large scale distributed database
+        performance drop after 5 millions record in a table
+        data sharding: split User table into user_0, user_1, user_2,... to increase operations performance
+        horizontal slicing
+            retrieve item in specific table searching via (id // count per table)
+                but each database has concurrency limit
 
+            vertical slicing
+                split original table via columns, group columns into different tables base on functionality, link via id
+
+        split into multiple databases
+            mainly use horizontal slicing, save id range of records inside multiple databases
+
+        duplication
+            master, multiple slaves have same data. slave update data once master changes
+            separate read write: write data into master node, read from slaves node. (use config file)
+            zookeeper: manage distributed system. if master died will poll for new master among slaves.
+                need reliable crossover point(hard for duplication): such as DNS(domain name resolution), load balancer
     Redis
     key-value database, save in memory. single thread+ async I/O (Coroutines)
     high speed cache  (move frequently used data from database to memory)

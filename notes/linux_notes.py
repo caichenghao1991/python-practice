@@ -75,7 +75,10 @@
     $ netstat                # network status   -n number format    -a  all   -p process
                              # stream: tcp type    ugram: udp type    ip type
     $ kill                   # kill 1211   kill  process 1211  -9 force
+                             # kill -HUP 1211   non-stop restart
     ps /jobs                 # check running process   -ef all process
+                                ps ax|grep -v grep|grep gunicorn|awk '{print $1}'
+                                watch -n 0.5 "ps ax|grep -v grep|grep gunicorn|awk '{print $1}'"
     fg                       # move command to foreground    fg %1    jobs get id [1]+ Running
     Ctrl+z                   # stop foreground job and move to background
     bg                       # start the command in background    bg %1
@@ -88,7 +91,9 @@
                              #   grep -E "\<\/?script.*?\> index.html    non greedy search
                              # grep redis | grep -v auto  # search result have redis but no auto
                              cut
-                             f4
+
+
+    psgrep  gunic            # search in process with name gunic
     >  /  >>                 # redirect output to file    >> append
     2>  /  2>>               # error redirect output to file    >> append
 
@@ -99,6 +104,17 @@
     Ctrl+e                   # move cursor to end
 
     tab   # command and path auto fill
+
+    if condition
+    then
+        xxx
+    fi
+
+    for i in `seq 1 15`   # same as range(16)
+    do
+        xxx
+    done
+
 
 
     Linux install package
@@ -129,7 +145,11 @@
         set nu    syntax on   set ts=4    set expandtab    set autoindent    set ruler   set nohls
 
 
-
+    ~/.bashrc
+        add alias ll='ls-ClhF'  # create alias
+    /etc/hosts
+        # add custom ip alias
+        35.194.171.19   my_server1
 
     vim index.html
 
@@ -160,6 +180,9 @@
     $ /0   ?0                # search from top / bottom string 0    n for next   N for previous
     $ 1,100s/0/1000/cg       # replace 0 with 1000 in line 1 to 100  press Y to confirm
                              # c : confirm   g: global (find all in one line)  i: ignore case  e: ignore error
+
+
+
 
 
     vim a.py b.py # open multiple files    :ls  #show all files opened    :b 2  # switch to 2nd file
@@ -234,4 +257,7 @@
     ssh-add ~/.ssh/id_ed25519
     ssh -T git@github.com
     git clone ssh://git@github.com/<user>/<repository name>.git
+
+    create script
+        #!/bin/bash    #!/usr/bin/env python
 '''

@@ -56,6 +56,7 @@ class Review:
         print("{} is {} years old.".format(name, age))
         print("{0} is {1} years old. I am {1} years old".format(name, age))
         print("{name} is {age} years old.".format(name='Harry', age=10))
+        name='Harry' 
         print(f"{name} is nice")    # name variable is defined ahead
         values = {'city': 'San Francisco', 'state': 'California'}
         s = "I live in %(city)s, %(state)s" % values    # I live in San Francisco, California
@@ -191,7 +192,7 @@ class Review:
     my_dict = {'name': 'Andrei Neagoie', 'age': 30, 18: False}    dict1 = {}   dict2 = dict1.copy()
     dict2 = dict([('name','Harry'),('age',[10,1])])
     dict2 = eval('{"name":"Harry", "age":10}')
-     dict2 = json.loads('{"name":"Harry", "age":10}')  # must double quote
+    dict2 = json.loads('{"name":"Harry", "age":10}')  # must double quote
     dict2 = dict.fromkeys(['name','age'], 1)   # create dictionary with keys and same default value   
     {k:v for k, v in dict1.items()}     {k: v for k, v in [('one',1),('two',2)]}
     Read
@@ -311,11 +312,13 @@ class Review:
                   # equivalent to call wrapper function
                   
     decorator function can have input parameters as well need extra layer of outer function
-    def outer_param(para):
-        def d(func):  # same content
-        return d
-    @outer_param(para_val)
-    def f(para):
+        functions inside function can't be directly called
+    def decor(func):
+        @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
+        def d(*args. **kwargs):  # def d(para1) if known parameter
+            return func(*args. **kwargs)
+    @outer_param(para2_val)
+    def f(para1_val):
     
     
     --Recursion
@@ -386,6 +389,14 @@ class Review:
     with open('data.json') as f:
         dic = json.load(f)   # load json file into dict
         print(dic['age'])
+    
+    create json object 
+        import json
+        json.dump({'a': 123, 'b': 456}, separators=[',', ':'], ensure_ascii=False, indent=4, sort_keys=True)  
+            # separators use ',' instead of default ', ',  use ':' instead of default ': 'remove space
+            # ensure_ascii=False: prevent convert utf8 to ascii
+            # indent=4: add indent for easy reading
+        if object is not JSON serializable, write a function to return necessary attribute and value as dictionary
         
     import os   
     os.path.isabs(string)   # return bool check path is absolute path
@@ -536,7 +547,9 @@ class Review:
     print(review.pin)  # 10
     hasattr(ph, 'brand')  # check whether ph object has attribute brand
     
-    
+    for field in self._meta.fields   # return list of all self defined attribute
+        name = field.attname
+        value = getattr(self, name)
     
     polymorphism： same method base on input type (isinstance(var, type)), run different code block
     
@@ -604,10 +617,12 @@ class Review:
     --Random
     import random
     random.random()  # Return the next random float in the range [0.0, 1.0)
-    random.randrange(start,end,step)  # step default 1 [start, end] with step
+    random.randrange(start,end,step)  # step default 1 [start, end) with step
     random.randint(start,end)  # random integer [start, end] 
     random.choice([1,2,3,4,5])   # random choose from a sequence
-    random.shuffle([1,2,3,4,5])   # shuffle the sequence in random order
+        random.choice('12345')   
+    random.sample([1,2,3,4,5], 3)   # random pick 3 from list return as list
+    random.shuffle(li)   # shuffle the sequence in random order for an object inplace
     random.seed(0)    # set random seed so random will get same value
     
     
@@ -782,7 +797,7 @@ class Review:
         for i in range(n):                                                    # monkey will change the native time module 
             print(n)
             yeild                    # gb.switch()  # manual switch to task2  # no need for gevent
-    # yield n  # return n
+                # yield n  # return n
             time.sleep(0.5)
              
     g1,g2 = task1(10), task2(5)      # ga = greenlet(task1)                   # g1 = gevent.swpan(task1) 
@@ -794,6 +809,34 @@ class Review:
         except:
             pass
     
+    asyncio  (python official implementation)
+        import asyncio
+        async def task1(n)
+            for i in range(n): 
+                print(n)
+                await asyncio.sleep(1)
+            return i
+    t1, t2 = task1(1), task1(2)   # coroutine object
+    tasks =[asyncio.ensure_future(t1), asyncio.ensure_future(t2)]   
+    loop = asyncio.get_event_loop()   # coroutines dispatcher
+    loop.run_until_complete(asyncio.wait(tasks))   # epoll 
+    print(tasks[0].result)  # 1
+                
+    context: state stored and read during cpu switching tasks every several milliseconds
+    process: ~MB, communication: socket, pipe, file, shared memory, UDS. context switching a bit slower, not flexible, controlled by 
+        operating system
+    thread: ~kb, communication: direct transfer information. context switching a bit faster, not flexible, controlled by 
+        python interpreter. wasting cpu resource if process / thread blocking
+    Coroutines: <1k, communication: same as thread.  context switching fast and flexible (controlled by programmer)
+    high performance context switching: blocked task take no cpu time, only switch to the blocking task after receive
+        an I/O event notification (listened by OS interface: select, poll, epoll(add event in readied queue instead of 
+        looping listening to event))
+    event driven: take action after receiving an event. Nginx (40000+ RPS), (110000+ Redis), (5000+ Tornado)
+    compare to Django 500 RPS
+    
+    multi-process(used because of global interpreter lock, limit to 1 task per process at any time send to cpu) 
+        + mult-coroutine implementation for performance, allowing multiprocessors handling multiple tasks for 
+        multi-process 
     
     --Request
     import requests  
@@ -826,15 +869,38 @@ class Review:
         'disable_existing_loggers': True,
         'formatters': { 
             'standard': { 
-                'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+                'format': '%(asctime)s [%(levelname)s] %(name)s:%(funcName)s %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
             },
         },
+        'filter':{   # optional
+            '()': myFilter,    # use '()' to specify which class to use for filtering
+            'name': 'param'    # value of name will be parse into Filter object when initialized
+        }
         'handlers': { 
             'default': { 
                 'level': 'INFO',
                 'formatter': 'standard',
                 'class': 'logging.StreamHandler',
                 'stream': 'ext://sys.stdout',  # Default is stderr
+            },
+            'file':{
+                'level': 'WARNING',
+                'formatter': 'standard',
+                'class': 'logging.RotatingFileHandler',
+                'filename': f'{BASE_DIR}/logs/myfile.log',
+                    # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+                'maxBytes': 1024*1000,  # 1 MB
+                'when': 'D',   # slice logs every day, default 'D'   'W0' week
+                'backupCount': 30    # keep logs 30 days(when param)
+            },
+            'file_handler': {
+                'class': 'logging.FileHandler',
+                'level': 'WARNING',
+                'formatter': 'standard',
+                'filename': os.path.join(LOGGING_DIR, 'file_io.log'),
+                    # BASE_DIR = Path(__file__).resolve().parent.parent
+                    # LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
             },
         },
         'loggers': { 
@@ -855,11 +921,37 @@ class Review:
             },
         } 
     }
+    
+    class myFilter(logging.Filter):
+        def filter(self, record: logging.LogRecord) -> bool:
+            if 'no_log_needed' in record.getMessage:
+                return False   # don't log
+            return True
+    
     using:
     from logging.config import dictConfig
     logging.config.dictConfig(LOGGING_CONFIG) # Run once at startup:
-    log = logging.getLogger(__name__)  # Include in each module:
+    log = logging.getLogger(__name__)  # logger name input, '' using __name__,   logging.getLogger(my.packg)
     log.debug("Logging is configured.")
+    
+    
+    # socket
+    # server side
+    import socket
+    sock = socket.socket() 
+    addr = ('127.0.0.1',8080)
+    sock.bind(addr)
+    sock.listen(10)  # listening queue size 10
+    cli_sock, cli_addr = sock.accept()    # blocked, waiting client to connect. stop blocked once connected
+    
+    data = cli_sock.recv(1024)  # receive data from client, blocked until receive client data, then end
+     
+    # client side
+    sock = socket.socket() 
+    addr = ('127.0.0.1',8080)
+    sock.connect(addr)
+    sock.send(b'Hello world')
+    sock.recv(1024) # client receive data from server # blocked, waiting till send data.
     
     # setup mirrors in china
     cd .pip   ls  cat pip.conf        c:/Users/cai/pip/pip.ini  
