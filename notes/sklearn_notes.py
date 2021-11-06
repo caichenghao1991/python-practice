@@ -1,4 +1,6 @@
 '''
+    Scikit-learn
+        mainly for machine learning, not for deep learning, don't support GPU
     pip install sklearn
 
     KNN (k nearest neighbor)
