@@ -751,6 +751,7 @@ def svm():
 
 def kmeans():
     np.random.seed(8)
+
     data, target = make_blobs(n_samples=200, centers=5, random_state=3)
     scores = []
     plt.figure()

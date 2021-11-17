@@ -130,8 +130,12 @@ class Review:
     else:
         pass   # run one time after for loop end
     for loop only for certain iterations, while loop can handle uncertain iterations
-         
     
+    seasons = ['Spring', 'Summer', 'Fall', 'Winter']
+    list(enumerate(seasons))    #[(0, 'Spring'), (1, 'Summer'), (2, 'Fall'), (3, 'Winter')]     
+    for i, element in enumerate(seasons):
+        print i, element     # 0 Spring ,...
+
     --List
     mutable array able to store different data type entries
     Create / Copy
