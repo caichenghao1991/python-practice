@@ -396,7 +396,7 @@ class Review:
     
     create json object 
         import json
-        json.dump({'a': 123, 'b': 456}, separators=[',', ':'], ensure_ascii=False, indent=4, sort_keys=True)  
+        json.dump({'a': 123, 'b': 456}, separators=[',', ':'], ensure_ascii=False, indent=4, sort_keys=True).encode('utf-8')  
             # separators use ',' instead of default ', ',  use ':' instead of default ': 'remove space
             # ensure_ascii=False: prevent convert utf8 to ascii
             # indent=4: add indent for easy reading
@@ -942,20 +942,30 @@ class Review:
     # socket
     # server side
     import socket
-    sock = socket.socket() 
-    addr = ('127.0.0.1',8080)
-    sock.bind(addr)
-    sock.listen(10)  # listening queue size 10
-    cli_sock, cli_addr = sock.accept()    # blocked, waiting client to connect. stop blocked once connected
-    
-    data = cli_sock.recv(1024)  # receive data from client, blocked until receive client data, then end
-     
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('localhost', 8001))
+    sock.listen(5)
+    while True:
+        connection,address = sock.accept()
+        try:
+            connection.settimeout(5)
+            buf = connection.recv(1024)
+            if buf == '1':
+                connection.send(bytes('welcome to server!','utf-8'))
+            else:
+                connection.send(bytes('please go out!','utf-8'))
+        except socket.timeout:
+            print('time out')
+        connection.close()
     # client side
-    sock = socket.socket() 
-    addr = ('127.0.0.1',8080)
-    sock.connect(addr)
-    sock.send(b'Hello world')
-    sock.recv(1024) # client receive data from server # blocked, waiting till send data.
+    import socket  
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  
+    sock.connect(('localhost', 8001))  
+    import time  
+    time.sleep(2)  
+    #sock.send(bytes('1','utf-8'))  
+    print(sock.recv(1024))
+    sock.close()  
     
     # setup mirrors in china
     cd .pip   ls  cat pip.conf        c:/Users/cai/pip/pip.ini  
