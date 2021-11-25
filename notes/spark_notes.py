@@ -48,6 +48,8 @@
             # as CPU cores 
         # appName() - set your application name.
         # getOrCreate() – returns SparkSession object if exists, creates new one if not
+        # .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/test.coll").config("spark.mongodb.output.uri",
+            "mongodb://127.0.0.1/test.coll")   # connect to mongodb
 
     spark = SparkSession.newSession  # this alternative method always create new session
 
@@ -194,11 +196,18 @@
         # overwrite, append, ignore(ignore file exist), error (default, error when file exist)
 
     df2 = spark.read.text("/src/resources/file.txt")
+
     df2 = spark.read.schema(schema).json(["/src/resources/file.json","resources/*.json"])
         # df = spark.read.option("multiline","true").format('org.apache.spark.sql.json').load("resources/zipcodes.json")
     df2.write.mode('Overwrite').json("/src/resources/file.txt")
+
     df = spark.read.parquet("/temp/out/people.parquet")
     df = df.write.parquet("/tmp/out/people.parquet")
+
+    df = spark.read.format("mongo").load()
+        # df = spark.read.format("mongo").option("uri", "mongodb://127.0.0.1/people.contacts").load()
+    df.write.format("mongo").mode("append").save()
+
 
     df.show()
 
@@ -508,21 +517,10 @@
     df.select(countDistinct("department", "salary"))    # returns the number of distinct elements in a columns
     df.select(count("salary"))    # returns number of elements in a column.
     df.select(first("salary"))  # returns the first/last element in a column
-    max(), min(), mean(), sum(), sumDistinct(),skewness(), stddev(), stddev_samp(), stddev_pop(), variance(),
+    max(), min(), mean(), sum(), sumDistinct(),skewness(), stddev(), stddev_samp(), stddev_pop(), variance(), kurtosis()
         var_samp(), var_pop()   # return xxx of the values in a column
 
 
-    # PySpark SQL 
-    PySpark SQL is used for processing structured columnar data format. interact with the DataFramedata using SQL syntax.
-    
-        spark = SparkSession.builder.appName('practice2').getOrCreate()
-        df = spark.read.csv('./resources/data/Iris.csv', header=True, inferSchema=True)
-        
-        df.createOrReplaceTempView("IRIS")  #  create a temporary table
-        df = spark.sql("SELECT * from IRIS")
-        df = spark.sql("select * from EMP e, DEPT d where e.emp_dept_id == d.dept_id")
-        groupDF = spark.sql("SELECT Species, count(*), avg(SepalWidthCm) from IRIS group by Species")
-        groupDF.show()
 
 
     # window function
@@ -606,6 +604,18 @@
         "State":"PR"}''''))).collect()[0][0]    # schema_of_json() to create schema string from JSON string column.
 
 
+    # PySpark SQL
+    PySpark SQL is used for processing structured columnar data format. interact with the DataFramedata using SQL syntax.
+
+        spark = SparkSession.builder.appName('practice2').getOrCreate()
+        df = spark.read.csv('./resources/data/Iris.csv', header=True, inferSchema=True)
+
+        df.createOrReplaceTempView("IRIS")  #  create a temporary table
+        df = spark.sql("SELECT * from IRIS")
+        df = spark.sql("select * from EMP e, DEPT d where e.emp_dept_id == d.dept_id")
+        groupDF = spark.sql("SELECT Species, count(*), avg(SepalWidthCm) from IRIS group by Species")
+        groupDF.show()
+
 
     # PySpark Streaming
     PySpark Streaming is a scalable, high-throughput, fault-tolerant streaming processing system that supports both batch 
@@ -670,6 +680,89 @@
             #     accuSum += x
             # rdd.foreach(countFun)
         print(accum.value)   # Accessed by driver to retrieve the accumulator value
+
+    # ML lib
+    spark = SparkSession.builder.appName('practice').getOrCreate()  # session name
+    df = spark.read.csv('../resources/data/Iris.csv', header=True, inferSchema=True)
+    featureAssembler = VectorAssembler(inputCols=['SepalLengthCm', 'SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm',],
+                                       outputCol='Independent Feature')  # group features columns into one column
+    data = featureAssembler.transform(df)   # return dataframe with extra Independent Feature column
+
+
+    # regression
+    train_data, test_data = data.randomSplit([0.75, 0.25])  # train test split
+    regressor = LinearRegression(featuresCol='Independent Feature',labelCol='SpeciesIndex')
+    regressor.fit(train_data)
+    print(regressor.coefficient, regressor.intercept)   # .coefficients, .intercept
+    pred = regressor.evaluate(test_data)
+    pred.predictions.show()
+    print(pred.meanAbsoluteError, pred.meanSquaredError, pred.r2)
+
+    # classification
+    from pyspark.ml.evaluation import MulticlassClassificationEvaluator
+
+    indexer = StringIndexer(inputCol="Species", outputCol="SpeciesIndex")
+        # add SpeciesIndex column with 0,1,2... for unique value
+        # indexer = StringIndexer(inputCols=["Species","Gender"], outputCol=["Species_index","Gender_index"])
+            # can be multiple column with list input
+    data = indexer.fit(data).transform(data)
+
+    for categoricalColumn in categoricalColumns:
+        stringIndexer = StringIndexer(inputCol=categoricalColumn, outputCol = categoricalColumn+"Index").
+            setHandleInvalid("skip")
+        dataset = stringIndexer.fit(dataset).transform(dataset)
+        encoder = OneHotEncoder(inputCol=categoricalColumn+"Index", outputCol=categoricalColumn+"classVec")
+        dataset = encoder.transform(dataset)
+
+    data = data.select('Independent Feature', 'SpeciesIndex')
+    data.show(100)
+
+    lr = LogisticRegression(maxIter=20, regParam=0.3, elasticNetParam=0)
+    # cross validation param picking
+    paramGrid = (ParamGridBuilder().addGrid(lr.regParam, [0.1, 0.3, 0.5]).addGrid(lr.elasticNetParam, [0.0, 0.1, 0.2])
+        .addGrid(lr.maxIter, [10, 20, 50]).addGrid(idf.numFeatures, [10, 100, 1000]).build())
+    cv = CrossValidator(estimator=lr,estimatorParamMaps=paramGrid,evaluator=evaluator,numFolds=5)
+        #  nb = NaiveBayes(smoothing=1)
+        # rf = RandomForestClassifier(labelCol='label',featuresCol='features',numTrees=100,maxDepth=4,maxBins=32)
+    cv_model = cv.fit(data)
+    predictions = cv_model.transform(data)
+    predictions.filter(predictions['prediction'] == 0).select('Descript', 'Category', 'probability', 'label',
+        'prediction').orderBy('probability', accending=False).show(n=10, truncate=30)
+
+    evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
+    print(evaluator.evaluate(predictions))
+
+
+    # Fit the model
+    lrModel = lr.fit(train_data)
+
+    # Print the coefficients and intercept for logistic regression
+    print("Coefficients: " + str(lrModel.coefficients))
+    print("Intercept: " + str(lrModel.intercept))
+
+    trainingSummary = lrModel.summary
+
+    # Obtain the objective per iteration
+    objectiveHistory = trainingSummary.objectiveHistory
+    print("objectiveHistory:")
+    for objective in objectiveHistory:
+        print(objective)
+
+    # Obtain the receiver-operating characteristic as a dataframe and areaUnderROC.
+    trainingSummary.roc.show()
+    print("areaUnderROC: " + str(trainingSummary.areaUnderROC))
+
+    # Set the model threshold to maximize F-Measure
+    fMeasure = trainingSummary.fMeasureByThreshold
+    maxFMeasure = fMeasure.groupBy().max('F-Measure').select('max(F-Measure)').head()
+    bestThreshold = fMeasure.where(fMeasure['F-Measure'] == maxFMeasure['max(F-Measure)']) \
+        .select('threshold').head()['threshold']
+    lr.setThreshold(bestThreshold)
+
+
+    or read data from data source (mongodb), preprocess with pyspark, df.toPandas() then run distributed training
+        (tensorflow).
+
 
 """
 import pyspark

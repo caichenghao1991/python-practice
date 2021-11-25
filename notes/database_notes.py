@@ -21,7 +21,10 @@
         Soft-state: Stores don’t have to be write-consistent, nor do different replicas have to be
             mutually consistent all the time.
         Eventual consistency: Stores exhibit consistency at some later point (e.g., lazily at read time).
-        document (MongoDB, ElasticSearch), key-value (Redis), wide-column, graph store  NoSQL database
+        NoSQL database type:
+        document (MongoDB(able to create some search index, and other SQL dunctionalities), ElasticSearch),
+        key-value (Redis,value can be any dtype), wide-column (Hbase, store on columns), graph store (Neo4J)
+
 
 
     SQL: structured query language
@@ -237,7 +240,9 @@
             separate read write: write data into master node, read from slaves node. (use config file)
             zookeeper: manage distributed system. if master died will poll for new master among slaves.
                 need reliable crossover point(hard for duplication): such as DNS(domain name resolution), load balancer
-    Redis
+
+
+    # Redis
     key-value database, save in memory. single thread+ async I/O (Coroutines)
     high speed cache  (move frequently used data from database to memory)
     message queue
@@ -350,4 +355,279 @@
     redis-check-aof --fix appendonlu.aof   # recover crash aof saving mode
 
     connection problem: add ip to whitelist in server, check firewall
+
+
+
+    # mongodb
+    MongoDB save data as documents. data structure: key -> value, similar to json. value can be other document, array,
+        document array. Able to set index for any attribute. able to create mirror for extension from local or internet.
+        Use update() to replace document or update attribute. Use map/reduce for batch operation. support many languages.
+    plugins and tools: Munin(network, system monitoring), Gangila(system monitoring), Cacti(gui network, cpu monitoring)
+        many GUI tools (compass, Studio 3T)
+    MongoDB stores data in BSON format (UTF-8 encoded).
+
+
+    install mongodb, mongodb shell, mongo compass
+    net start/stop MongoDB    # start/stop mongodb service
+    mongosh    # open mongo shell to interact with mongodb
+    terms: collection (SQL table),  document (SQL row),  field (SQL column)
+    mongodb shell language use javascript
+
+    database name can't use: space, empty string,  .  $  /  \  \0, must lowercase, max 64 bytes, admin, local, config
+    key name can't use: space \0  ($  _ careful use)
+    collection name can't use: empty string  \0,   start with system. ($ careful use)
+    data no need same schema or datatypes, case sensitive, documents (key-value pair) are ordered, no duplicate keys
+        inside one document, keys are string
+
+    mongodb doesn't have transaction, but document save, update, delete are all atomic operation.
+
+    capped collection:  fix size (max 1e9 bytes), high performance collection, data order same as insertion order, when
+        update, don't exceed collection size to keep in same location. can't delete one document, need drop() all
+        documents in the collection
+        db.createCollection("cap_coll", {capped:true, size:100000,max:1000})  # suze 1e5 bytes, max 1000 documents
+        db.cap_coll.isCapped()  # return whether capped collection
+        db.runCommand({"convertToCapped":"Hogwarts",size:10000})   # convert collection to capped
+        db.runCommand({"convertToCapped":"Hogwarts",size:10000})   # convert collection to capped
+
+    datatype:
+        String (utf-8), Integer, Boolean, Double, Array, Timestamp, Object, Null, Symbol(similar to string, for special
+            characters), Date, ObjectID(similar to primary key, include timestamp, machine code, process id, random
+            number), Binary Data, Code(javascript code), Regular expression, Min/Max keys
+            each document has a "_id" field, default ObjectID type, unique identifier. not autoincrement because not
+                efficient .
+            var newObject = ObjectId()
+            newObject.getTimestamp()    newObject.str
+
+    # connect to mongodb
+    uri: mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+        port default 27017, at least one host, default database: test, options:/?replicaSet=name;slaveOk=true...
+
+
+    # create / show / switch database
+    show dbs        # show all database
+    db              # show current database
+    use hogwarts       # switch to hogwarts database, create if not exist
+
+    # create collection
+    db.createCollection("hogwarts_table", {capped: true, size: 6142800, max: 10000 })
+        # collection name, options  capped collection, fix size in bytes, max documents
+
+    # show collection
+    show collections
+
+    # drop database / collection
+    db.dropDatabase()  # remove current database
+    db.hogwarts.drop()    # drop collection hogwarts
+
+    # insert document
+        automatically generate _id for document
+    db.hogwarts_table.insert({name: 'Harry Potter'})
+    db.hogwarts_table.insertOne({name: 'Harry Potter'})
+    db.hogwarts_table.insertMany([{name: 'Harry Potter'}, {name: 'Hermione Granger'}])
+
+    # update document
+    db.collection.update(<query>,<update>,{upsert: <boolean>,multi: <boolean>,writeConcern: <document>}
+        <query>: where condition, update: $inc  $set, upsert:default false, not insert if not exist, multi: default
+        # following operations are atomic operations
+        {$set: {field: value}}  # update value for field, will not create if not exist
+        {$unset: {field: 1}}  # remove a field
+        {$inc: {field: value}}  # increase value for field
+        {$push: {field: value}}  # append value to a array field, create array if field not exist
+        {$pushAll: { field: value_array}}  # append multiple values
+        {$pull: {field: value}    # remove value from field
+        {$addToSet: {field: value}  # append value if not exist
+        {$pop: {field: 1}}   # remove first or last value in array field
+        {$rename: {old_field_name: new_field_name}}   # rename field
+        {$bit: {field: {and : 5}}}   # bitwise operation
+
+
+        false, only update first match, writeConcern: throw exception level
+    db.hogwarts_table.update({'name':'Harry Potter'},{$set:{'name':'Harry'}}, {multi:true})
+    db.hogwarts_table.update({'name':'Harry Potter'},{$unset:{'name':1}})   # remove key: name
+
+    # delete document
+    db.collection.remove(<query>,{justOne: <boolean>,writeConcern: <document>})
+        <query>: where condition,  justOne: default false, rempve all matched. if true/1 only delete one document
+        writeConcern: throw exception level
+    db.hogwarts_table.remove({"name":'Harry'})
+    db.hogwarts_table.remove({})  # remove all data
+
+    # find document
+    db.collection.find(query, projection)
+        <query>: where condition, projection: specify column to display in result, 0 not display, 1 displayed
+        query operations: age:{$lt:50}   lte   gte  gt  ne  $or:[{k:v},{k:v}]  $in:[v1,v2]   nin (not in)   $type
+        .limit(NUMBER)  .skip(NUMBER)  .sort({KEY:1}) (1:asc, -1:desc)
+    db.hogwarts_table.find({},{"name":1})   # {} query is empty
+    db.hogwarts_table.find({"name": 'Harry', $or: [{"age":{$lt:50}},{"age":{$gt:80}}]})
+    db.hogwarts_table.find({"name":null).limit(2).skip(1) # find null value, skip first result. only get 2 documents,
+    db.hogwarts_table.find({"name":/^Har/})   # sql like
+    db.hogwarts_table.find({"name":'Harry', 'age':10})
+    db.hogwarts_table.find({"name": {$type:'string'}})  # find by dtype
+    db.hogwarts_table.distinct('name')   # find distinct name
+    db.hogwarts_table.find().sort({'name':-1})  # sort by name desc
+
+
+    # index
+    mongodb create index in RAM, if overflow, it will remove some indexes. can't search by $nin, $nin, $mod, $where
+    collection max 64 indexes, index name max 128 bytes, composite index max 31 fields.
+
+    db.collection.createIndex(keys, options)
+        {k: 1} # asc,   -1 desc
+        options: background, unique, name, dropDups, sparse, expireAfterSeconds, v, weights, default_language,
+            language_override
+    db.hogwarts_table.createIndex({'name': 1, 'age': 1}, {background: true})
+    db.hogwarts_table.getIndexes()   # get collection index
+    db.hogwarts_table.totalIndexSize()
+    db.hogwarts_table.dropIndexes()
+    db.hogwarts_table.dropIndexes('index_name')
+    db.hogwarts_table.createIndex({'course.name':1})  # create sub index for document field
+
+
+    db.hogwarts_table.find({name:'Harry',_id:0}).hint({name:1})  # force use index {name:1}
+    db.hogwarts_table.find({name:'Harry',"age":{$lt:50}}).explain()  # to check whether use index
+
+    # text search
+    db.posts.ensureIndex({intro:"text"})   # intro text field
+    db.hogwarts_table.find({$text:{$search:"my name"}})  # search my name in the intro field
+        db.hogwarts_table.find({$text:{$regex:"my name",$options:"$i"}})   #search via regular expression, ignore case
+            or db.hogwarts_table.find({post_text:/my name/})
+
+    # best performance if searching by same fields(or extra _id) as combined index fields
+
+
+    # aggregation
+    db.COLLECTION_NAME.aggregate(AGGREGATE_OPERATION)
+    sum, avg, min, max, push (add data), addToSet, first, last
+    $project: modify document schema, rename, add, delete field
+    $match: filter data, match only satisfied
+    $limit: limit the return document count
+    $skip:  skip first # of document in matched result
+    $unwind: split array type field in document into multiple document, one for each document
+    $group: groupby operation for analyze
+    $sort: return sorted result
+
+    db.hogwarts_table.aggregate([{$group : {'student': "$by_name", 'score_avg' : {$avg : '$score'}}}])   # group by
+        # name and take score average
+    db.hogwarts_table.aggregate([{$group: {'student': "$by_name", 'friend': {$push: 'Ronald'}}}])
+    db.hogwarts_table.aggregate([{$match: {'score': { $gt: 70, $lte: 90}}}, {$group: {_id: null, count: {$sum: 1}}}])
+        # return count of documents with 70<score<90, $sum:1, 1 means add 1 to sum for each match
+
+
+    # date
+    var date1 = new Date()   or  var date1 = Date()   # ISODate("2018-03-04T14:58:51.233Z")  current date
+    typeof date1  # Object    typeof date1.toString()  # String
+
+
+    # data redundancy
+    one primary node, one or multiple secondary node. master take client read / write request,
+        secondary nodes copy primary node operation logs periodically and make same operations to keep sync
+    mongod --port "PORT" --dbpath "YOUR_DB_DATA_PATH" --replSet "REPLICA_SET_INSTANCE_NAME"
+    mongod --port 27017 --dbpath "D:\mongodb\data" --replSet rs0
+
+    client side:
+    rs.initiate()    # initialize new replica set
+        rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27020'}, {_id: 1, host: 'localhost:27021'}]})
+    rs.conf()   # check replica set config
+    rs.status()  # check replica set status
+    rs.add(HOST_NAME:PORT)   # add replica to replica set, host name is the primary mongodb node
+
+    for large dataset, use distributed database
+    several query routers take client requests, make cluster look like one database. several Config servers (mongod
+        instances) store the clusterMetadata. Several Shards store data, can have replica set to prevent single point
+        failure.
+    #without replica
+    /usr/local/mongoDB/bin/mongod --port 27020 --dbpath=mongoDB/shard/s0 --logpath=mongoDB/shard/log/s0.log --logappend
+        --fork      # start multiple shard server
+    # with replica (1 server 2 replica)
+    nohup mongod --port 27020 --dbpath=/data/db1 --logpath=/data/log/rs0-1.log --logappend --fork --shardsvr --replSet=rs0 
+    nohup mongod --port 27021 --dbpath=/data/db2 --logpath=/data/log/rs0-2.log --logappend --fork --shardsvr --replSet=rs0
+        # nohup: nonstop running
+    rs.initiate({_id: 'rs0', members: [{_id: 0, host: 'localhost:27020'}, {_id: 1, host: 'localhost:27021'}]})
+        # duplicate this with another shard server
+
+    /usr/local/mongoDB/bin/mongod --port 27100 --dbpath=/mongoDB/shard/config --logpath=/mongoDB/shard/log/config.log
+        --logappend --fork     # start config server
+
+    nohup mongod --port 27100 --dbpath=/data/conf1 --logpath=/data/log/conf-1.log --logappend --fork --configsvr
+        --replSet=conf    # config server with replica, duplicate this with another port and locations
+    rs.initiate({_id: 'conf', members: [{_id: 0, host: 'localhost:27100'}, {_id: 1, host: 'localhost:27101'}]})
+
+    /usr/local/mongoDB/bin/mongos --port 40000 --configdb localhost:27100 --fork --logpath=/mongoDB/shard/log/route.log
+        --chunkSize 500      # start query router, default 200 mb
+    nohup mongos --port 40000 --configdb conf/localhost:27100,localhost:27101 --fork --logpath=/data/log/route.log
+        --logappend     # with replica start query router
+
+    # in mongo shell
+    /usr/local/mongoDB/bin/mongo admin --port 40000
+    db.runCommand({ addshard:"localhost:27020" })  # add shard server
+        # db.runCommand({ addshard: 'rs0/localhost:27020,localhost:27021'})   # with replica
+    db.runCommand({ enablesharding:"test" }) # set which database allow sharding
+    db.runCommand({ shardcollection: 'test.user', key: {name: 1}})  # set which collection to use sharding
+
+
+    # backup and recover data
+    mongodump -h host -d dbname -o copy_dir    # backup: host port of mongodb, database name to copy, and copy directory
+        --host  --port  --out  --db    default localhost, 27017 /dump
+    mongorestore -h <hostname><:port> -d dbname <path>
+        --host  --db  --dir  --drop (drop backup then copy)
+
+    # monitoring
+    terminal:  mongostat    # running status, performance
+    terminal:  mongotop     #track mongodb instance read write time
+
+
+    # relationship
+    either embed the whole many objects to one object or embed their references
+    {   # embed objects
+       "_id":ObjectId("52ffc33cd85242f436000001"),
+       "name": "Tom",
+       "course": [
+          {"name": "Magic Defence"},
+          {"name": "Magic History"}
+       ]
+    }
+    {   # embed references
+       "_id":ObjectId("52ffc33cd85242f436000001"),
+       "name": "Tom Benzamin",
+       "course_ids": [
+          ObjectId("52ffc4a5d85242602e000000"),
+          ObjectId("52ffc4a5d85242602e000001")
+       ]
+    }
+    db.hogwarts.findOne({"name":"Tom"},{"address":1})   # include address :1
+    db.address.find({"_id":{"$in":result["course_ids"]}})
+
+
+    # document reference
+    inside one document can reference other document data
+    { $ref: , $id: , $db:  }   # collection name, object id, database name
+    {
+       "_id":ObjectId("53402597d852426020000002"),
+       "name": "Tom",
+       "course": {
+       "$ref": "course_table",
+       "$id": ObjectId("534009e4d852427820000002"),
+       "$db": "test"},
+    }
+    var dbRef = db.users.findOne({"name":"Tom"}).address
+    db[dbRef.$ref].findOne({"_id":(dbRef.$id)})    # find course with collection name, id
+        # {"_id":ObjectId(dbRef.$id)}
+
+
+    # mapreduce
+    db.collection.mapReduce(function() {emit(key,value);}, function(key,values) {return reduceFunction},
+        {out: collection,query: document,sort: document,limit: number})
+    db.posts.mapReduce(function() {emit(this.name, this.score);}, function(key, values){return Array.sum(values)},
+        {query:{"age":{$lt:50}}, out:"score_total" }).find()
+        # map with name as key and put all score into an array, then reduce by sum, query filter out results, and
+        add a collection 'score_total'.  { "_id" : "Harry", "value" : 4 }
+
+
+    # GridFS
+    GridFS used to store files greater than 16 MB (images, audio, video). GridFS is a way to store in collections via
+        sharding file into chunks (default 256 KB each), each chunk is store inside a collection as one document. GridFS
+        use 2 collection to store a file (fs.files (meta data: file name, size, type...), and fs.chunks (binary data))
+        mongofiles.exe -d gridfs put song.mp3
+        db.fs.files.find()   # find fs.files information
+        db.fs.chunks.find({files_id:ObjectId('534a811bf8b4aa4d33fdf94d')})   # find all documents(chunks)
 """

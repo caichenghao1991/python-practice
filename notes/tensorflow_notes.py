@@ -681,6 +681,40 @@
             x = self.rnn(x)  # last sequence time and last layer output
 
 
+    # distribute training
+        tf.distribute.MirroredStrategy supports synchronous distributed training on multiple GPUs on one machine. It
+            creates one replica per GPU device. Each variable in the model is mirrored across all the replicas.
+        tf.distribute.MultiWorkerMirroredStrategy is very similar to MirroredStrategy. It implements synchronous
+            distributed training across multiple workers, each with potentially multiple GPUs.
+        Parameter server training is a common data-parallel method to scale up model training on multiple machines.
+            A parameter server training cluster consists of workers and parameter servers. Variables are created on
+            parameter servers and they are read and updated by workers in each step.
+
+        mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0", "/gpu:1"])
+
+        communication_options = tf.distribute.experimental.CommunicationOptions(implementation=tf.distribute.
+            experimental.CommunicationImplementation.NCCL)
+        strategy = tf.distribute.MultiWorkerMirroredStrategy(communication_options=communication_options)
+
+        strategy = tf.distribute.experimental.ParameterServerStrategy(tf.distribute.cluster_resolver.
+            TFConfigClusterResolver(), variable_partitioner=variable_partitioner)
+        coordinator = tf.distribute.experimental.coordinator.ClusterCoordinator(strategy)
+        with strategy.scope():
+            https://www.tensorflow.org/api_docs/python/tf/distribute/experimental/ParameterServerStrategy
+
+        yahoo TensorflowOnSpark framework combine spark and tensorflow
+        distributed ingest: SparkSQL + spark-mongo-connector
+        distributed train: TensorflowOnSpark + Tensorflow
+        distributed evaluation: spark Mlib
+
+        spark = SparkSession.builder.appName('Distribute ML').getOrCreate()
+        sc = spark.sparkContext
+        df.createOrReplaceTempView("IRIS")  #  create a temporary table
+        df = spark.sql("SELECT img_content, label from images where app_id=1")
+        rdd = df.rdd.map(lambda x: (bytes(x[0]), numpy.asarray(x[1], numpy.uint16)))
+        rdd.persist(StorageLevel.MEMORY_AND_DISK_2)
+
+
 '''
 import datetime
 import glob
