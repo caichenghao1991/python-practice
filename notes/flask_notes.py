@@ -17,11 +17,16 @@
         Sanic: good performance asynchronous framework;
 
 
+    # native wsgi implementation
+    def app1(env, make_response):
+        header, body=[],[]
+        request_path = env.get('PATH_INFO')
+        header.append(('content-type', 'images\*'))'text/html;charset=utf-8'  'audio/mpeg'   'video/mp4'
+        make_response('%s OK' % status_code, header)  # native python implementing wsgi,
+        return body  # content inside body (list, string)
+    httpd = make_server('127.0.0.1', 8000, app1)  # http daemon
+    httpd.serve_forever(poll_interval=0.5)
 
-
-    make_response('%s OK' % status_code, header)  # native python implementing wsgi,
-        # header:[('content-type', 'images\*')]   'text/html;charset=utf-8'  'audio/mpeg'   'video/mp4'
-    return body  # content inside body
 
     Flask use M (model) T (templates, html) V (views, controller)  which is based on MVC.
     templates: html file with {{var}}   var is send in the response via
@@ -38,24 +43,27 @@
     both request and response have headers and bodies
     response = requests.request(method, url)   # requests are used for testing, simulate browser send request
     response is the return object in the views functions
-    from flask import render_template   (based on Jinja2 package)
+
+    from flask import Flask, render_template, make_response, session, jsonify   (based on Jinja2 package)
+    template_folder = os.path.join('..', 'resources', 'templates')
     app = Flask(__name__, template_folder=template_folder, static_folder='resource')  # set templates folder location,
         if not under same parent and folder name is templates. static default folder is same parent, and named static
         static_url_path='static'  default is /    # add request prefix for static folder item
         <link rel="stylesheet" href="/static/css/my.css">  to access the css file in resource/css folder
-        same as set in config file: STATIC_FOLDER = '/resource'   STATIC_URL_PARH = '/static'
+        same as set in config file: STATIC_FOLDER = '/resource'   STATIC_URL_PATH = '/static'
         or app.static_url_path= '/static'
+
 
     data = {'school': 'Hogwarts','student': student}  session['login'] = {'school': 'Hogwarts'}
     return render_template('register_student.html', **data)   # , student=student
-    # this will file the html {{ school }} {{ session.login.school }} {{ student.name }} with content
+    # this will fill the register_student.html {{ school }} {{ session.login.school }} {{ student.name }} with content
 
     tests need add app.app_context().push()
 
     Filter process in html
     Welcome to {{school|reverse|upper|capitalize}}</h2> <!--{{school|capitalize}} title, trim    -->
-    # default('value')   set default value if not specified
-    {{<p>"hello, %s"</p>|format('harry)|striptags}}  # striptags show tags as string
+    # {{school|default('value')}}   set default value if not specified
+    {{<p>"hello, %s"</p>|format('harry')|striptags}}  # striptags show tags as string
     # safe  render html tags, won't do escape conversion,(treat as html code)   same as r''
     # escape  (treat as string python code)
 
@@ -78,8 +86,9 @@
     return render_template('index.html')     use {% block name_a %} {{ super() }} {% endblock %} to keep parent value
     {% include "content.html" %}    # include will bring every thing from content.html into current page
     content.html
-    {% macro input(macroId, placeholder) %}
+    {% macro input(macroId, placeholder) %}   # macro template function
     <input type=text id="input_{{macroId}}" placeholder="{{placeholder}}" class="input_field"> {% endmacro %}
+    {{ input('user_name','Harry Potter') }}   # use macro
 
     index.html   # every additional {% %} {{}} code have to be inside {block}
     {% from "content.html" import input with context %}
@@ -93,12 +102,13 @@
     def login():
         return "<p>Hello World</p>" / Response / render_template('register_student.html', **data) ...
     app.register_blueprint(emp.bp, url_prefix='/emp')  # put separate blue print for different model in the views folder
-        # url_prefix optional, add additional in the routing path. request path match the rounting path
+        # url_prefix optional, add additional in the routing path. request path match the routing path
+        # able to visit additional blueprint
     app.run(host="localhost", port=5000, debug=True, threaded=True)
             # debug mode, change in code will restart server, will show error
 
     set response header (content type, default text/html)
-    from flask import make_response, jsonify, Response
+    from flask import make_response, jsonify, Response, Blueprint
     emp.py
     bp = Blueprint('emp', __name__)  # use blue print to split the work into different class (employer)
         # inside main app class:
@@ -106,7 +116,7 @@
     def employee(id):
         data = '{"id": 101, "age":  20}'
         response = make_response(data, 200)   # data need to be json (careful byte and date need to convert)
-            # here make_response is from flask package not from function parameter (native python)
+            # make_response is from flask package not from function parameter (native python), return Response object
         response.headers['Content-Type'] = 'application/json;charset=utf-8'
         return response
         # return jsonify(data ,code) # jsonify already set 'application/json;charset=utf-8'
@@ -164,8 +174,9 @@
         can save session_id on server redis /file /db. but still client use cookie to access sessions
         from flask_session import Session
         settings.py    Dev():  # add redis config
-        SESSION_TYPE = 'redis'
-        SESSION_REDIS = Redis(host='127.0.0.1', db=1)
+            SESSION_TYPE = 'redis'
+            SESSION_REDIS = Redis(host='127.0.0.1', db=1)
+        inside app()
         server_session = Session()  # flask_session.Session, used for save session in server db/cache.
         server_session.init_app(app)
 
@@ -201,8 +212,9 @@
     entity class
     class Emp(db.Model): #default class name is table name
         d_id = db.column(db.Integer, primary_key=True)  # default column name is attribute name  #, autoincrement=True
-        name = db.column('d_name',db.String(50))  # default column name is attribute name #, add 'd_name' to change name
-        d_address = db.column(db.String(100))     # ForeignKey('school.id'),       unique=True, nullable=False
+        name = db.column('d_name',db.String(50))  # default column name is attribute name, add 'd_name' to change name
+        d_address = db.column(db.String(100))     #       unique=True, nullable=False
+        e_dept = db.Column(db.Integer, db.ForeignKey('Dept.id'))
             # server_default=text('NOW()') default value for table      default=0  default for model attribute
         # db.Text  db.Unicode  db.Date  db.DateTime   db.Boolean  db.Float
 
@@ -213,62 +225,64 @@
         __tablename__='role'  # change table name
 
     main script
-    from models.dept import t_dept
+    from models.dept import Dept
     from models import db
     app.config.from_object(settings.Dev)   # read flask config from file
     db.init_app(app)
-    db.create_all()   # create table for models  need import model before calling method
+    db.create_all()   # create table for models automatically  need import model before calling method
     db.drop_all()   # delete table for models
 
-    db.session.add(t_dept(10,'a','Hogwarts'))  # insert
-    t_dept.name = 'Gryffindor'  # update value, no need to commit
-    db.session.delete(t_dept.query.get(10))  #delete
+    d = Dept(10,'a','Hogwarts')
+    db.session.add(d)  # insert
+    d.name = 'Gryffindor'  # update value, no need to commit
+    db.session.delete(Dept.query.get(10))  #delete
     db.session.commit()
-    t_dept.query.get(10)  # query by id
-    t_dept.query.all()   # find all       t_dept.query.count()   # total counts
-    print(t_dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
-    print(t_dept.query.filter(db.or_(t_dept.d_name.startswith('Inf'), t_dept.d_name == 'magic')).all())  # db.not_
-    for d in t_dept.query.filter(t_dept.d_name.contains('ryf')):  # startswith  endswith
-    for d in t_dept.query.filter(t_dept.id.__ge__(5)):  # startswith  endswith
+    Dept.query.get(10)  # query by id
+    Dept.query.all()   # find all       Dept.query.count()   # total counts
+    print(Dept.query.filter_by(d_name='Information Technology').one())  # .one cause exception if no result found
+    print(Dept.query.filter(db.or_(Dept.d_name.startswith('Inf'), Dept.d_name == 'magic')).all())  # db.not_
+    for d in Dept.query.filter(Dept.d_name.contains('ryf')):  # startswith  endswith
+    for d in Dept.query.filter(Dept.id.__ge__(5)):  # startswith  endswith
 
-    for d in db.session.query(t_dept).all()  # return list of object
-    db.session.query(t_dept.id,t_dept.d_name)  # return list of namedtuple
-    for d in db.session.query(t_dept.id,t_dept.d_name).filter(t_dept.d_name.like('%ryf%')).all():  # one()
+    for d in db.session.query(Dept).all()  # return list of object
+    db.session.query(Dept.id,Dept.d_name)  # return list of namedtuple
+    for d in db.session.query(Dept.id,Dept.d_name).filter(Dept.d_name.like('%ryf%')).all():  # one()
         # session search, only for specific columns    filter use all(),one()     query use first(), all(), get(id)
-    order_by(t_dept.d_name, t_dept.d_address.desc())  # order by name if same then order by address, default asc()
+    order_by(Dept.d_name, Dept.d_address.desc())  # order by name if same then order by address, default asc()
         can be used  after session.query and query, before or after filter
-    for d in t_dept.query.order_by(t_dept.id).offset(3).limit(3).all():  # paging   limit offset
+    for d in Dept.query.order_by(Dept.id).offset(3).limit(3).all():  # paging   limit offset
         can be used  after session.query and query, before or after filter, must after order_by
     # from sqlalchemy import func
-    count = db.session.query(db.func.count(t_dept.d_id)).first()
-    count = db.session.query(t_dept.d_name, db.func.count(t_dept.d_id).label('cnt')).group_by(t_dept.d_name)
+    count = db.session.query(db.func.count(Dept.d_id)).first()
+    count = db.session.query(Dept.d_name, db.func.count(Dept.d_id).label('cnt')).group_by(Dept.d_name)
         .having(db.func.sum(db.Column('cnt').__ge__(2)).order_by(db.Column('cnt').desc()).all()
         # label: add alias  group_by return tuple
 
     join search
-    db.session.query(t_emp.e_name, t_dept.d_name).filter(t_emp.e_dept == t_dept.d_id)
+    db.session.query(t_emp.e_name, Dept.d_name).filter(t_emp.e_dept == Dept.d_id)
     join()  outerjoin()  need foreign_keys
 
     db.Column() methods:  label()  desc()  asc()  startswith()  endswith()  like()  contains()  le()  lt()
         ge()  gt()  eq()  in_()  notin_()  isnot()
 
     relationship
-    setup foriegn keys/ relation at many side table/entity
-    t_emp:
-        e_dept = db.Column(db.Integer, db.ForeignKey('t_dept.id'))
-        dept = db.relationship(t_dept, backref='emps')  # backref inverse search
-            #  db.relationship(t_dept, backref=db.backref('emps', lazy=True))  # default is lazy load
+    setup foreign keys/ relation at many side table/entity
+    emp:
+        e_dept = db.Column(db.Integer, db.ForeignKey('Dept.id'))
+    Dept:
+        dept = db.relationship(Dept, backref='emps')  # backref inverse search
+            #  db.relationship(Dept, backref=db.backref('emps', lazy=True))  # default is lazy load
                 # lazy=False will use outer join fetch both table
-    dept = t_dept.query.get(1)
+    dept = Dept.query.get(1)
     print(dept.emps)  #  inverse search, specified in relationship parameter
     for emp in dept.emps:
         print(emp.dept.d_name)   # dept specified in relationship output
 
     for many to many relationship, create table for relationship
     emp_dept = db.Table('emp_dept', Column('e_id',Integer, ForeignKey('t_emp.e_id')), Column('d_id',Integer,
-        ForeignKey('t_dept.id')) )   # 'emp_dept' table name
+        ForeignKey('Dept.id')) )   # 'emp_dept' table name
     emp:
-        depts = db.relationship(t_dept, secondary=emp_dept)  # secondary for many to many relationship table
+        depts = db.relationship(Dept, secondary=emp_dept)  # secondary for many to many relationship table
 
 
     app.logger.info('student: %s -> school: %s' % (student, school))
@@ -293,21 +307,34 @@
         app.logger.setLevel(logging.INFO)
         app.logger.addHandler(file_handler)
 
-    cache use redis or
-    flask Cache decorators  @cache.cached(timeout=xxx)
+
+    cache use redis or flask Cache decorators
+
+    from flask_caching import Cache
+    cache = Cache(app,config={'CACHE_TYPE': 'simple'})  # 'redis'
+        or in settings.py add #CACHE_TYPE = 'redis'   #CACHE_REDIS_HOST = '127.0.0.1'
+            #CACHE_REDIS_PORT = 6379   #CACHE_REDIS_DB = 5
+    @cache.cached(timeout=xxx)   @app.route('/', methods=['GET', 'POST'])  def index():
+    @cache.cached(timeout=None, key_prefix='all_comments')  # for non view functions
+
     cache functions:  init_app(app)   get()  set()  add()  get_many()  set_many()  delete_many()  clear()
-    cached(timeout=None, key_prefix='view/%s',
+    cache.set('user','Harry')
+
 
     @app.before_first_request
     @app.before_request
     @app.after_request
     @app.teardown_request
 
-    @app.after_request     # specify common logic after recieving a request
+    @app.after_request     # specify common logic after receiving a request
     def foot_log(environ):
         if request.path != "/login":
             print("some one visited",request.path)
         return environ
+
+
+    # from flask_cors import CORS
+    # CORS().init_app(app)   #for CORS error   Cross-origin resource sharing
 
     flask-RESTful
     flask-sqlacodegen
@@ -338,6 +365,7 @@ class Student:
 
 def app1(env, make_response):
     """
+        env dict contains:
         PATH_INFO  (request path, start with /)
         REQUEST_METHOD (get, post, patch, delete, update)
         QUERY_STRING (after ?  country=united+states)

@@ -17,5 +17,12 @@ class Dev():
     SQLALCHEMY_TRACK_MODIFICATIONS = True      # coexist with previous version
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True  # commit transaction when destroy resources
     #SQLALCHEMY_ECHO = True       # display debug sql message
+
+    #CACHE_TYPE = 'redis'
+    #CACHE_REDIS_HOST = '127.0.0.1'
+    #CACHE_REDIS_PORT = 6379
+    #CACHE_REDIS_DB = 5
+
+
 class Prod():
     pass

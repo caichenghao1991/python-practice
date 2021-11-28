@@ -67,7 +67,8 @@ class Review:
     functions:
     len   # len(var)  string length
     find    index    rfind   rindex     # var.find('_') return index of first _, return -1 if not found
-                                        # var.find('_')  same as find, but will raise exception if not found
+                                        # var.index('_')  same as find, but will raise exception if not found
+                                        # var.index('_', beg=0, end=len(string))
     startswith    endswith   isalpha  isdigit  isalnum   isspace   # var.startswith('www.') return bool  
                                         # var.isalnum()  check for whether is alphabets or num
     count                               # var.count('_')  count _ occurrence times
@@ -216,7 +217,7 @@ class Review:
     dict1.update({'fruit':'peach'})    #create new pair if not exist   
     Remove  mutate dict
     del my_dict['name']   # delete key name, keyError if key not exist
-    name = my_dict.pop('name', None)  # delete key name, return value of that key. keyError if key not exist
+    name = my_dict.pop('name',None)  # delete key name, return value of second param. keyError if not specify
     (k, v) = my_dict.popitem()   # delete last item, if no item exist throw keyError 
     dict1.clear()  # clear whole dictionary, empty dictionary remained
     del dict1  # delete the dictionary structure as well
@@ -268,7 +269,8 @@ class Review:
     function_name2(1,**{'name':'JK','date':'1991-10'})
     function_name3(*args, **kwargs): 
         return kwargs['name']   # function return value,  or just use return to step out the function. 
-        return kwargs['name'], return kwargs['date']    can have multiple return statement under various if condition
+        return kwargs['name']   # can have multiple return statement under various if condition, can't return multiple 
+                                # value in one return statement
     name = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK' for first return  
     item = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # item: ('JK','1991-10')  put return items in a tuple
     name,date = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK', date is '1991-10' for 2nd return
@@ -291,7 +293,7 @@ class Review:
             print(a+10)     # have the same name as outer variable, unless add nonlocal var declaration   
                          # when variable is used, find declaration with order: inner -> outer -> global -> builtin    
         print(inner)  #return location info
-        info = locals()  # info will have local variable and value, inner fuction location information
+        info = locals()  # info will have local variable and value, inner function location information
         inner()  # run inner function
         or return inner
     r = outer()  # return inner function memory location
@@ -413,7 +415,7 @@ class Review:
     os.path.getsize(path)   # return file size in bytes
     os.path.join(os.getcwd(),'path','a.txt')     # return path with path\\a.txt inside current directory
     os.path.abspath(os.path.join(os.getcwd(), '../..', 'media')) # return path ../media
-    os.path.listdir(path)   # return a list containing all the file and directory under path
+    os.path.listdir(path)   # return a list containing all the file and directory under path or current path if no input
     os.path.exists(path)   # return bool   check path exist or not
     os.path.isfile(path)   # check path is file or not
     os.path.isdir(path)   # check path is directory or not
@@ -422,8 +424,9 @@ class Review:
     os.remove(path)   # remove file 
     os.chdir(path)   # switch current working directory to path
     os.getpid()      # get process id
-    os.listdir(path)  # return files and directory in path or current path if no input
+
     --Exceptions
+    parent class: BaseException
     try:
         pass
     except :      # can use multiple except  
@@ -461,14 +464,14 @@ class Review:
         def task1(n):
             for i in range(n):
                 print(n)
-                yeild None
+                yield None
         g1,g2= task1(10), task2(5)
         while True:
             try:
                 next(g1)
                 next(g2)
-            except:
-                pass
+            except StopIteration:
+                break
                 
                    
     --Iterable and Iterator
@@ -477,12 +480,13 @@ class Review:
     iterator is iterable, but iterable is not necessary iterator
     generator is an iterator, list is iterable, but not iterator
     user:  iter(Iterable)     ex: it=iter([1,2,3]); next(it)   to change iterable list into iterator
-    
+    isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable 
     
     --OOP object oriented programming
     class name upper camel case, default extend from parent: object    class CellPhone:  class ClassName(object):
     multiple inheritance     class CellPhone(Commuter, Electronic):  
     import inspect     print(inspect.getmro(CellPhone))    or print(CellPhone.__mro__)   # get inheritance order
+        # Method Resolution Order
     # inheritance order CellPhone->Commuter->Electronic->object   python1 3: bfs    python1 2: dfs preorder
     class CellPhone(Commuter):    # non specific parent class extend from object, here extend Commuter class
                                   # child class have all parent class attributes, need to override if necessary
@@ -610,7 +614,7 @@ class Review:
     import datetime
     birthday = datetime.date(2019,6,20)
         # today = datetime.date.today()
-    print(d.day)  # 20         print(datetime.date.ctime(d))  # Thu Jun 20 00:00:00 2019
+    print(birthday.day)  # 20         print(datetime.date.ctime(birthday))  # Thu Jun 20 00:00:00 2019
     datetime.date.today()   # 2021-09-07     
     now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
     print(now, now - delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
@@ -621,7 +625,7 @@ class Review:
     --Random
     import random
     random.random()  # Return the next random float in the range [0.0, 1.0)
-    random.randrange(start,end,step)  # step default 1 [start, end) with step
+    random.randrange(start,end,step)  # random choose a number from [start, end) with step default 1 
     random.randint(start,end)  # random integer [start, end] 
     random.choice([1,2,3,4,5])   # random choose from a sequence
         random.choice('12345')   
@@ -654,24 +658,27 @@ class Review:
         counters are greedy will return the longest matched string after one match  , add ? to make it not greedy
               re.match(r'abc(\d+)','abc123de')  # abc123 ,  re.match(r'abc(\d+?)','abc123de')   # abc1
         assign name to part of pattern:  ?P<name>  to assign later pattern in () with name, ?P=name to match the pattern
-        msg = '<html><h1>abc</h1></html>'   re.match(r'^<(?P<name1>\w+)><(?P<name2>\w+)>(.+)<?P=name2><?P=name1>'$)
+        msg = '<html><h1>abc</h1></html>'   re.match(r'^<(?P<name1>\w+)><(?P<name2>\w+)>(.+)</?P=name2></?P=name1>'$)
              or use number \1 to match first group()    re.match(r'^<(?P<name1>\w+)><(?P<name2>\w+)>(.+)</\2></\1>'$)
     '''
     msg = 'caichenghao@gmail.com';   
     pattern = re.compile('^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$')
     result = pattern.match(msg)      # <re.Match object; span=(0, 21), match='caichenghao@gmail.com'>
-    result = re.match(pattern,msg)   # return None if no match, match the pattern with beginning of the string one time,  
-                                     # span shows the index of matching
+    result = re.match(pattern,msg)   # return None if no match, match the pattern from beginning of the string,  
+                   # return <re.Match object; span=(0, 10), match='123&abc456'>  span shows the index of matching
+    re.match("([0-9]*)&([a-z]*)([0-9]*)", msg)  
     result = re.search(pattern, msg) # search can match the pattern not just from beginning, pattern add ^xxx$ to ensure 
                                      # search from beginning and till the end, stop once one result is found
-    result = re.findall(pattern, msg)   # return a list of all matched results                        
-    result.span                      # (0, 21)    return matched position
-    result.group()                   # return the string matching the pattern, default parameter is 0
-    result.group(1)                  # return string match the first (xxx) pattern, index start with 1
+                                     # return re.Match object
+    result.span                      # (0, 21)    return matched position, for re.Match object
+    result = re.findall(pattern, msg)   # return a list of all matched results                
+    result.group()                   # return the string matching the pattern, default parameter is 0, return all the 
+                                        # matched string with pattern
+    result.group(1)                  # return string match the first () in pattern, index start with 1
     m = re.match(r"(\d+)\.(\d+)", "4.16")     # ('4', '16')Return a tuple containing all the subgroups of the match, 
                                      # r will suppress interpression of string \t,\b
-    result.groups()                  # groups need regular expression have (xxx) item as tuple item
-    result.groups('0')               # change default value from None to '0'
+    result.groups()                  # return a tuple with all matched () pattern, same as (result.group(1), 
+                                        # result.group(2),result.group(3),...)
     result = re.sub(r'\d+','90','{java:99,python:100}')  # replace, match 1st pattern with 3rd string, and replace 
                                      # matched item with 2nd parameter (can be a function which return string)
     result = re.split(r'[,:]','aa:b,c')  # ['aa','b','c']  return a list split the string by matched pattern 
@@ -698,10 +705,11 @@ class Review:
     def call_back(n):
         print(n)
     
-    p = Process(target=task1, name='job 1', args=(1,))   # child process, args can be tuple or list
+    p = Process(target=task1, name='job 1', args=(1,))   # child process, args can be tuple or list, name optional
     p.start()                             # start and run process
     print(p.name)  # job 1
     p.run()                               # run process
+    p.join()                              # main process not stop until child process finished
     p.terminate()                         # stop process
     
     self-defined process
@@ -827,8 +835,8 @@ class Review:
     print(tasks[0].result)  # 1
                 
     context: state stored and read during cpu switching tasks every several milliseconds
-    process: ~MB, communication: socket, pipe, file, shared memory, UDS. context switching a bit slower, not flexible, controlled by 
-        operating system
+    process: ~MB, communication: socket, pipe, file, shared memory, UDS. context switching a bit slower, not flexible, 
+        controlled by operating system
     thread: ~kb, communication: direct transfer information. context switching a bit faster, not flexible, controlled by 
         python interpreter. wasting cpu resource if process / thread blocking
     Coroutines: <1k, communication: same as thread.  context switching fast and flexible (controlled by programmer)
@@ -858,9 +866,8 @@ class Review:
     
     
     --Others 
-    import random     random.randint(1, 10)  [1,10] random integer
     id(variable)  # get the readable memory location (integer) of the variable stored
-    isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable 
+    
     pip install -U pip   # update pip  
     pip install pymysql==0.9.2   # install specific version
     pip freeze   # show all dependencies 

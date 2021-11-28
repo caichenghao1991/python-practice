@@ -52,7 +52,7 @@
     $ ln                     # create hard shortcut  ln a.py /root/b: create shortcut of a.py under root with name b
                              # create reference of file (no extra space) but will still live if one reference removed
                              # create soft shortcut  ln -s a.py /root/b, remove original file will delete shortcut
-    $ alias ll='ls -ls       # create alias ll
+    $ alias ll='ls -ls'      # create alias ll
     $ unalias ll             # delete alias ll
     $ find / -name "*.html"  # find all .html file under / (path)    add -delete  to delete found files
                              # -size +10M    find all  file under / greater than 10M size
@@ -63,20 +63,22 @@
     $ scp                    # scp home/a.py root@12.123.456.78:/home/dir   # secure copy file
                              # scp code/ root@12.123.456.78:/root/   # copy directory
     $ sftp                   # sftp root@12.123.456.78   # connect to remote machine
-                             # lls   local  ls     lcd ..   local change to previous directory
+                             # lls   # local  ls,     lcd # local change to previous directory...
                              # put code.py  # upload file to other machine    -r for directory
                              # get code.py   # get file from other machine
                              # help show manual
                              # bye / quit  exit sftp (secured file transfer protocol)
     $ ping                   # ping www.baidu.com    check ip availability
                              # PING TO DEATH   DDoS(distributed deny of service)  TCP Flood
-    $ ifconfig /ip addr      # show network card eth0 info (inet private ip ) lo localhost
+    $ ifconfig /ip addr      # show network card eth0 info (inet private ip ) of localhost
                              # 127.0.0.1 localhost  (set under /etc host file)
     $ netstat                # network status   -n number format    -a  all   -p process
                              # stream: tcp type    ugram: udp type    ip type
     $ kill                   # kill 1211   kill  process 1211  -9 force
                              # kill -HUP 1211   non-stop restart
-    ps /jobs                 # check running process   -ef all process
+    ps /jobs                 # check running process
+                                e: process utilize environment tool info    f: show process relationship
+                                a:  process in current environment      x:  process not in current environment
                                 ps ax|grep -v grep|grep gunicorn|awk '{print $1}'
                                 watch -n 0.5 "ps ax|grep -v grep|grep gunicorn|awk '{print $1}'"
     fg                       # move command to foreground    fg %1    jobs get id [1]+ Running
@@ -90,7 +92,6 @@
                              # grep -E "\<\/?script.*\>" index.html  search <script> tags in index.html
                              #   grep -E "\<\/?script.*?\> index.html    non greedy search
                              # grep redis | grep -v auto  # search result have redis but no auto
-                             cut
 
 
     psgrep  gunic            # search in process with name gunic
@@ -174,11 +175,11 @@
     map <F2> gg9999dd         # map key to function in command mode (create shortcut)
     ignoremap _main if __name__ == '__main__':    # custom shortcut in coding
 
-    $ q                      # create macro (record repeatable action)
+    q                      # create macro (record repeatable action)
                              # qa create macro named a, i insert mode and make change, esc, q stop recording
                                 # @4a  (a is the macro name)  repeat 4 times action at cursor
-    $ /0   ?0                # search from top / bottom string 0    n for next   N for previous
-    $ 1,100s/0/1000/cg       # replace 0 with 1000 in line 1 to 100  press Y to confirm
+    /0   ?0                # search from top / bottom string 0    n for next   N for previous
+    1,100s/0/1000/cg       # replace 0 with 1000 in line 1 to 100  press Y to confirm
                              # c : confirm   g: global (find all in one line)  i: ignore case  e: ignore error
 
 
@@ -198,7 +199,7 @@
     :set ts=4                 # set tab = 4 spaces
     :syntax on / :syntax off  # highlight grammar keyword    close highlight
     :set ruler / :set noruler # show cursor location   close ruler
-    set autoindent            # auto indent when previous line have indent
+    :set autoindent            # auto indent when previous line have indent
 
     gcc --version
 

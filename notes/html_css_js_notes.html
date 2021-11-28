@@ -20,7 +20,6 @@
         delete: delete resource on server
         put: modify resource on server
         patch: update resource on server
-        put: update multiple resource on server
         head: retrieve page header from server, usually for testing large site
         options: show allowed action above
 
@@ -44,7 +43,7 @@
     json data format:
         double quote for key, value
         must have "code"(status code, 0 for no exception),
-        "data"(dict data) key for data transfered
+        "data"(dict data) key for data transferred
         {
             "code":0,
             "data": {
@@ -112,7 +111,7 @@
                 font-family: "my_font";
                 background-color: grey;
                 text-align: center;
-                margin: 0px auto;  /* top/bottom 0px, left/right auto
+                margin: 0px auto;  /* top/bottom 0px, left/right auto */
             }
             .a {          /* select by class a */
                 color: rgba(0, 0, 255, 0.7);
@@ -517,11 +516,14 @@
             function funActivity(para1, para2='default_val'){
                 //function name alphabet number _ $, not start with number
                 const ads = document.getElementById('ads')  //get dom id='ads' element assign to constant
-                ads.textContent = 'Hello'  // change text content
+
                 img.src='url'   img.title           //change src of image (property inside tag)
                 ads.style.display = 'none'  // change css style
-                ads.style.style.backgroundColor = 'red'  // all css attribute with '-' change to camel case
-                let msg = ads.innerHTML  // return content inside tag, can include tags
+                ads.style.backgroundColor = 'red'  // all css attribute with '-' change to camel case
+                let msg = ads.textContent     // won't contain tags when retrieve
+                ads.textContent = '<p>Hello</p>'  // change text content, when assign won't render tags(print<p>)
+                let msg = ads.innerHTML  // return content inside tag, can include tags when retrieve
+                ads.innerHTML = '<p> Hello</p>'  // will render tags when assign
 
                 <div id="test"><span style="color:red">test1</span> test2</div>
                 ads.innerHTML  // <span style="color:red">test1</span> test2
@@ -548,7 +550,7 @@
                     // when mouse is clicked, browser will call this function with event as parameter
                     // or use let i = 0 instead of var
                         //lis[i].addEventListener('click',()=>{})
-                    // or use lis.forEach(li => {li..addEventListener('click',()=>{})
+                    // or use lis.forEach(li => {li.addEventListener('click',()=>{})
                     let box = evt.target.firstChild  // evt.target return the item trigger the event
                     evt.preventDefault()  //prevent default action  ex. <a href=''> won't refresh page
                     box.checked = !box.checked

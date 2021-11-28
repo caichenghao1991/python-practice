@@ -1,15 +1,5 @@
-import time
+import json
 
-import socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(('localhost', 8001))
-sock.listen(5)
-connection,address = sock.accept()
-while True:
-    try:
-        connection.send(bytes('welcome to server!','utf-8'))
-        time.sleep(1)
-    except socket.timeout:
-        connection.send(bytes('time out!', 'utf-8'))
-        print('time out')
-
+import numpy as np
+dict2 = {"name":"Harry", "age":10}
+dict2.pop()
