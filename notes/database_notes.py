@@ -150,11 +150,11 @@
     drop views vw_stu_sch
 
     # procedure   can't return value inside procedure, put return output inside input parameter
-    # faster than use query, since answer is compiled andoptimized ahead
+    # faster than use query, since answer is compiled and optimized ahead
     delimiter $$   # assign new delimiter switch from ; to $$
-    create procedure p_stu_sch_avg_age(s_id int, out avgage decimal(6,1))   -- return avgage
+    create procedure p_stu_sch_avg_age(s_id int, out avg_age decimal(6,1))   -- return avg_age
     begin
-        select avg(stu_birth) into avgage from t_student where school_id=s_id;
+        select avg(stu_birth) into avg_age from t_student where school_id=s_id;
     end$$
     delimiter ;
     call p_stu_sch_avg_age(20, @a);     select @a from dual;
@@ -188,7 +188,6 @@
     operation 1; operation 2;
     commit;  # make all operation in effect
     rollback;  # undo all operation
-    start transaction
 
     # one to one relationship
     alter table t_id_card add constraint fk_card_pid foreign key(pid) reference t_person(p_id);
@@ -256,7 +255,7 @@
 
     redis-server &     # start redis server at backend tcp port 6379    --port 1234
     redis-server --requirepass 123456 &    # add password     --appendonly yes  change way of saving (aof), default rdb
-        --bind xxx.xxx.xx.xx > redis.log     get ip from ufconfig eth0     save console log to redis.log
+        --bind xxx.xxx.xx.xx > redis.log     get ip from ifconfig eth0     save console log to redis.log
     jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
     redis-server redis-5.0.4/redis.conf &   # use config file
     redis-client  auth 123456      shutdown nosave
@@ -356,6 +355,9 @@
 
     connection problem: add ip to whitelist in server, check firewall
 
+    conn = redis.Redis(host='127.0.0.1', port=6379, password=123456)
+    conn.flushdb()
+    conn.set('user1', 'Harry', ex=300)
 
 
     # mongodb
@@ -370,14 +372,14 @@
     install mongodb, mongodb shell, mongo compass
     net start/stop MongoDB    # start/stop mongodb service
     mongosh    # open mongo shell to interact with mongodb
-    terms: collection (SQL table),  document (SQL row),  field (SQL column)
+    terminology: collection (SQL table),  document (SQL row),  field (SQL column)
     mongodb shell language use javascript
 
     database name can't use: space, empty string,  .  $  /  \  \0, must lowercase, max 64 bytes, admin, local, config
     key name can't use: space \0  ($  _ careful use)
     collection name can't use: empty string  \0,   start with system. ($ careful use)
     data no need same schema or datatypes, case sensitive, documents (key-value pair) are ordered, no duplicate keys
-        inside one document, keys are string
+        (field) inside one document, keys are string
 
     mongodb doesn't have transaction, but document save, update, delete are all atomic operation.
 
@@ -387,7 +389,7 @@
         db.createCollection("cap_coll", {capped:true, size:100000,max:1000})  # suze 1e5 bytes, max 1000 documents
         db.cap_coll.isCapped()  # return whether capped collection
         db.runCommand({"convertToCapped":"Hogwarts",size:10000})   # convert collection to capped
-        db.runCommand({"convertToCapped":"Hogwarts",size:10000})   # convert collection to capped
+
 
     datatype:
         String (utf-8), Integer, Boolean, Double, Array, Timestamp, Object, Null, Symbol(similar to string, for special
@@ -447,7 +449,7 @@
 
     # delete document
     db.collection.remove(<query>,{justOne: <boolean>,writeConcern: <document>})
-        <query>: where condition,  justOne: default false, rempve all matched. if true/1 only delete one document
+        <query>: where condition,  justOne: default false, remove all matched. if true/1 only delete one document
         writeConcern: throw exception level
     db.hogwarts_table.remove({"name":'Harry'})
     db.hogwarts_table.remove({})  # remove all data
@@ -468,7 +470,7 @@
 
 
     # index
-    mongodb create index in RAM, if overflow, it will remove some indexes. can't search by $nin, $nin, $mod, $where
+    mongodb create index in RAM, if overflow, it will remove some indexes. can't search by $in, $nin, $mod, $where
     collection max 64 indexes, index name max 128 bytes, composite index max 31 fields.
 
     db.collection.createIndex(keys, options)
@@ -476,6 +478,7 @@
         options: background, unique, name, dropDups, sparse, expireAfterSeconds, v, weights, default_language,
             language_override
     db.hogwarts_table.createIndex({'name': 1, 'age': 1}, {background: true})
+    db.hogwarts_table.createIndex({'name': 1},{"name":'idx_name'})  # add index name
     db.hogwarts_table.getIndexes()   # get collection index
     db.hogwarts_table.totalIndexSize()
     db.hogwarts_table.dropIndexes()
@@ -630,4 +633,7 @@
         mongofiles.exe -d gridfs put song.mp3
         db.fs.files.find()   # find fs.files information
         db.fs.chunks.find({files_id:ObjectId('534a811bf8b4aa4d33fdf94d')})   # find all documents(chunks)
+
+    client = pymongo.MongoClient("mongodb://localhost:27017/")
+    res = client.hogwarts.student.create_index([('name', 1),('_id', -1)], unique=True)
 """

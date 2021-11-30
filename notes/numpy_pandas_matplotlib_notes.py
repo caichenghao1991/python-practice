@@ -56,7 +56,7 @@
 
         # aggregate functions
         print(np.min(a), np.min(a, axis=1), np.sum(a, axis=0)) or a.sum(axis=0)   # 0 [0 0] [4 3 0]
-            prod,  mean, std, var, argmin, argmax, median, precentile, any, all, power
+            prod,  mean, std, var, argmin, argmax, median, percentile, any, all, power
             np.nan  # empty value (not a number, float type, able to calculate, but result is nan)
                 # pandas will convert None to np.nan
             np.nansum(a)  # don't consider np.nan in sum
@@ -101,7 +101,8 @@
         print(a * 2, a + 2, a ** 2, a * a, np.sin(a), np.sqrt(a), np.exp(a), np.log([1, 2]))
         # doesn't change array unless assign, each value times 2, sin(), log()
         a *= 1  # this will update original matrix
-        # broadcast rule, add dimension for smaller ndarray, fill added dimension with existing dimension value
+        # broadcast rule, add dimension for smaller ndarray on the left side, if right most values are different, then
+            # can't broadcast, fill added dimension with existing dimension value
         x,y = np.ones((2,3)), np.full((3), 3)
         x+y   # [[4,4,4][4,4,4]]  y become [[3,3,3][3,3,3]]
 

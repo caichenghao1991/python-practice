@@ -279,7 +279,7 @@
         print(emp.dept.d_name)   # dept specified in relationship output
 
     for many to many relationship, create table for relationship
-    emp_dept = db.Table('emp_dept', Column('e_id',Integer, ForeignKey('t_emp.e_id')), Column('d_id',Integer,
+    emp_dept = db.Table('emp_dept', Column('e_id',db.Integer, ForeignKey('t_emp.e_id')), Column('d_id',db.Integer,
         ForeignKey('Dept.id')) )   # 'emp_dept' table name
     emp:
         depts = db.relationship(Dept, secondary=emp_dept)  # secondary for many to many relationship table

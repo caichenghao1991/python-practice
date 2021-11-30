@@ -196,9 +196,10 @@
 
         scrapy runspider basic_spider.py  # run single file
 
-        or create project scrapy startproject scrapy_basic   # project name
+        or create project
+        scrapy startproject scrapy_basic   # project name
         scrapy genspider example1 xiachufang.com  # scraper name  allowed domain
-        scrapy crawl example1
+        scrapy crawl example1   # run spider for project
 
 
         settings.py USER_AGENT = 'Mozilla/5.0'   set user-agent
@@ -341,7 +342,7 @@
             items/requests(call back) to engine -> engine send items to item pipeline, requests to scheduler
 
         middleware
-            (RobotsTxt, HttpAuth, DowloadTimeout, DefaultHeaders, UserAgent, Retry, MetaRefresh, HttpCompression,
+            (RobotsTxt, HttpAuth, DownloadTimeout, DefaultHeaders, UserAgent, Retry, MetaRefresh, HttpCompression,
                 Redirect, Cookies, HttpProxy, DownloaderStats, HttpError, Offsite, Referer, UrlLength, Depth)
             process_request() called when engine send to downloader -> return response to engine -> return
                 a. None: continue other middleware; b. Response:go to process_response; c. Request: go to scheduler;
@@ -431,7 +432,7 @@
                 SCHEDULER = "scrapy_redis.scheduler.Scheduler"  # Enable scheduling storing requests queue in redis
                 DUPEFILTER_CLASS = "scrapy_redis.dupefilter.REPDupeFilter"  # enable all spiders share same duplicates
                                                                             # filter through redis
-                SCHEFULER_PERSIST = True  # don't cleanup redis queues, allow pause/resume crawls
+                SCHEDULER_PERSIST = True  # don't cleanup redis queues, allow pause/resume crawls
 
                 #ITEM_PIPELINES add 'scrapy_redis.pipelines.RedisPipeline':301  # optional, save items in redis (memory)
 

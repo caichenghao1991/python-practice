@@ -20,12 +20,14 @@
         docker commit -m="has update" -a="runoob" xxx redis:v2   # update image,  param: message, author, container ID,
                                 # updated image name to docker hub
         docker rmi redis1      # remove image by id /image name
-        docker build -t redis1:v2 .   # build image . is context path if needed from pc running the container
+        docker build -t redis1:v2 .   # build image . is context path for docker file
                                 # -t specify image name
+            # docker build github.com/crack/docker-firefox   #  build image from internet url
         docker tag xxxx redis1:v2         # specify image id change name to image name
-        docker inspect containerid    # check container info
+
 
         # docker container command
+
         docker run --name redis1 redis        # specifies container name, image name
             # run on current terminal window in sync mode
             # docker run ubuntu:latest /bin/echo helloworld
@@ -34,6 +36,7 @@
                 # new container after the old container is destroyed
                 # /data/redis  host directory,  /data  container directory
             # -rm  remove container automatically after finish running job
+        docker inspect containerid    # check container info
         docker ps a            # show all container (stopped as well, check for container id)
                 u: show program based on user     # x show all program      # ps aux  # can write together
         docker run -dit --name redis1 -p 6378:6379 redis      # -d:backend, -i:can enter container, -t:can open terminal
@@ -49,7 +52,7 @@
             or  docker save -o ~/redis.tar redis1  # save imageID/name snapshot
                 docker load --input ~/redis.tar   or   docker load < ~/redis.tar
         docker logs   # check logs
-        docker top containerid   # check container statys
+        docker top containerid   # check container status
 
         Dockerfile
             FROM: ubuntu-dev:latest   # base:image version

@@ -53,7 +53,7 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    #'scrapy_basic.middlewares.ScrapyBasicDownloaderMiddleware': 543,
-    'scrapy_basic.middlewares.RandomHttpProxyMiddleware': 749,
+    'scrapy_basic.middlewares.': 749,
 }
 HTTP_PROXIES = [
 
