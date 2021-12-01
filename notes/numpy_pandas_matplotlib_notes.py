@@ -165,9 +165,9 @@
             color['a'] = "Green"  # update    need pd.Series(arr.copy()) if arr is np.array with number, otherwise
                 update will change arr value as well
             explicit index
-                color.loc['a']   #retrieve value,
+                color.loc['a']   # retrieve value,
                     color['a'] # not recommended, can't distinguish explicit or implicit indexing
-                color.loc['a':'c']  # index ['a','c']
+                color.loc['a':'c']  # return series index from 'a' to 'c'
             implicit index
                 color.iloc[0]
                 color.iloc[0:3]   # index [0,3)
@@ -175,8 +175,8 @@
 
             # add value
             color['d'] = np.nan
-            color = color.append(pd.Series(['Orange','Black']))  # default index start at 0, {"e":'Orange', "f":'Black'}
-
+            color = color.append(pd.Series(['Orange','Black']))  # default index start at 0, {"0":'Orange', "1":'Black'}
+                # need assign otherwise series won't change
             # attribute
             color.shape  # (3,)         color.size  # 3
             color.index   Index(['a', 'b', 'c'], dtype='object')
@@ -185,14 +185,14 @@
             color.name = 'color'   # assign name for series
 
             pd.isnull(color)  # return index and boolean of null check for np.NaN
-                pd.notnull(color)   color.isnull(s)   color.notnull()
+                pd.notnull(color)   color.isnull()   color.notnull()
 
             color.unique()   # remove duplicate value
             color.plot()   # kind='bar',  'hist' (bins=10, density=True), 'kde'  #kernel density estimate(install scipy)
                 plt.show()  #needed for pycharm to show figure
                 # same as dataframe, check below
 
-            color.tolist()   # convert series to list
+            color.tolist()   # convert series to list, drop index
 
             math operation: don't have broadcast, fill NaN if missing (number add NaN is NaN)
             +, -, *, /  apply to all number elements
@@ -206,7 +206,7 @@
             each row or column is a Series
 
             # create dataframe
-            df = pd.DataFrame([[0,1],[2.3]])  # only have data, default index 0,1,2...
+            df = pd.DataFrame([[0,1],[2,3]])  # only have data, default index 0,1,2...
             df = pd.DataFrame(data=np.random.randint(0, 100, size=(2, 2)), index=['Magic Defense', 'Magic Spell'],
                 columns=['Harry','Ronald'])   # data: 2D list/np.array, index:list, column:list
             df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)},
@@ -236,7 +236,7 @@
             df = df.drop("Hermione")   # drop column Hermione, or use inplace=True
 
             #add row
-            df = df.append(pd.DataFrame({'Harry':88, 'Ronald':60, ''Hermione':97}, index=['Magic Creature']))
+            df = df.append(pd.DataFrame({'Harry':88, 'Ronald':60, 'Hermione':97}, index=['Magic Creature']))
                 # verify_integrity=True   #raise error if has duplicate index after apend
                 # ignore_index=True    # reassign index      sort=True
             df.loc['Magic Creature'] = pd.Series({'Harry': 88, 'Ronald': 60, 'Hermione': 97})
@@ -314,41 +314,44 @@
             .head()     # return default show 5 rows of data
                 .head().T   # if too many columns and truncated
             .tail()     # last 5 rows
-            .duplicated()    # return index column and boolean column of whether duplicated value
+            .duplicated()    # return index column and boolean column of whether duplicated row as above (first
+                    # occurrence False, second + appearance True)
                 df[~df.duplicated()]  # rows not duplicated,  keep='last' check from bottom to top
                 # subset=['Harry','Ronald']  # check duplicate value in subset columns
+            df = df.drop_duplicates()    # remove duplicated rows
             df = df.add_prefix('new_')   # add prefix for each column name   # add_surfix()
-            .drop_duplicates()    # remove duplicated rows
-            .sort_values(by=["saledate"], inplace=True, ascending=True)
+            .sort_values(by=["saledate"], inplace=True, ascending=True)    # only sort column, return sorted rows base
+                    # on one or multiple column values
             df = df.astype(dtype=np.int16)  or df['Harry'] = df['Harry'].astype(int)  # change datatype
                 pd.to_numeric(df['Harry'])  # change column to numeric
 
             df.cumsum()  # default axis=0, from top to bottom, each cell add upper values
                         # default skipna=True  # don't consider NaN,   set to False will cause cell below NaN become NaN
 
-            df.set_index(keys='Date', inplace=True)   # set Date column as index
+            df.set_index(keys='Date', inplace=True)   # set Date column values as index
             df = df.reset_index(drop=True)  # reset the index from 0 step 1, change old index to a 'index' column
+                # drop=False will shift old index to a column
 
             pd.concat()    # concatenate series or dictionary
                 pd.concat((df1, df2), ignore_index=True)  # default axis=0, add at bottom, drop original index and
                     # assign new index start 0,1,2... (if df have default index, will cause duplicate index )
                 pd.concat((df1, df2),keys=['df1','df2'], axis=0)  # add hierarchical index at level 0 'df1','df2'
                     # fill NaN and outer join in default if 2 df have different column
-                pd.concat((df1, df2),join='inner', sort=True)  # inner join
-                pd.concat((df1, df2),axis=0, join_axes=[df1.columns])  # left join, keep all df1 columns
-                        # axis=1, join_axes=[df1.index]  # left join, keep all df1 columns
+                pd.concat((df1, df2),join='inner', sort=True)  # inner join, default outer join
+                pd.concat((df1, df2),axis=0, join_axes=[df1.columns])
+                        # axis=1, join_axes=[df1.index]  # left join on df1 index, keep all df1 rows
 
             pd.merge(df1, df2)    # merge must have common column(s), default inner join on the common column
                 df1.merge(df2)   # how='inner' #inner join     how='right' # right join    outer left
-                # if have multiple same values in df1 and df2, will return Cartesian product (all possiblilities )
+                # if have multiple same values in df1 and df2, will return Cartesian product (all possibilities )
                 pd.merge(df1,df2, on='name')    # when have multiple common columns, use 'on=' to specify the column
                     # used to join, the other common column name will have extra _x, _y to distinguish
-                        # suffixes=['_df1','_df2'] use surffixes to change defult _x, _y
+                        # suffixes=['_df1','_df2'] use suffixes to change default _x, _y
                 pd.merge(df1,df2, left_on='name', right_on='student')  # merge df1 'name' column, df2 'student' column
                 pd.merge(df1,df2, left_on='name', right_index=True) # merge df1 'name' column, df2 index column
 
-            df.drop(columns='Hermione')  # index=''  drop row,   columns=''  drop column,   inplace=False defaut,
-                # labels='' + axis=0/1  drop row/column
+            df.drop(columns='Hermione')  # index=''  drop row,   columns=''  drop column,   inplace=False default,
+                # labels='', axis=0/1  drop row/column
 
             df.take([2,1,0])  # get the rows in order of the input list based on row index
                 np.random.permutation([0,1,2,3])  # return a random permutation of array with all elements
@@ -433,7 +436,7 @@
                 df.sum(axis=1)  # return series each row sum a value(same column)
                 df.sum(axis=1,level=0)  # each level 0 row index sum a value (same column)
                 (df['Gender']=='male').sum()
-                prod,  mean, std, var, argmin, argmax, median, abs, precentile, any, all, power
+                prod,  mean, std, var, argmin, argmax, median, abs, percentile, any, all, power
 
                 df[~((df-df.mean()).abs() > 3 * df.std()).any(axis=1)]  # filter out row has greater than 3 std value
                 df.groupby('Make')['Price'].apply(mean)    df.groupby('Make')['Price'].transform(mean)
@@ -454,9 +457,10 @@
                 to switch to dataframe row index and series index
             # dataframe and series operation based on df column index and series index
             delta = pd.Series([10, -2], index = ['Harry','Hermione'])
-            print(df2 + delta) # add 10 for Harry column and minus 2 for Hermione column, missing column fill NaN
-                or df2.iloc[:,:] = df2.iloc[:,:]-[10,0,-2]
-            # dataframe and series operation based on df row index and series index
+            print(df2 + delta) # add 10 for Harry column and minus 2 for Hermione column, missing column (column in df
+                but not in the series) fill NaN
+                or df2.iloc[:,:] = df2.iloc[:,:]-[10,0,-2]  # must have same columns as length of list
+            # dataframe and series operation based on df row index and series index need add axis in add()
             delta2 = pd.Series([0, 0, -10], index=['Magic Defense', 'Magic Spell', 'Magic Creature'])
             print(df2.add(delta2, axis='index'))  # minus 10 for Magic Creature row
                 or df2.iloc[2:, :] = df2.iloc[2:, :] - 10  # df+number operation for each item
@@ -597,7 +601,7 @@
         plt.title('Title name')   # set figure title
             # rotation, position same as xlabel
 
-        plt.legend()  # add discription for each plot, must add after plot, and inside plot add label
+        plt.legend()  # add description for each plot, must add after plot, and inside plot add label
             plt.plot([4,5,6], label='a')   # label name don't start with '_'
             plt.legend()
                 # plt.legend(['a','b']) # declare label here if not declared in plot, not recommended
@@ -748,7 +752,7 @@
         moon = plt.imread('../resources/images/moon.jpg')
         moon_fft = fft2(moon)  # Fourier transform   [[-1.35476888e+02 - 7.19055378e+02j...   shape (824, 1203)
                         # absolute value greater than threshold are noise point
-        # moon_fft[np.abs(moon_fft) > 8e2] = 0;   result = moon_fft
+        # moon_fft[np.abs(moon_fft) > 1e3] = 0;   result = moon_fft
         result = np.where(np.abs(moon_fft) > 1e3, 0, moon_fft)  # assign 0 in Fourier transform with large value
         moon_ifft = ifft2(result)  # inverse Fourier transform
         moon_cleaned = np.real(moon_ifft)  # only keep real part of array
@@ -757,7 +761,7 @@
 
 
         # integration
-        half_pi, deviation = integrate.quad(lambda x:(1-x**2)**0.5, -1, 1)    # inteegration of y= (1-x^2)^0.5  xϵ[-1,1]
+        half_pi, deviation = integrate.quad(lambda x:(1-x**2)**0.5, -1, 1)    # integration of y= (1-x^2)^0.5  xϵ[-1,1]
             # get pi from r=1 (0,0) circle
         print(half_pi*2, deviation)   # deviation: error range
 

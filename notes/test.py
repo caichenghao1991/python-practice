@@ -1,6 +1,8 @@
 import json
-
+import pandas as pd
 import numpy as np
-a= np.ones((2,3))
-b = np.full((2),3)
-print(a+b)
+df = pd.DataFrame({'a':[0, 1],'b':[2, 6],'c':[0,1]}, index=['x','y'])
+delta = pd.Series([10, -2], index = ['x','y'])
+df = df.add(delta, axis='index')
+
+print(df.corr())
