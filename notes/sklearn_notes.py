@@ -6,7 +6,7 @@
     KNN (k nearest neighbor)
         find k nearest nodes to the test point, assign majority class of those k nodes
 
-        KNeighborsClassifier()   # can handle string target column, not data string column
+        KNeighborsClassifier()   # can handle string target column, not string attribute column
             # n_neighbors=5
             # weights='uniform'  # weights for different point
             # leaf_size=30
@@ -78,7 +78,7 @@
             ridge.fit(X,y)
 
         Lasso()  # least absolute shrinkage and selection operator
-            # total of coeffecient sum less than λ   first order regularizor
+            # total of coeffecient sum less than λ   first order regularization
             lasso = Lasso(alpha=0.1)
             lasso.fit(X,y)
 
@@ -100,8 +100,8 @@
 
         Bayes: only for classification
             GaussianNB(): continuous data, data gaussian distribution
-            MultinomialNB(): positive descrete data, multinomial distribution
-            BernoulliNB(): binary descrete data, bernoulli distribution
+            MultinomialNB(): positive discrete data, multinomial distribution
+            BernoulliNB(): binary discrete data, bernoulli distribution
 
         Categorical data transform
         # map approach
@@ -124,7 +124,7 @@
 
         # OneHotEncoder + ColumnTransformer approach
         transformer = ColumnTransformer([("one_hot", OneHotEncoder(), categorical_features)], remainder="passthrough")
-        data = np.array(transformer.fit_transform(data))#, dtype=np.str
+        data = np.array(transformer.fit_transform(data))  #, dtype=np.str
         #data = pd.DataFrame(data)
         #print(data.head())
 
@@ -171,7 +171,7 @@
 
         GridSearchCV (brute force all combination)
             smaller the grid using reference from randomsearchcv
-        gs_clf = RandomizedSearchCV(estimator=clf, param_distributions=grid, cv=5, verbose=2 )
+        gs_clf = GridSearchCV(estimator=clf, param_distributions=grid, cv=5, verbose=2 )
             # cv: cross validation (split training data to 80% train and 20% validation rotation)
             gs_clf.best_params_
 
@@ -228,7 +228,7 @@
         Linear difference
             x and y are arrays of values used to approximate some function f: y = f(x).
             This class returns a function whose call method uses interpolation to find the value of new points.
-            # using know to generate data based on trainded data distribution pattern
+            # using know to generate data based on trained data distribution pattern
             from scipy.interpolate import interp1d
             f = interp1d(x, y)
             new_y = f(new_x) # generate new_y, given new_x, based on old x,y relationship

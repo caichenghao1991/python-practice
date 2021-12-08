@@ -345,6 +345,10 @@
     environment
     virualenv (small)   conda   docker
 
+
+    gunicorn server for linux system, windows not support
+    gunicorn --config gunicorn.conf main:app
+
 """
 import uuid
 from wsgiref.simple_server import make_server

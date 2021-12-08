@@ -50,7 +50,7 @@
 
         print(np.linspace(2.0, 3.0, num=5))  # [2,3] divide 5 points 1  [2.   2.25 2.5  2.75 3.  ]
             # add endpoint=False, not include 3,  # retstep return a tuple with list and step size
-        print(np.logspace(0,2,3))   # [  1.  10. 100.]
+        print(np.logspace(0,2,3))   # [  1.  10. 100.]   # start 10^0, end 10^2, total items 3
         print(np.identity(2))   print(np.eye(2))  # identity matrix [[1. 0.][0. 1.]]
         np.eye(2, k=1)  # daigpnal shift up 1 position
 

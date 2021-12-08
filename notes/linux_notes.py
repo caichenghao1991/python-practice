@@ -232,7 +232,7 @@
     git commit -m "mesg"       # commit code move cache to repository
     git push                   # sync with server
                                # first time push
-                                   # git remote add git@github.com:username/project.git
+                                   # git remote add origin https://github.com/caichenghao1991/FlaskPortfolio
                                    # git push -u origin master/branch name
     git pull                   # receive code changes in server
     git checkout -- a.py / .   # revert deleted (all) file

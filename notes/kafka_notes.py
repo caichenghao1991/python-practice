@@ -15,7 +15,7 @@
 
     start zookeeper and kafka
         download from https://kafka.apache.org/downloads
-        update /config/zookeeper.properties and  /config/server.properties   for changing the  dataDir abd log.dirs
+        update /config/zookeeper.properties and  /config/server.properties   for changing the  dataDir and log.dirs
             server.properties: advertised.listeners=PLAINTEXT://your.host.name:9092  # kafka server ip port 
                 zookeeper.connect=localhost:2181   # connect to ip:port zookeeper
             zookeeper.properties: log.dirs=D:/kafka_2.12-3.0.0/data/kafka
@@ -28,7 +28,7 @@
         graphic interface to manage kafka cluster. easier to grasp, no need remember all the sh command inside bin
             folder.
             need install java 11+.  clone https://github.com/yahoo/CMAK
-            ./sbt clean dist    go inside /target/universal  unzip cmaak-3.0.0.5.zip
+            ./sbt clean dist    go inside /target/universal  unzip cmak-3.0.0.5.zip
             /target/universal/cmaak-3.0.0.5/conf/application.conf
                 cmak.zkhosts="localhost:2181"
             start zookeeper, kafka, then kafka manager
@@ -46,7 +46,7 @@
         partition
             Kafka topic is divided into multiple partitions
             Partitions can be considered as a linear data structure, like array, named commits logs.
-            each parition has a partition number, and each element inside partition has increasing index called offset
+            each partition has a partition number, and each element inside partition has increasing index called offset
             Data are pushed at the end of partition and is immutable after publish
             Partitions for a topic are distributed across the whole cluster
 
@@ -75,7 +75,7 @@
                 from kafka import KafkaProducer
                 import json
                 def json_serializer(data):
-                    return json.dump(data).encode("utf-8")
+                    return json.dumps(data).encode("utf-8")
                 def get_partition(key, all, available):   # key byte, all_partition, available_partition
                     return 0    # always send to partition 0
 

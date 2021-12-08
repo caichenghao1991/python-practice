@@ -88,7 +88,7 @@
         int(a), float(a)   # return 1, work for only scalar
 
     Create tensor
-        a2 = tf.convert_to_tensor(arr, dtpe=int32)    # convert numpy array or list to tensor, dtype keep original if
+        a2 = tf.convert_to_tensor(arr, dtype=int32)    # convert numpy array or list to tensor, dtype keep original if
                                                       # not specified
         a = tf.constant(1.)  # float32
 
@@ -144,12 +144,13 @@
         tf.gather_nd(a,[0,1,2])      # gather the item with indices of several dimension, shape (3), get the item with
                                      # index 0 in 1st dimension, 1 in second dimension, 2 in third dimension
             tf.gather_nd(a,[[0,1,2]])   # shape (1,3)
-            tf.gather_nd(a,[[0,1,2],[0,1,3]])   # get 2 items as tensors with indices, shape (2,3)
+            tf.gather_nd(a,[[0,1,2],[0,1,3]])   # get 2 items as tensors with indices, [a[0,1,2], a[0,1,3]]
         tf.boolean_mask(a, mask=[True, True, False, False])   # use boolean mask to pick items needed, here is first 2
                                      # items in first dimension, shape (2,28,28,3), mask array length need same as axis
                                      # length, default axis = 0
             tf.boolean_mask(tf.ones([2,3,4]), mask=[[True, True, False],[False,False,True]])  # 2D mask same shape as
                                      # first 2D of target tensor (2,3)
+            tf.boolean_mask(a, a>0) # return a tensor with items value>0
 
     dimension change
         a = tf.ones([4,28,28,3])
@@ -162,7 +163,7 @@
 
         b = tf.expend_dims(a, axis=3)   # shape (4,20,28,1,3)
         c = tf.squeeze(tf.zeros([1,2,1,1,3]))     # shape (2,3)
-        c = tf.squeeze(tf.zeros([1,2,1,3]), axos=0)     # shape (2,1,3), only able to squeeze dimension size = 1
+        c = tf.squeeze(tf.zeros([1,2,1,3]), axis=0)     # shape (2,1,3), only able to squeeze dimension size = 1
 
     broadcast
         default align right side, if small dimension tensor size 1, can be extended to the other tensor size, if both
@@ -182,7 +183,7 @@
     concat, stack, split
         a = tf.ones([4,20,28,3])
         b = tf.ones([2,20,28,3])
-        c = tf.concat([a,b] axis=0)   # concat a and b on axis 0, result shape [8,28,28,3], need have same shape besides
+        c = tf.concat([a,b] axis=0)   # concat a and b on axis 0, result shape [6,20,28,3], need have same shape besides
                                       # the contacted axis
         b2 = tf.ones([4,20,28,3])
         c = tf.stack([a,b2] axis=0)    # create a new axis 0 to wrap around 2 tensors, a and b2 must have same shape
@@ -205,28 +206,28 @@
         L1 Norm: sum(x_i)  # sum of all components of x
 
         tf.norm
-            a = tf.ones([2,2])
+            a = tf.ones([3,3,3])
             tf.norm(a)    # default Euclidean norm(ord=2)    sqrt(1^2 + 1^2 + 1^2 + 1^2)
-                # same as tf.sqrt(tf.reduce_sum(tf.square(a)))
+                # same as tf.sqrt(tf.reduce_sum(tf.square(a)))   return tensor shape of rest axis (3,3) values 1.73
             tf.norm(b, ord=1, axis=1)  #  ord=1 is L1 Norm, axis =1 use all second axis item to form rows
         tf.reduce_min, reduce_max, reduce_mean
-            tf.reduce_min(a)  # shape()
-            tf.reduce_min(a, axis=1)  return min of all second index axis, forming rows using first index
+            tf.reduce_min(a)  # shape()   return minimum of all item
+            tf.reduce_min(a, axis=1)  return min of all second index axis, shape of rest axis (3,3)
         tf.argmax
             tf.argmax(a)   # return list of index with max value, default axis=0 (max index of all axis 0 items,
                            # forming columns using second index)
         tf.equal
-            tf.eaual(a,b)  # compare each element in same shape tensor a and b, return same shape boolean tensor
+            tf.equal(a,b)  # compare each element in same shape tensor a and b, return same shape boolean tensor
             tf.reduce_sum(tf.cast(tf.equal(a,b), dtype=tf.int32))   # count of total correct (same a, b value)
         tf.unique
-            res = tf.unique(a)   # return unique tensor
+            res = tf.unique(a)   # return unique items in 1D tensor
             res.y    # return tensor of all unique value
             res.idx     # return a tensor with index of unique value for each value in a
 
     sort
         b = tf.sort(a, direction='DESCENDING', axis=0)   # default axis=-1, direction='ASCENDING', return tensor fully
                                                         # sorted on specified axis
-        idx = tf.argsort(a)   # default axis=-1, 'ASCENDING', return tensor of indicies sorted tensor on axis
+        idx = tf.argsort(a)   # default axis=-1, 'ASCENDING', return tensor of indices sorted tensor on axis
             # tf.gather(a, idx)
         res = tf.math.top_k(a, 2)  # default k=1
             idx = res.indices  # return tensor of indices of those top k elements
@@ -234,19 +235,20 @@
 
     pad
         a = tf.zeros([3,3])
-        b = tf.pad(a,[[1,0],[0,1]], constant_values=1)  # return tensor with padding to first axis front, and second
-                                                        # axis last, defualt constant_values=0, default mode='CONSTANT'
+        b = tf.pad(a,[[1,0],[0,1]], constant_values=1)  # return tensor with padding: pad 1 row at front of axis 0, 0
+                                                        # row after axis 0, 0 and 1 columns front/after axis 1
+                                                        # axis last, default constant_values=0, default mode='CONSTANT'
 
     tile
         a = tf.zeros([3,3])
         b = tf.tile(a,[2,1])   # copy axis 0 two times, axis 1 one time, return tensor shape (6,3)
-        # recommend use tf.broadcat_to   only generate copy during run time, save moemory. some function support
+        # recommend use tf.broadcast_to   only generate copy during run time, save memory. some function support
             implicit broadcast, ex. a + b will broadcast automatically
 
     clipping (limit max/min value)
         tf.maximum(a,2)    # return tensor with items less than 2 change to 2
             # tf.nn.relu(a)  same as tf.maximum(a,0)
-        tf.minimum(a,2)    # return tensor with items greater than 8 change to 8
+        tf.minimum(a,8)    # return tensor with items greater than 8 change to 8
         tf.clip(a, 2, 8)   # return tensor with items less than 2 change to 2, greater than 8 change to 8
             # when calculating gradient, clip to a value will change the gradient
             # when calculating gradient, clip to a value will change the gradient
@@ -259,7 +261,7 @@
 
     where
         mask = a>0     # return a tensor with same shape as a, if element >0, element become True, otherwise False
-        ind = tf.where(mask)    # return tensor with indices of elements > 0
+        ind = tf.where(mask)    # return tensor with list of indices of elements > 0
         res = tf.gather_nd(a, ind)   # return a tensor with items > 0
             # same as tf.boolean_mask(a, mask)
         res = tf.where(mask, a, b)   # return a tensor, if mask value is true, get same index value from tensor a,
@@ -287,7 +289,7 @@
     data loading
         keras.datasets: boston housing, mnist, fashion mnist, cifar10/100, imdb. from google host
         from tensorflow.keras import datasets
-        def preprocess
+        def preprocess(x, y)
             x = tf.cast(x, dtype=tf.float32)/255.
             y= tf.one_hot(y,depth=10, dtype=tf.int32)  # y= tf.one_hot(y,depth=10, dtype=tf.int32)
                 # no need one_hot if binary classification
@@ -355,7 +357,7 @@
             tf.nn.relu(a)
             tf.nn.leaky_relu(a)
     loss metric
-        mse:  loss = sum((y-out)^2)/N   # N is entry count, optional devide extra dimension for each element
+        mse:  loss = sum((y-out)^2)/N   # N is entry count, optional divide extra dimension for each element
             # reduce_mean(tf.square(y-out))  =>  sum((y-out)^2)/(N*dim)
             tf.losses.MSE(y, out)
             x, w, b, y = tf.random.normal([2,4]), tf.random.normal([4,3]), tf.zeros([3]), tf.constant([2,0])
@@ -432,7 +434,7 @@
                      return figure
 
             # def plot_to_image(figure):
-                  bif = io.BytesIO()
+                  buf = io.BytesIO()
                   plt.savefig(buf, format='png')  # save image in memory  .Mean()
                   plt.close(figure)
                   buf.seek(0)
@@ -509,6 +511,7 @@
             model.save_weights('../resources/checkpoint/weights.ckpt')
             del model   # simulate model gone in memory
             model = Sequential() model.compile()   # same as above, need build network and compile
+                model = create_model()
             model.load_weights('../resources/checkpoint/weights.ckpt')
             loss, acc = model.evaluate(test_images, test_labels)
 
@@ -618,7 +621,7 @@
 
     Resnet block
         class BasicBlock(layers.Layer):
-            def __init(self,filter_num, stride=1):
+            def __init__(self,filter_num, stride=1):
                 super(BasicBlock, self).__init()
 
                 self.conv1 = layers.Conv2D(filter_num, (3,3), strides=stride, padding='same')

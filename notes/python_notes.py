@@ -393,7 +393,7 @@ class Review:
             print('file does not exist')
         
     with open('data.json') as f:
-        dic = json.load(f)   # load json file into dict
+        dic = json.load(f)   # load string or bytes into dict
         print(dic['age'])
     
     create json object 
@@ -402,6 +402,8 @@ class Review:
             # separators use ',' instead of default ', ',  use ':' instead of default ': 'remove space
             # ensure_ascii=False: prevent convert utf8 to ascii
             # indent=4: add indent for easy reading
+            # json.dump() return string   encode change string to machine language(bytes), decode change machine 
+                language to string
         if object is not JSON serializable, write a function to return necessary attribute and value as dictionary
         
     import os   
