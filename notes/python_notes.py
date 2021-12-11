@@ -22,7 +22,7 @@ class Review:
     --Naming convention
     variable name: letter number _, can't start with number, case sensitive
     better use student_name than studentName (camel case)
-    class name: camel case, first character capitalized   class SchoolStudent:
+    class name, project name: camel case, first character capitalized   class SchoolStudent:
     student_age, age = 3, 3   can declare multiple variable at same time
     a, b = b, a    swap a and b
     
