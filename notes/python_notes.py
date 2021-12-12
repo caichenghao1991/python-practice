@@ -20,7 +20,7 @@ class Review:
     python env/bin/pip install urllib   # force declare which pip
     
     --Naming convention
-    variable name: letter number _, can't start with number, case sensitive
+    variable name, module(file) name: letter number _, can't start with number, case sensitive
     better use student_name than studentName (camel case)
     class name, project name: camel case, first character capitalized   class SchoolStudent:
     student_age, age = 3, 3   can declare multiple variable at same time
@@ -79,7 +79,7 @@ class Review:
                                         # var.splitlines()  split every line of string
                                         # var.partition(' ') return a tuple with left substring, first space, and 
                                         # right substring
-    capitalize title  upper lower upper    # var.title()  return every word first character capitalized  
+    capitalize title  upper lower       # var.title()  return every word first character capitalized  
                                         # var.capitalize()    return first character capitalized  
     ljust  rjust  center  lstrip  rstrip  strip  replace   # var.lstrip()  remove left spaces before 1st non-space char
                                         # var.center(30)   return 30 length string with original at center, rest spaces
@@ -288,14 +288,14 @@ class Review:
     def outer():
         a = 100    # outer function can't access inner function variable, since it's function is destroyed after finish
         def inner():
-            nonlocal a    # a cannot be modified before nonlocal declaration
+            nonlocal a    # immutable data type a cannot be modified before nonlocal declaration
             a = 200  # inner function can't modify outer function variable, it only create a new inner variable when
             print(a+10)     # have the same name as outer variable, unless add nonlocal var declaration   
                          # when variable is used, find declaration with order: inner -> outer -> global -> builtin    
         print(inner)  #return location info
         info = locals()  # info will have local variable and value, inner function location information
-        inner()  # run inner function
-        or return inner
+        # inner()  # run inner function
+        return inner  # return function
     r = outer()  # return inner function memory location
     r()  # run inner function   or  outer()()
     
@@ -303,12 +303,10 @@ class Review:
     
     decorator pattern
     def d(func):      
-        print('<-')
         def wr(para):      # def wr(*args,**kwargs):  to cover all input cases
-            func(para)     # func(*args,**kwargs) 
-            print(1)
-            return 'x'
-        print('->')
+                 # func(*args,**kwargs) 
+            print(1)       # add extra logic here
+            return func(para)
         return wr   #
     @d      # <- ->  equivalent to:  f = d(f), used for add additional logic while keep original function name and call
     def f(para):
@@ -319,12 +317,18 @@ class Review:
                   
     decorator function can have input parameters as well need extra layer of outer function
         functions inside function can't be directly called
-    def decor(func):
-        @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
-        def d(*args. **kwargs):  # def d(para1) if known parameter
-            return func(*args. **kwargs)
-    @outer_param(para2_val)
+    def with_param(para2):
+        def decor(func):
+            @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
+            def d(*args. **kwargs):  # def d(para1) if known parameter
+                print(para2)   # add extra logic here
+                return func(*args. **kwargs)
+            return d
+        return decor
+        
+    @with_param(para2_val)
     def f(para1_val):
+        return para1_val+para2_val
     
     
     --Recursion
@@ -365,7 +369,7 @@ class Review:
     'w' - Write (truncate, or create new file).
     'x' - Write or fail if the file already exists.
     'a' - Append.
-    'w+' - Read and write (override from beggining).
+    'w+' - Read and write (override from beginning).
     'r+' - Read and write from the start.
     'a+' - Read and write from the end.
     't' - Text mode (default).

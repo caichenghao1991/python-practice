@@ -6,3 +6,20 @@ delta = pd.Series([10, -2], index = ['x','y'])
 df = df.add(delta, axis='index')
 
 print(df.corr())
+
+
+def out(func):
+
+    def inn(x):
+        print(x)
+
+        return x
+
+    return inn
+
+@out
+def a(y):
+   return y
+
+xx =a(2)
+print(xx)
