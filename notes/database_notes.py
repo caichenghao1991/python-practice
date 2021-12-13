@@ -22,7 +22,7 @@
             mutually consistent all the time.
         Eventual consistency: Stores exhibit consistency at some later point (e.g., lazily at read time).
         NoSQL database type:
-        document (MongoDB(able to create some search index, and other SQL dunctionalities), ElasticSearch),
+        document (MongoDB(able to create some search index, and other SQL functionalities), ElasticSearch),
         key-value (Redis,value can be any dtype), wide-column (Hbase, store on columns), graph store (Neo4J)
 
 
@@ -88,7 +88,7 @@
 
     alter table t_student add constraint fk_student_sch_id foreign key(school_id) references
         t_school(sch_id) on delete cascade on update cascade
-        # on delete set null (not violating not null column)        restrict: default
+        # on delete set null (can't violate not null constraint)        restrict: default
 
     alter table t_student add constraint stu_id_sch_id unique(stu_id, sch_id);   # unique constraint
     alter table t_emp add constraint fk_emp_mgr foreign key (mgr) references t_emp(e_id)
@@ -121,7 +121,7 @@
     select stu_name from t_student where stu_birth = (select min(stu_birth) from t_student)   # sub query
     use where stu_id in (subquery)   if subquery have more than 1 result
 
-    # use same columns constraint to avoid Cartesian product (combination of two table items)
+    # use same columns value constraint to avoid Cartesian product (combination of two table items)
     select stu_name, sch_name from t_student t1, t_school t2 where t1.school_id=t2.sch_id
     select stu_name, avg_score from t_student t1, (select stu_id, avg(score) as avg_score from t_score
         group by stu_id) t2 where t1.stu_id=t2.stu_id
@@ -174,7 +174,7 @@
 
     # trigger
     trigger is not used to. when do some operation, some other operation defined by trigger is done in
-        background automatically. but in reality might causing lock the table for parallel operation,
+        background automatically. but in reality might cause lock the table for parallel operation,
         and decrease performance
 
     create user 'harry'@'%' identified by '123456'  # create user login on any location with password
@@ -196,8 +196,8 @@
 
     Important notes
     # recommend use lower case for table and database name
-    # data search result case sensitive or not depends on collate rules during database creation
-        # utf8_general_ci not case sensitive,  utf8_bin  is case sensitive
+    # data search result case-sensitive or not depends on collate rules during database creation
+        # utf8_general_ci not case-sensitive,  utf8_bin  is case-sensitive
     # database object name better use prefix to distinguish: table, views, index, function, procedure, trigger
     # not recommend use in, not in, distinct. consider use exists, no exists
     select 'x'  #'x'    select 'x' from dual  # 'x'  table dual is unique non exist table
