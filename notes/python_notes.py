@@ -20,9 +20,9 @@ class Review:
     python env/bin/pip install urllib   # force declare which pip
     
     --Naming convention
-    variable name: letter number _, can't start with number, case sensitive
+    variable name, module(file) name: letter number _, can't start with number, case sensitive
     better use student_name than studentName (camel case)
-    class name: camel case, first character capitalized   class SchoolStudent:
+    class name, project name: camel case, first character capitalized   class SchoolStudent:
     student_age, age = 3, 3   can declare multiple variable at same time
     a, b = b, a    swap a and b
     
@@ -79,7 +79,7 @@ class Review:
                                         # var.splitlines()  split every line of string
                                         # var.partition(' ') return a tuple with left substring, first space, and 
                                         # right substring
-    capitalize title  upper lower upper    # var.title()  return every word first character capitalized  
+    capitalize title  upper lower       # var.title()  return every word first character capitalized  
                                         # var.capitalize()    return first character capitalized  
     ljust  rjust  center  lstrip  rstrip  strip  replace   # var.lstrip()  remove left spaces before 1st non-space char
                                         # var.center(30)   return 30 length string with original at center, rest spaces
@@ -288,14 +288,14 @@ class Review:
     def outer():
         a = 100    # outer function can't access inner function variable, since it's function is destroyed after finish
         def inner():
-            nonlocal a    # a cannot be modified before nonlocal declaration
+            nonlocal a    # immutable data type a cannot be modified before nonlocal declaration
             a = 200  # inner function can't modify outer function variable, it only create a new inner variable when
             print(a+10)     # have the same name as outer variable, unless add nonlocal var declaration   
                          # when variable is used, find declaration with order: inner -> outer -> global -> builtin    
         print(inner)  #return location info
         info = locals()  # info will have local variable and value, inner function location information
-        inner()  # run inner function
-        or return inner
+        # inner()  # run inner function
+        return inner  # return function
     r = outer()  # return inner function memory location
     r()  # run inner function   or  outer()()
     
@@ -303,12 +303,10 @@ class Review:
     
     decorator pattern
     def d(func):      
-        print('<-')
         def wr(para):      # def wr(*args,**kwargs):  to cover all input cases
-            func(para)     # func(*args,**kwargs) 
-            print(1)
-            return 'x'
-        print('->')
+                 # func(*args,**kwargs) 
+            print(1)       # add extra logic here
+            return func(para)
         return wr   #
     @d      # <- ->  equivalent to:  f = d(f), used for add additional logic while keep original function name and call
     def f(para):
@@ -319,12 +317,18 @@ class Review:
                   
     decorator function can have input parameters as well need extra layer of outer function
         functions inside function can't be directly called
-    def decor(func):
-        @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
-        def d(*args. **kwargs):  # def d(para1) if known parameter
-            return func(*args. **kwargs)
-    @outer_param(para2_val)
+    def with_param(para2):
+        def decor(func):
+            @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
+            def d(*args. **kwargs):  # def d(para1) if known parameter
+                print(para2)   # add extra logic here
+                return func(*args. **kwargs)
+            return d
+        return decor
+        
+    @with_param(para2_val)
     def f(para1_val):
+        return para1_val+para2_val
     
     
     --Recursion
@@ -365,7 +369,7 @@ class Review:
     'w' - Write (truncate, or create new file).
     'x' - Write or fail if the file already exists.
     'a' - Append.
-    'w+' - Read and write (override from beggining).
+    'w+' - Read and write (override from beginning).
     'r+' - Read and write from the start.
     'a+' - Read and write from the end.
     't' - Text mode (default).
@@ -453,15 +457,17 @@ class Review:
             while True:    while n < para: 
                 print(n)              
                 yield n   # pause the function until next call of function      
-                    # temp = yield n   # receive input parameter from outside
+                    # temp = yield n   # receive input parameter from outside (send function param)
+                print(temp)  # temp = 3
                 n += 1   
         [return 'can't generate more']   # return message when loop end with exception
         g = func()    # retrieve generator    g=func(para_value)
         g.__next__()   next(g)    # to retrieve next value after yield (n)
         # raise exception when while end, use try, catch block
         sending input parameter
-        r0 = g.send(None)   # r0=0    # first time call must send None
+        r0 = g.send(None)   # r0=0    # first time call must send None or g.next()
         r1 = g.send(3)   # r0=1   temp=3    temp=3 at  temp = yield n
+        
         Coroutines: sub thread, one thread can have multiple Coroutines running concurrently
         def task1(n):
             for i in range(n):
@@ -545,7 +551,7 @@ class Review:
     ph.close_phone('Harry')
     CellPhone.destroy()    # no need initialize instance for class method
     CellPhone.create('mine')    # no need initialize instance for static method
-    ph(para_val)  # when run the instance like method, this will trigge class' __call__ method
+    ph(para_val)  # when run the instance like method, this will trigger class' __call__ method
     ph2 = ph  # create a new reference point to the memory, so change in ph2 will change ph as well
     del ph2   # delete the location reference of ph2 to ph
               # if there is no reference to a class object or at the end of execution, __del__ will be used to do 
@@ -580,9 +586,9 @@ class Review:
     from basic_numpy import *   in the module can use __all__=[var,method,class]  to specify items import * can access
     basic_numpy.method()  basic_numpy.variable    basic_numpy.class_name
     import will load everything from the module, if anything don't want to be run when imported, 
-        add code inside if __name__=='__main__':      __name__ will change from __main__ to module name if was imported
-    directoy and packages
-    directory hold non python1 file, package hold python1 file
+        add code inside if __name__ =='__main__':      __name__ will change from __main__ to module name if was imported
+    directory and packages
+    directory hold non python file, package hold python file
     directory will become a package after add an empty __init__.py file (when module imported, execute automatically)
     package name can only use number alphabet and _
     from package_name import module_name
@@ -678,7 +684,7 @@ class Review:
                                         # matched string with pattern
     result.group(1)                  # return string match the first () in pattern, index start with 1
     m = re.match(r"(\d+)\.(\d+)", "4.16")     # ('4', '16')Return a tuple containing all the subgroups of the match, 
-                                     # r will suppress interpression of string \t,\b
+                                     # r will suppress interpretation of string \t,\b
     result.groups()                  # return a tuple with all matched () pattern, same as (result.group(1), 
                                         # result.group(2),result.group(3),...)
     result = re.sub(r'\d+','90','{java:99,python:100}')  # replace, match 1st pattern with 3rd string, and replace 

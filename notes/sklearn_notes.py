@@ -91,8 +91,8 @@
             # if data is dirty, cause long slim shape clustering, or each column has different std, or each cluster have
                 # huge difference in counts, those can cause less accurate result
 
-            # n_clusets=3  # default 8 centers to cluster
-            km = KMeans(n_clusets=3)
+            # n_clusters=3  # default 8 centers to cluster
+            km = KMeans(n_clusters=3)
             km.fit(data)
             km.cluster_centers    # np array of centers coordinates
             km.labels_   # array of label of center belong to for data

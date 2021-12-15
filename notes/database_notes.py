@@ -253,10 +253,11 @@
     ~     redis-server --version    redis-cli --version        redis-sentinel --version
     or yum install redis  # older version
 
-    redis-server &     # start redis server at backend tcp port 6379    --port 1234
-    redis-server --requirepass 123456 &    # add password     --appendonly yes  change way of saving (aof), default rdb
+    redis-server      # start redis server at backend tcp port 6379    --port 1234
+    redis-server --requirepass 123456     # add password     --appendonly yes  change way of saving (aof), default rdb
         --bind xxx.xxx.xx.xx > redis.log     get ip from ifconfig eth0     save console log to redis.log
     jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
+
     redis-server redis-5.0.4/redis.conf &   # use config file
     redis-client  auth 123456      shutdown nosave
     redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
@@ -295,7 +296,7 @@
     hmget dictname k1 k2     # get dictname key k1 value
     hkeys dictname       # get dictname all keys
     hvals dictname       # get dictname all values
-    hgetall dictname     # get dictname all keys
+    hgetall dictname     # get dictname all keys value
     hdel dictname k1     # delete k1 v1 of dictname
 
     list

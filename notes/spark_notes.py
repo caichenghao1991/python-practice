@@ -77,7 +77,7 @@
     rdd1 = spark.sparkContext.parallelize([("Java", 20000), ("Python", 100000), ("Scala", 3000)], 2)
         # create RDD from list, 2 is partition number
         # loads the existing collection from your driver program into parallelling RDD
-    rdd1 = spark.sparkContext.parallelize([Row(name="James,,Smith",lang=["Java","Scala","C++"],state="CA")])
+    rdd1 = spark.sparkContext.parallelize([Row(name="James,·Smith",lang=["Java","Scala","C++"],state="CA")])
     rdd2 = spark.sparkContext.textFile("../resources/data/numpy_data.txt")  # Create RDD from external Data source
 
     # create empty RDD

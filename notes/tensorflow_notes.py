@@ -1521,7 +1521,7 @@ def imdb():
     train_dataset = train_dataset.shuffle(1000).batch(BATCH_SIZE, drop_remainder=True) # drop last batch remainder
     test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
     test_dataset = test_dataset.batch(BATCH_SIZE, drop_remainder=True)
-
+    print(x_train.shape,y_train.shape)
     #sample = next(iter(train_dataset))
     #print('batch:', sample[0].shape, sample[1].shape)
     t0 = time.time()
@@ -1972,6 +1972,6 @@ if __name__ == '__main__':
     # print(tf.test.gpu_device_name())
     # cifar10()
     # cifar100()
-    # imdb()
+    imdb()
     # auto_encoder()
-    GAN()
+    #GAN()

@@ -162,7 +162,7 @@
         cache(redis)
         
         app.secret_key = "super secret key"  # need add secret key to use sessions
-        # app.config.from_object(settings.Dev) # use configure file
+        # app.config.from_object(settings.Dev) # or use configure file
             # settings.py class Dev(): ENV='development';  SECRET_KEY='123456'
         from flask import sessions
         pwd = hashlib.md5('123456'.encode('utf-8')).hexdigest()
@@ -314,6 +314,7 @@
     cache = Cache(app,config={'CACHE_TYPE': 'simple'})  # 'redis'
         or in settings.py add #CACHE_TYPE = 'redis'   #CACHE_REDIS_HOST = '127.0.0.1'
             #CACHE_REDIS_PORT = 6379   #CACHE_REDIS_DB = 5
+            app.config.from_object(settings.Dev)
     @cache.cached(timeout=xxx)   @app.route('/', methods=['GET', 'POST'])  def index():
     @cache.cached(timeout=None, key_prefix='all_comments')  # for non view functions
 
@@ -337,6 +338,15 @@
     # CORS().init_app(app)   #for CORS error   Cross-origin resource sharing
 
     flask-RESTful
+    from flask_restful import Api,Resource
+    app = Flask(__name__)
+    api = Api(app)
+
+    class IndexView(Resource):
+        def get(self):     # post patch put delete
+            return {"username":"harry"}
+    api.add_resource(IndexView,'/',endpoint='index')
+
     flask-sqlacodegen
 
     add \ to switch line
