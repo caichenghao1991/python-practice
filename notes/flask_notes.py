@@ -94,7 +94,8 @@
     {% from "content.html" import input with context %}
     {{ input('name', 'name') }} # call this macro inside other html template
     {% for item in house %}
-         <li {% if loop.index % 2 != 0 %}class="odd" {% endif %}> {{ item }}</li>{% endfor %}
+         <li {% if loop.index % 2 != 0 %}class="odd" {% endif %}> {{ item }}</li>
+    {% endfor %}
 
 
     app = Flask('appName')

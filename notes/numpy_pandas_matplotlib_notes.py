@@ -167,7 +167,7 @@
             explicit index
                 color.loc['a']   # retrieve value,
                     color['a'] # not recommended, can't distinguish explicit or implicit indexing
-                color.loc['a':'c']  # return series index from 'a' to 'c'
+                color.loc['a':'c']  # return series index from 'a' to 'c', inclusive 'c'
             implicit index
                 color.iloc[0]
                 color.iloc[0:3]   # index [0,3)
@@ -314,8 +314,8 @@
             .head()     # return default show 5 rows of data
                 .head().T   # if too many columns and truncated
             .tail()     # last 5 rows
-            .duplicated()    # return index column and boolean column of whether duplicated row as above (first
-                    # occurrence False, second + appearance True)
+            .duplicated()    # return a series with index column and boolean column of whether duplicated row as above
+                    # (first occurrence False, second + appearance True)
                 df[~df.duplicated()]  # rows not duplicated,  keep='last' check from bottom to top
                 # subset=['Harry','Ronald']  # check duplicate value in subset columns
             df = df.drop_duplicates()    # remove duplicated rows
@@ -329,12 +329,13 @@
                         # default skipna=True  # don't consider NaN,   set to False will cause cell below NaN become NaN
 
             df.set_index(keys='Date', inplace=True)   # set Date column values as index
-            df = df.reset_index(drop=True)  # reset the index from 0 step 1, change old index to a 'index' column
+            df = df.reset_index(drop=True)  # reset the index from 0 step 1, drop old index
                 # drop=False will shift old index to a column
 
             pd.concat()    # concatenate series or dictionary
                 pd.concat((df1, df2), ignore_index=True)  # default axis=0, add at bottom, drop original index and
-                    # assign new index start 0,1,2... (if df have default index, will cause duplicate index )
+                    # assign new index start 0,1,2... (if not ignore index and  df have default index, will cause
+                    # duplicate index )
                 pd.concat((df1, df2),keys=['df1','df2'], axis=0)  # add hierarchical index at level 0 'df1','df2'
                     # fill NaN and outer join in default if 2 df have different column
                 pd.concat((df1, df2),join='inner', sort=True)  # inner join, default outer join
@@ -370,8 +371,9 @@
 
             df.replace({34:98, 37:96, np.nan:0})  # replace 34 to 98, 37 to 96 in df, nan to 0
 
+            map input is series (only for one column or row)
             df['Jennie'] = df['Harry'].map({34:98, 37:96, np.nan:0})  # create new column Jennie using column Harry with
-                # mapping 34 in Harry map to Jennie 98,...
+                # mapping 34 in Harry map to Jennie 98,..., value not in map will become nan
             df['Harry'] = df['Harry'].map({34:98, 37:96, np.nan:0}) # override Harry column with mapping
             df['Jennie'] = df['Harry'].map(lambda item: item*1.1)   # create column with lambda function
                 # def convert(item): return item*1.2;
@@ -417,7 +419,7 @@
             car_sales["Make"] = car_sales["Make"].str.lower()   #change make column to lower case,
                 need reassign if any change of column
 
-
+            apply input can be series or dataframe, parameter should be function
             car_sales["Price"] = car_sales["Price"].apply(lambda x: x*6.5)  # each price * 6.5, apply
                 function to change column value
 
@@ -439,9 +441,9 @@
                 prod,  mean, std, var, argmin, argmax, median, abs, percentile, any, all, power
 
                 df[~((df-df.mean()).abs() > 3 * df.std()).any(axis=1)]  # filter out row has greater than 3 std value
-                df.groupby('Make')['Price'].apply(mean)    df.groupby('Make')['Price'].transform(mean)
+                df.groupby('Make')['Price'].apply(np.mean)    df.groupby('Make')['Price'].transform(mean)
 
-            transform()
+            transform()  input is series
                 def min_max(x): return (x-x.min())/(x.max()-x.min())
                 for col in df.columns:
                     df[col] = df[col].transform(min_max)
@@ -460,6 +462,7 @@
             print(df2 + delta) # add 10 for Harry column and minus 2 for Hermione column, missing column (column in df
                 but not in the series) fill NaN
                 or df2.iloc[:,:] = df2.iloc[:,:]-[10,0,-2]  # must have same columns as length of list
+                df = df.sub([2,1],axis='index')  # minus 2 for first row and 1 for second row
             # dataframe and series operation based on df row index and series index need add axis in add()
             delta2 = pd.Series([0, 0, -10], index=['Magic Defense', 'Magic Spell', 'Magic Creature'])
             print(df2.add(delta2, axis='index'))  # minus 10 for Magic Creature row
@@ -567,7 +570,7 @@
                 plt.setp(l1, 'color','red')
 
         plt.xticks()  # modify display of x axis tick value
-           plt.xticks([0,1,2,3,4,5])  # make x tick value 0-5
+            plt.xticks([0,1,2,3,4,5])  # make x tick value 0-5
             plt.xticks([0,1,2,3],['zero','one','two','three'])  # make x tick value 0-3 and display zero,one...
                 # display greek letter use $\   ex. 3pi/2  '3$\pi/2'
                 # set_xticks()  and set_xticklabels() in oop
@@ -655,17 +658,17 @@
         plt.hist()
             plt.hist(np.random.randint(0, 10, size=10))
             # bins=10  # change bins number, default 10
-            # density=False  # default false count occurance. True change to percentage/bin width
+            # density=False  # default false count occurrence. True change to percentage/bin width
             # color='red'  # change bins color
             # orientation='vertical'  # change bins orientation default vertical, can change to horizontal
 
         plt.bar()    # must have x, y input
-            plt.bar(no.arange(0,10), np.random.randint(0, 10, size=10))
+            plt.bar(np.arange(0,10), np.random.randint(0, 10, size=10))
             # width=1   # change bars width
             # color='red'
 
         plt.barh()    # horizontal bar graph
-            plt.barh(no.arange(0,10), np.random.randint(0, 10, size=10))
+            plt.barh(np.arange(0,10), np.random.randint(0, 10, size=10))
             # height=1   # change bars width
 
         plt.pie()
