@@ -50,38 +50,34 @@ def insertion_sort(array):
     return array
 
 
-def merge_sort(array):
-    """
-        stable sort keep same value items order
-        O(n logn) time complexity, O(n)/O(1) space complexity,
-        in space O(1) case need shift every thing between first and second pointer
-        to the right 1 step, then swap. this slower the time complexity to O(n^2)
-        or use shell sort with time complexity to O(logn*nlogn)
-        continue swapping loops from an extra pointer (indicate sorted part) until
-        reach it reach end of halves
-        recursively divide array into two halves and merge two sorted halves
-        good for large file with memory not an issue(external place hold) sorting
-    """
-    if len(array) == 1:
-        return
-    mid = len(array) // 2
-    left = array[:mid]
-    right = array[mid:]
-    merge_sort(left)
-    merge_sort(right)
-    i1, i2, i = 0, 0, 0
-    while i1 < len(left) and i2 < len(right):
-        if left[i1] < right[i2]:
-            array[i] = left[i1]
-            i1 += 1
+
+def merge(a, b):
+    c = []
+    h, j = 0, 0
+    while j < len(a) and h < len(b):
+        if a[j] < b[h]:
+            c.append(a[j])
+            j += 1
         else:
-            array[i] = right[i2]
-            i2 += 1
-        i += 1
-    if i1 < len(left):
-        array[i:] = left[i1:]
-    if i2 < len(right):
-        array[i:] = right[i2:]
+            c.append(b[h])
+            h += 1
+
+    if j == len(a):
+        for i in b[h:]:
+            c.append(i)
+    else:
+        for i in a[j:]:
+            c.append(i)
+
+    return c
+
+def merge_sort(lists):
+    if len(lists) <= 1:
+        return lists
+    middle = len(lists) / 2
+    left = merge_sort(lists[:middle])
+    right = merge_sort(lists[middle:])
+    return merge(left, right)
 
 
 def quick_sort(array):
@@ -94,8 +90,6 @@ def quick_sort(array):
 
 
 def quick_sort_helper(array, left, right):
-    if len(array) == 1:
-        return array
     if left < right:  # check index - 1 > left
         index = partition(array, left, right)
         quick_sort_helper(array, left, index - 1)

@@ -222,6 +222,7 @@ class Review:
     dict1.clear()  # clear whole dictionary, empty dictionary remained
     del dict1  # delete the dictionary structure as well
     dict can convert to list tuple set but only keep keys           
+    d_order=sorted(d.items(),key=lambda x:x[1],reverse=False)   # sort dict values descending
     
     --Set
     Unordered collection of unique item, no order, use hash   use hash O(1) operations
