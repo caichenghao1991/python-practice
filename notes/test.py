@@ -9,6 +9,7 @@ import random
 from numpy import mean
 import matplotlib.pyplot as plt
 
-s='adb'
-print(''.join(sorted(list(s))))
+a = [1,3,4]
+a[2]=2
+print(a)
 

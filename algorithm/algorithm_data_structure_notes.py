@@ -10,6 +10,11 @@
 7. check edge cases, and unique cases
 8. reduce the possibilities without eliminating the correct answer
 
+greedy algorithm
+    each step choose local most optimized option, generate final global possible most efficient solution under certain
+    situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
+    questions: intervals (sort on end/ start depends on question), assignment problems
+
 
 sliding window
         two pointer (start from beginning or end, can have different pace)
@@ -17,6 +22,7 @@ sliding window
         fast slow pointers: fast move two step, slow move one step. meet at point means circle,after first meet, move
             fast pointer to start and both move one step a time, second time meet at start of circle (Floyd Algorithm)
         double pointer can consider both pointer in outer for loop and pick the easier one
+
 
 binary search
     avoid not including correct answer, and avoid infinite loop, compare with mid index value and eliminate half of data
@@ -44,6 +50,7 @@ binary search
                 right = mid - 1
         return res
 
+
 sorting
     quick sort: choose pivot (for example: right edge as pivot, need random shuffle ahead), find correct position of
         pivot by (pointer init at left edge, traverse from left to right swap with pointer item if <= pivot, and
@@ -65,6 +72,7 @@ sorting
     selection sort: from left to right find the smallest value among all the value, then switch with the left end value,
         after one iteration the smallest value is at the left end, then repeat each time one more value at left end is
         sorted
+
 
 Searching
     used in graph and tree search
@@ -107,8 +115,10 @@ Searching
             return stat   # not always need return
                 # return stat + sum([dfs(i) for i in node.children])   for post check valid
 
+
     Backtracking
-        use DFS with saving state to solve permutation and combination problem
+        use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
+        previous passed route)
         when unsatisfying during dfs, back track to previous node and change to previous state, only need update the
         combined overall state, instead of creating sub state for each condition, use reference to pass the state,
         change back the state(flag or output) after recursion
@@ -147,8 +157,38 @@ Searching
                     if child_match(end_condition):
                         return res
 
+
+Dynamic Programming
+    solve problem with repeating sub problem, store sub problem solution in memory. only able to solve local
+    optimization lead to global optimization problem. find state transfer function from prev state to next state.
+    Also able to use space optimization if only use constant previous step state, no need store all states result.
+    It's a bottom up algorithm, solve sub problem then main problem. If need solution path, need state record.
+    dp[i] only consider the result consist state i, if need get all solution, might need sum all dp[i] i=0,...n
+    for 4 direction (up, down, left, right) grid search can run two times one from top left search right down, and other
+    from bottom right search top left
+
+    dp=[0 for i in range(xx)]
+    if n <= x:      # base case
+        return xxx
+    dp[0],...,dp[x] = x,...,x  # update base case
+        # s0,s1,...,sn = x,...x   # memorization compression
+    for i in range(x, xx):
+        dp[i] = some function(dp[i-1],dp[i-2],...)
+            # cur = some function(s0,s1,...,sn)    # memorization compression
+            # s0,s1,...,sn-1,sn =s1, ...sn,cur   # shift one step to newer state
+    return dp[n]
+
+    #2D
+    for i in range(x, xx):
+        for j in range(x, xx):
+        dp[i][j] = some function(dp[i-1][j],dp[i][j-1],..., state[i][j])
+            # dp[j] = some function(dp[j-1],...state[i][j])  # space compression
+            # consider only need one line of stored data if only require dp[i-1][j],dp[i][j-1], dp[i-1][j] transfer to
+            # d[j], and dp[i][j-1] transfer to d[j-1]
+    return dp[i][j]   # dp[j]
+
 array
-    array traverse from beginning or end, two array can start both beginning or end or one each
+    array traverse from beginning or end, two array can start both beginning or end or one each.
     use hash to save time complexity
     sort array might help
 
@@ -169,17 +209,83 @@ recursion + backtracking
 
 binary tree
 
+string
+    'Hello, %s' %(name,)    'Hello {}'.format(name,)
+    s.find(',')  # -1 if not found
+    s.startswith('')  # endswith
+    s.replace('old','new',2)  # replace old to new string max 2 times
+    s.split(',',2)  # split 2 times into 3 pieces, rsplit
+    s.capitalize()  # title  upper lower
+    s.strip()      # ljust(30) add space padding on left till 30 char total,  rjust  center  lstrip  rstrip
+    ''.join(iterable)
+    char(20)   ord('A')
 
+pop clear del
+list
+    l=[1,2,'a']    l=[i if i>10 else 2*i for i in range(20) if i%2==0]
+    l2 = l.copy()
+    l=list(range(3,5))   l=list('ABC')
+    c = l.count(1)
+    print(1 in l)  # True
+    l.index(1)  # exception if can't find
+    len(l)
+    l=l*2  # [1,2,'a',1,2,'a']   or l*=2
+    l=l+['b']
+    l.append(20)
+    l.insert(-1,'b')
+    l.extend(['b','c'])
+    l[1]=1
+    l.pop()  # remove last item
+    l.pop(1) # remove item with index, exception if out of index range
+    l.remove('a')   # remove first occurrence or raise error if not exist
+    l.clear()
+    del l[1:2]
+    l=l.reverse()    # l=reversed(l)
+    l=l.sort()   # l.sort(reverse=True)   l=sorted(l)
+    xxx=min(list1)  # max(list1)  sum(list1)
 
+tuple
+    t= (1,2,'a')
+    t=tuple([1,2,3])
+    a,*b = t   # b=[2, 'a']
+    len(t)
+    1 in t
+    t.index(1)
+    t.count(1)
 
+dict
+    key need to be immutable (not list or dict)
+    d={'name': 'Harry'}
+    d=dict([('name','Harry')])
+    d=eval('{"name":"Harry"}')
+    d=json.loads('{"name":"Harry"}')
+    d=dict.fromkeys(['name','age'], 1)
+    dict1.get('name', "NA")   # return default if not found
+    len(d)
+    'name' in d
+    list(d.keys())   # .values()  .items()
+    d['name']='Harry Potter'
+    del d['name']   # error if not exist
+    name=d.pop('name',None)  # return None if not found, error if not specified
+    (k, v) = my_dict.popitem()  # remove last item
+    d.clear()
+    del d
+    d=sorted(d.items(),key=lambda x:x[1],reverse=False)
 
-
-
-
-greedy algorithm
-    each step choose local most optimized option, generate final global possible most efficient solution under certain
-    situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
-    questions: intervals (sort on end/ start depends on question), assignment problems
+set
+    s=set()
+    s={1,2,3}
+    1 in set
+    s.add(4)
+    s.update(s2)  # add set s2 to s
+    s = s.union(s2)   # .intersection(s2)     .difference(s2)
+    s.difference_update(s2)   # modify set1 to unique item only  {1, 2}
+    s1.issubset(s2)   #.issuperset(s2)  .isdisjoint(s2)
+    x=s.remove(1)      # raise error if not found
+    x=s.discard(1)
+    s.clear()
+    s1.pop()   # random delete one item
+    del s
 
 '''
 

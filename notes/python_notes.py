@@ -153,11 +153,11 @@ class Review:
     list1.index(1)  # 0  exception if not found    list1.index(1,0,2)  find 1 in index between [ 0,2)
     list1.count(1)  # 1  number of appearance of value
     Add   mutate list
-    list1 * 2  # [1, '2', True, 1, '2', True]
+    list1 = list1 * 2  # [1, '2', True, 1, '2', True]     # list1 *= 2
     list1 + [100]    # [1, '2', True, 100]  # not mutate original list
     list1.append(100)  # [1, '2', True, 100]   
     list1.extend([100, 200])  # [1, '2', True, 100, 200]   # iterable input parameter
-    list1.insert(1, 300)   # [1, 300, '2', True]  # insert item at index, shift one to the right after index 
+    list1.insert(-1, False)   # [1, '2', True, False]  # insert item at index, shift one to the right after index 
     Update
     list1[1] = 2    # don't have return  update list existing index with value, otherwise IndexError
     Delete   mutate list
@@ -466,7 +466,7 @@ class Review:
         g.__next__()   next(g)    # to retrieve next value after yield (n)
         # raise exception when while end, use try, catch block
         sending input parameter
-        r0 = g.send(None)   # r0=0    # first time call must send None or g.next()
+        r0 = g.send(None)   # r0=0    # first time call must send None or next(g)
         r1 = g.send(3)   # r0=1   temp=3    temp=3 at  temp = yield n
         
         Coroutines: sub thread, one thread can have multiple Coroutines running concurrently

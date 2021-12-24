@@ -162,12 +162,11 @@
 
     # function
     delimiter $$
-    create function genPerson(name varchar(20)) returns varchar(50)   -- return avgage
+    create function genPerson(@name varchar(20)) returns varchar(50)   -- return avgage
     begin
-        declare cmd varchar(50) default '';   # declare variable
-        set @tableName=name;
-        set cmd=concat('create table ',@tableName,' (id int, name varchar(20));');
-        return str;
+        declare @cmd varchar(50) default '';   # declare variable
+        set @cmd=concat('create table ',@name,' (id int, name varchar(20));');
+        return @cmd;
     end$$
     delimiter ;
     select genPerson('student')
@@ -503,17 +502,17 @@
     db.COLLECTION_NAME.aggregate(AGGREGATE_OPERATION)
     sum, avg, min, max, push (add data), addToSet, first, last
     $project: modify document schema, rename, add, delete field
-    $match: filter data, match only satisfied
+    $match: filter data, match only satisfied (having)
     $limit: limit the return document count
     $skip:  skip first # of document in matched result
     $unwind: split array type field in document into multiple document, one for each document
     $group: groupby operation for analyze
     $sort: return sorted result
 
-    db.hogwarts_table.aggregate([{$group : {'student': "$by_name", 'score_avg' : {$avg : '$score'}}}])   # group by
-        # name and take score average
-    db.hogwarts_table.aggregate([{$group: {'student': "$by_name", 'friend': {$push: 'Ronald'}}}])
-    db.hogwarts_table.aggregate([{$match: {'score': { $gt: 70, $lte: 90}}}, {$group: {_id: null, count: {$sum: 1}}}])
+    db.hogwarts_table.aggregate([{$group : {'student': "$name", 'score_avg' : {$avg : '$score'}}}])   # group by
+        # name and take score average    $group: {'_id': null, 'total':{$sum:'$score'}}
+    db.hogwarts_table.aggregate([{$group: {'student': "$name", 'friend': {$push: 'Ronald'}}}])
+    db.hogwarts_table.aggregate([{{$group: {_id: null, count: {$sum: 1}}},$match: {'score': { $gt: 70, $lte: 90}}}])
         # return count of documents with 70<score<90, $sum:1, 1 means add 1 to sum for each match
 
 

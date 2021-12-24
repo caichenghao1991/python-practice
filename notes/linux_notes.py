@@ -84,7 +84,7 @@
     fg                       # move command to foreground    fg %1    jobs get id [1]+ Running
     Ctrl+z                   # stop foreground job and move to background
     bg                       # start the command in background    bg %1
-    top                      # process manage     q to quiteeeeevvvvv
+    top                      # process manage     q to quit
 
     |                        # put left side command output as input and pass to right side
     grep                     # search string  support regular expression

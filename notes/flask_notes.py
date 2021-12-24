@@ -136,7 +136,8 @@
     # url_for('blue_print_name.function_name', **kwargs)  or url_for('function_name', **kwargs)
     #  @bp.route('/show/<data>')
     #  def display(data):
-    #      return redirect("%s" % url_for('emp.display', data=res))
+    #      return redirect("%s" % url_for('emp.display', id=1))
+    <a href="{{ url_for('emp.display',id=1) }}">
 
     # catch exception
     @app.errorhandler(404)  # only catch 404 status code   # @app.errorhandler(Exception)  catch exception
@@ -280,9 +281,10 @@
         print(emp.dept.d_name)   # dept specified in relationship output
 
     for many to many relationship, create table for relationship
-    emp_dept = db.Table('emp_dept', Column('e_id',db.Integer, ForeignKey('t_emp.e_id')), Column('d_id',db.Integer,
+    model.py
+    emp_dept = db.Table('emp_dept', db.Column('e_id',db.Integer, ForeignKey('t_emp.e_id')), db.Column('d_id',db.Integer,
         ForeignKey('Dept.id')) )   # 'emp_dept' table name
-    emp:
+    class emp:
         depts = db.relationship(Dept, secondary=emp_dept)  # secondary for many to many relationship table
 
 
@@ -347,6 +349,7 @@
         def get(self):     # post patch put delete
             return {"username":"harry"}
     api.add_resource(IndexView,'/',endpoint='index')
+    url_for('index')
 
     flask-sqlacodegen
 
