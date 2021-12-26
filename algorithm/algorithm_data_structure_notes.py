@@ -165,7 +165,12 @@ Dynamic Programming
     It's a bottom up algorithm, solve sub problem then main problem. If need solution path, need state record.
     dp[i] only consider the result consist state i, if need get all solution, might need sum all dp[i] i=0,...n
     for 4 direction (up, down, left, right) grid search can run two times one from top left search right down, and other
-    from bottom right search top left
+    from bottom right search top left.
+    dp can also store intermediate sub solution, and accumulate sum/ length of dp become final answer
+    try keep the state transfer function simple by derive the new state by <=2 previous state
+    including subcategory problem: splitting value, common sequence, knapsacks, string manipulation, stock trading
+
+
 
     dp=[0 for i in range(xx)]
     if n <= x:      # base case
@@ -185,6 +190,20 @@ Dynamic Programming
             # dp[j] = some function(dp[j-1],...state[i][j])  # space compression
             # consider only need one line of stored data if only require dp[i-1][j],dp[i][j-1], dp[i-1][j] transfer to
             # d[j], and dp[i][j-1] transfer to d[j-1]
+            # need consider second loop whether forward traverse(depend on current level previous state) or backward
+            # traverse(depend on previous level previous state)
+                # knapsack one item one time (first i item, total weight j):
+                    for i in range(N): for j in range(W):
+                        if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i-1][j-w[i]]+v[i])
+                        else: dp[i][j]=dp[i-1][j]
+                    for i in range(N): for j in range(W, w[i],-1): dp[j]=max(dp[j],dp[j-w[i]]+v[i])
+                # knapsack one item multiple time (first i item, total weight j):
+                    for i in range(N): for j in range(W):
+                        if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i][j-w[i]]+v[i])
+                        else: dp[i][j]=dp[i-1][j]
+                    for i in range(N): for j in range(w[i],W,1): dp[j]=max(dp[j],dp[j-w[i]]+v[i])
+                # if value multi-dimension, add addition inner for loop
+
     return dp[i][j]   # dp[j]
 
 array

@@ -85,7 +85,7 @@
                         partitioner=get_partition)   # specify producer to send to a specified partition
                 while True:
                     user = get_user()
-                    producer.send("topic_user", user)  # exist topic name in kafka server
+                    producer.send("topic_user", user)  # send data to exist topic name in kafka server
                     time.sleep(3)
 
         consumer

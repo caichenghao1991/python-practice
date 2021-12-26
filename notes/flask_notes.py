@@ -282,8 +282,8 @@
 
     for many to many relationship, create table for relationship
     model.py
-    emp_dept = db.Table('emp_dept', db.Column('e_id',db.Integer, ForeignKey('t_emp.e_id')), db.Column('d_id',db.Integer,
-        ForeignKey('Dept.id')) )   # 'emp_dept' table name
+    emp_dept = db.Table('emp_dept', db.Column('e_id',db.Integer, db.ForeignKey('t_emp.e_id')), db.Column('d_id',
+        db.Integer, db.ForeignKey('Dept.id')) )   # 'emp_dept' table name
     class emp:
         depts = db.relationship(Dept, secondary=emp_dept)  # secondary for many to many relationship table
 

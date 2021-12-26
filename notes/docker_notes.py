@@ -36,11 +36,11 @@
                 # new container after the old container is destroyed
                 # /data/redis  host directory,  /data  container directory
             # -rm  remove container automatically after finish running job
+            docker run -dit --name redis1 -p 6378:6379 redis      # -d:backend, -i:can enter container, -t:can open
+                 terminal, 6378 ubuntu machine port(place running docker commands),  6379 container port  run in backend
         docker inspect containerid    # check container info
         docker ps a            # show all container (stopped as well, check for container id)
                 u: show program based on user     # x show all program      # ps aux  # can write together
-        docker run -dit --name redis1 -p 6378:6379 redis      # -d:backend, -i:can enter container, -t:can open terminal
-            # 6378 ubuntu machine port(place running docker commands),  6379 container port  run in backend
         docker start redis1
         docker stop redis1
         docker rm redis1        # remove container   -f force remove

@@ -489,7 +489,7 @@
         print(driver.find_elements_by_css_selector('h3 a').get_property('href')))  # href url,  same as get_attribute
         print(driver.find_elements_by_css_selector('h3 a').value_of_css_property('color'))  #rgba(36, 64, 179, 1)
 
-        # execure js
+        # execute js
         driver.execute_script('window.scrollTo(0,document.body.scrollHeight)')    # scroll to the bottom
         driver.execute_async_script('xxx')  # async js function
 
