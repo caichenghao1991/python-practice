@@ -12,6 +12,6 @@ import tensorflow as tf
 from sklearn.metrics import mean_absolute_error
 from sklearn.tree import DecisionTreeClassifier
 
-b2 = tf.tile(tf.ones((20,1,3)),[2,1,1])
-print(b2.shape)
 
+a = {1,2}
+print(a)

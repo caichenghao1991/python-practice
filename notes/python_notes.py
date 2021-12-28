@@ -101,7 +101,7 @@ class Review:
     
     --Binary and nary 
     bin(149)  # 0b10010101  binary     oct(149)  #0o225  8     hex(149) # 0x95 16     int() # back to decimal
-    -7 in binary: 7 in binary ob0000 0111,    reverse ^  ob1111 1000,  then +1  ob1111 1001     ~n+1 is -7 
+    -7 in binary: 7 in binary ob0000 0111,    reverse ~  ob1111 1000,  then +1  ob1111 1001     ~n+1 is -7 
     binary(negative) to decimal: ob1111 1001,   -1  ob1111 1000, then reverse ^ ob0000 0111  is 7
     print(~7+1)  # -7          n << 3    # 7 * 2^3               n >> 2   # 7 // 4
     print(~7 + 1)  # -7           print(7 << 3)  # 7 * 2^3         print(7 >> 2)  # 7 // 4
@@ -817,13 +817,13 @@ class Review:
     def task1(n):                                                             # monkey.patch_all() ahead of tasks
         for i in range(n):                                                    # monkey will change the native time module 
             print(n)
-            yeild                    # gb.switch()  # manual switch to task2  # no need for gevent
-                # yield n  # return n
+            yeild                    # gb.switch(n_val)                       # no need for gevent
+                # yield n  # return n   # manual switch to task2
             time.sleep(0.5)
              
-    g1,g2 = task1(10), task2(5)      # ga = greenlet(task1)                   # g1 = gevent.swpan(task1) 
-    while True:                      # gb = greenlet(task2)                   # g2 = gevent.swpan(task2) 
-        try:                         # ga.switch()                            # g1.join()    # gevent.joinall(g1, g2)
+    g1,g2 = task1(10), task2(5)      # ga = greenlet(task1)                   # g1 = gevent.swpan(task1, n_val) 
+    while True:                      # gb = greenlet(task2)                   # g2 = gevent.swpan(task2, n_val) 
+        try:                         # ga.switch(n_val)                       # g1.join()    # gevent.joinall(g1, g2)
             next(g1)                                                          # g2.join()
             next(g2)  # raise error if no next item                                     
             # x = next(g1)  # will get the yield return value 
@@ -863,7 +863,7 @@ class Review:
     import requests  
     import urllib.request
     response = requests.get(url) # return string of source code of url
-    content = response.text
+    content = response.text   response.json()
     # response = urllib.request.urlopen(url)
     # content = response.read()
     with open('aa.jpg','wb') as ws:

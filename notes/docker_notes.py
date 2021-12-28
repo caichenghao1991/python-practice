@@ -58,6 +58,7 @@
             FROM: ubuntu-dev:latest   # base:image version
             MAINTAINER cai caihogwarts@gmail.com      # declare author
             USER <username>[:<group>]   # specify user to run later commands (user and group must exist)
+                USER user:group   uid:gid
             EXPOSE <port1> [<port2>]   # specify exposed port   docker run -P will random choose one EXPOSE port
             LABEL <key>=<value> <key>=<value> <key>=<value> ...  # add meta data to image
             ENV <key1>=<value1> <key2>=<value2>...    # setting environment variable
@@ -70,16 +71,20 @@
                 # path_cont: path to copy the files inside container (create path automatically if not exist)
             RUN apt update            # execute terminal (shell) command when docker container is building
                 RUN ['apt update','param1','param2']     # execute command execute format
+                RUN yum -y install wget     RUN tar -xvf redis.tar.gz
             HEATHCHECK [option] CMD <command>            # set command or program to monitor docker container status
                 HEATHCHECK NONE                          # block base healthcheck inside base image
             ENTRYPOINT ["<executeable>","<param1>","<param2>",...]: similart to CMD, but provide fix param won't be
                 changed by docker run param. docker run can add --entrypoint to change command to run during runtime
                 only last ENTRYPOINT will be executed
-            CMD python3               # command to execute when docker container is running
+                ENTRYPOINT ["nginx"]    ENTRYPOINT [ "curl", "-s", "http://ip.cn" ]
+            CMD python3               # command to execute to run other program, when docker container is running
+                                      # param can be override by docker run
                 CMD <shell command>
                 CMD ["<executable file or command >","<param1>","<param2>",...]   # recommended way
                 CMD ["<param1>","<param2>",...]  # provide ENTRYPOINT program default param
                     # only last CMD will be executed, previous one inside same docker file will be ignored
+                    CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]
             ONBUILD <command>         # command won't be executed for building this image, only run command when some
                                       # other image have 'from thisImageName' (use this image as base image)
         docker build -t redis1:v2 .   # build image . is context path if needed from pc running the container
