@@ -77,7 +77,7 @@
     rdd1 = spark.sparkContext.parallelize([("Java", 20000), ("Python", 100000), ("Scala", 3000)], 2)
         # create RDD from list, 2 is partition number
         # loads the existing collection from your driver program into parallelling RDD
-    rdd1 = spark.sparkContext.parallelize([Row(name="James,·Smith",lang=["Java","Scala","C++"],state="CA")])
+    rdd1 = spark.sparkContext.parallelize([Row(name="James,Smith",lang=["Java","Scala","C++"],state="CA")])
     rdd2 = spark.sparkContext.textFile("../resources/data/numpy_data.txt")  # Create RDD from external Data source
 
     # create empty RDD
@@ -167,6 +167,7 @@
            # schema = StructType([StructField('name', StructType([StructField('firstname', StringType(), True),
             StructField('lastname', StringType(), True)])), StructFiled('id'),IntegerType(), True), StructField
             ('hobbies', ArrayType(StringType()), True),StructField('prop', MapType(StringType(),StringType()), True)])
+                # whether can be null
             schema = StructType.fromJson(json.loads(schema.json))  # load schema from json
             print(df.schema.json())  # return dataframe schema json object
 
@@ -665,7 +666,7 @@
 
         # Broadcast
         broadcastVar = sc.broadcast({"NY":"New York", "CA":"California", "FL":"Florida"})   # sc is sparkcontext
-        val = broadcastVar.value['BY']  # New York, read only variable cached and available on all nodes
+        val = broadcastVar.value['NY']  # New York, read only variable cached and available on all nodes
 
         PySpark Accumulators are only “added” through an associative and commutative operation and are used to perform
             counters (Similar to Map-reduce counters) or sum operations.

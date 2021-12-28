@@ -9,11 +9,11 @@
         a = np.array([[1, 2, 3], [4, 5, 6]])  # np.array([1, 2, 3], dtype='int16')   # array([[1, 2, 3], [4, 5, 6]])
         print(a)  # [[1 2 3][4 5 6]]
         b = np.asarray([[1, 2, 3], [4, 5, 6]])
+            # asarray like array, except it has fewer options, and copy=False. array has copy=True by default.
         b = a  # a and b are two names for the same ndarray object
         c = a.view()  # c is a views of the data owned by a, c resize won't change a, but change entry value will change a
         d = a.copy()  # d doesn't share anything with a
 
-        # asarray like array, except it has fewer options, and copy=False. array has copy=True by default.
 
         # common attributes
         print(a.ndim, a.shape, a.dtype, a.itemsize, a.size, a.nbytes)  # 2  (2, 3)  int32  4  6  24
@@ -73,7 +73,7 @@
         print(np.vsplit(a, 2))  # [array([[0, 1, 0]]), array([[4, 2, 0]])]
         print(np.concatenate((np.ones((1, 3)), np.zeros((2, 3))), axis=0))  # [[1. 1. 1.][0. 0. 0.][0. 0. 0.]]
         print(np.concatenate((np.ones((1, 3)), np.zeros((2, 3))), axis=None))  # [1. 1. 1. 0. 0. 0. 0. 0. 0.]
-        np.concatenate((np.ones((2, 2)), np.zeros((2, 3))), axis=1)  #[[1., 1., 0., 0., 0.],[1., 1., 0., 0., 0.]]
+        np.concatenate([np.ones((2, 2)), np.zeros((2, 3))], axis=1)  #[[1., 1., 0., 0., 0.],[1., 1., 0., 0., 0.]]
             # final result and original same size in axis dimension
         np.unique([1,1,2,3])  # array([1,2,3]) return np.array with unique value
         np.histogram(np.array([1,1,2,3,5]))
@@ -196,7 +196,7 @@
 
             math operation: don't have broadcast, fill NaN if missing (number add NaN is NaN)
             +, -, *, /  apply to all number elements
-            a + b (same explicit index base operation ex.a.loc[1]+b.loc[1]..., if one is NaN, return NaN)
+            a + b (add items with same index, ex.a.loc[1]+b.loc[1]..., if one is NaN, return NaN)
             a.add(b, fill_value=0)    # instead of fill NaN, fill 0
                 subtract()/sub()    multiply()/mul()   divide()/div()    floordiv()   mod()  pow()
             aggregate function same as numpy a.sum()  # add numeric, concatenate string
@@ -361,7 +361,8 @@
 
             df = df.sample(frac=0.6)    # shuffle and use 60% data, row index same, row change
 
-            df.query('Harry=="98" & Ronald<90')   # string use "", Harry column value is "98" and Ronald column value<90
+            df.query('Harry=="98" & Ronald<90')   # return dataframe, string use "", Harry column value is "98" and
+                                                    # Ronald column value<90
             df["Harry"]  >= 60   # return one column of index and one column of boolean of compare result
             df[df["Harry"] >= 60]   # df[index+boolean column] return rows with boolean=True
 
@@ -383,6 +384,7 @@
             df["Date"] = pd.to_datetime(df["Date"])  # convert Date column from object to datetime64[ns]
 
             pd.crosstab(car_sales["Make"], car_sales["Doors"] )    #return table of 2 selected columns as x and y
+                                                      # values are 0, 1. 1 for cell with original data presented
             .groupby(by='Make')  # .groupby(by='Make').groups   # {'Honda':Index([0,3,8]),'Toyota':Index([1,2,6])}
                 .groupby(["Make"]).mean()  #return mean value for each column for each make as row index
                 .groupby(["Make"])[['Price']].mean()  # only show price column for each make

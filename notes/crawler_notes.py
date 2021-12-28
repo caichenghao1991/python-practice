@@ -377,6 +377,7 @@
             MYEXT_ITEMCOUNT = 10   # log every 10 items, override setting in extension.py
 
         extension.py
+        from scrapy import signals
         logger = logging.getLogger(__name__)
 
         class SpiderOpenCloseLogging:
@@ -400,6 +401,7 @@
                 ext = cls(item_count)
 
                 # connect the extension object to signals
+
                 crawler.signals.connect(ext.spider_opened, signal=signals.spider_opened)
                 crawler.signals.connect(ext.spider_closed, signal=signals.spider_closed)
                 crawler.signals.connect(ext.item_scraped, signal=signals.item_scraped)

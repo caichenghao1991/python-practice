@@ -27,6 +27,7 @@
         rfc=RandomForestClassifier()
             # n_estimators  # number of trees in forest default 100
             rfc.fit(X_train, y_train)
+            rfc.feature_importances_
 
         LogisticRegression()  # bad for too many features
             # prediction very stable, generally good result
@@ -70,14 +71,16 @@
             print(lr.predict(X_test))  # 2D array (dataframe/[[]]) as input
             print(lr.score(X_train, y_train), lr.score(X_test, y_test))
 
-        Ridge()   # ridge regressor, eliminate some coefficient which are too sensitive or not sensitive
+        Ridge()     linear regression with L2 regularization
+                    # ridge regressor, eliminate some coefficient which are too sensitive or not sensitive
                     # same as linear regression, but add second order regularization, able to inverse the originally
                     # singular matrix, help reduce overfitting (bigger λ, smaller θ)
                     # θ= (X^T∙X+λI)^(−1)∙X^T∙y
             ridge = Ridge(alpha=0.1)    # alpha=1 default is λ in the equation   [0.1-0.00001]
             ridge.fit(X,y)
 
-        Lasso()  # least absolute shrinkage and selection operator
+        Lasso()     linear regression with L1 regularization
+            # least absolute shrinkage and selection operator
             # total of coeffecient sum less than λ   first order regularization
             lasso = Lasso(alpha=0.1)
             lasso.fit(X,y)

@@ -39,8 +39,10 @@
         print(dy_da, dy_db, dy_dc)
 
     common neural network api
-        tf.matmul,tf.nn.conv2d, tf.nn.relu, tf.nn.max_pool2d,  tf.nn.sigmoid,  tf.nn.softmax
+        tf.matmul,tf.nn.conv2d, tf.nn.relu, tf.nn.max_pool2d,  tf.nn.sigmoid,  tf.nn.softmax, tf.nn.leaky_relu
         layers.Dense, layers.Conv2D, layers.SimpleRNN, layers.LSTM, layers.ReLU, layers.MaxPool2D
+        layers.BatchNormalization()   layers.Activation('relu')  layers.UpSampling2D(size=3)  layers.Dropout(0.4)
+
 
     installation
         cuda:  custom install, skip NVIDIA Geforce Experience, under options: cuda: skip Visual Studio Integration if
@@ -94,14 +96,14 @@
 
         a = tf.range(5)
         a = tf.ones([])     # a = 1,  shape inside param  shape ()
-        a = tf.zeros([1])      # a = [0]  tensor     shape (1,)
+        a = tf.zeros((1,))      # a = [0]  tensor     shape (1,)
         b = tf.zeros_like(a)    # create tensor with same shape of a, filled with 0
             # b = tf.ones_like(a)
-        a = tf.fill([2,2], 3)    # create a 2*2 tensor filled with 3
+        a = tf.fill((2,2), 3)    # create a 2*2 tensor filled with 3
 
-        a = tf.random.normal([2,2],mean=1, stddev=1)    # 2*2 tensor with normal distribution, default mean 0, std 1
-        a = tf.random.truncated_normal([2,2],mean=1, stddev=1)   # resample if outside [-2*std+mean, 2*std+mean]
-        a = tf.random.uniform([2,2], minval=1, maxval=1)   # 2*2 tensor with uniform distribution, dtype optional
+        a = tf.random.normal((2,2),mean=1, stddev=1)    # 2*2 tensor with normal distribution, default mean 0, std 1
+        a = tf.random.truncated_normal((2,2),mean=1, stddev=1)   # resample if outside [-2*std+mean, 2*std+mean]
+        a = tf.random.uniform((2,2), minval=1, maxval=1)   # 2*2 tensor with uniform distribution, dtype optional
         index = tf.random.shuffle(ind)
 
 
@@ -116,7 +118,7 @@
 
     tensor dimension:
         2D:  batch size, column size
-        3D: batcg size, # words, embedding size
+        3D: batch size, # words, embedding size
         4D: batch size, height, width, color
 
     kernel: wight w trainable variable
@@ -132,14 +134,14 @@
 
         a = tf.ones([4,28,28,3])
         a[0][0][0]   # tensor [1, 1, 1]  # index from outer to inner
-        a[0, 0, 0]   # same as a[0][0][0]    # shape(28,28,3)
+        a[0, 0, 0]   # same as a[0][0][0]    # shape(3)
         a[0,:,:,:]  # same as a[0]  # : use all index
         a[::2, :, :, :]  # same as a[0] and a[2]   start:end:step  start default 0, end default -1
         a[0,...,1,:]   # ... can be any length of :, must able to infer, can't use 2 ... same time    # shape[28,3]
 
     gather
         a = tf.gather(a, axis=0, indices =[1,2])  # default axis=0  return an ordered tensor with selected indices in
-            # axis,shape(2,28,28,3), axis=0 means in pick in first dimension (4) inside a (4,28,28,3)
+            # axis,shape(2,28,28,3),a[1] and a[2]
 
         tf.gather_nd(a,[0,1,2])      # gather the item with indices of several dimension, shape (3), get the item with
                                      # index 0 in 1st dimension, 1 in second dimension, 2 in third dimension
@@ -177,8 +179,9 @@
 
         b = tg.expand_dims(tf.random.normal([28,1]), axis=0)
         b = tg.expand_dims(b, axis=0)  # shape (1,1,28,1)
-        b2 = tf.tile(b,[4,20,1,3])   # create tensor with shape (4,20,28,3)  repeating b, same functionality as
-                                     # broadcast, but use more memory
+        b2 = tf.tile(tf.ones((2,3,4),[3,5,1])   # create tensor with shape (6,15,4), repeat x times in each dimension.
+                                # same functionality as broadcast, but use more memory
+
 
     concat, stack, split
         a = tf.ones([4,20,28,3])
@@ -342,6 +345,7 @@
         sigmoid (output each element between (0, 1), used for binary classification p(x_0)>0.5 then class 0 )
             b = tf.sigmoid(a)   # return tensor with applying sigmoid to a,  sigmoid = 1/(1+e^-x)
             d/dxσ(x) = σ' = σ(1-σ)     σ:sigmoid
+            tf.sigmoid(a), tf.math.sigmoid(a), tf.nn.sigmoid(a)   all the same
         softmax (output each element between 0-1, total sum to 1. used for multi-class classification)
             prob = tf.nn.softmax(a)  # a is output without activation, called score(logits), apply softmax to get
                     # probabilities,   sigma(z) = e^z_j / sum_k(e^z_k)
@@ -585,14 +589,14 @@
 
         tf.keras.layers.Dropout(0.4) # 40% dropout, more dropout, harder training, less over fitting, better
                                         # generalization
-        out = model(x, training=True)  # True during train and false for validation and test
+        out = model(x, training=True)  # True during train and false(default) for validation and test
 
 
 
     cnn
     feature map: data from each layer, include input layer (width * height * channel(filter count))
         layer = layers.Conv2D(4, kernel_size=5, strides=1, padding='valid')
-            # 4 kernels, no need specify depth(channel) of each kernel
+            # 4 filters, no need specify depth(channel) of each kernel
             # 'valid': no padding,   'same': padding till result same shape
         out = layer(x)   # inside use function __call__ ->  call() method
         layer.kernel    # return tensor with (shape, dtype, numpy)

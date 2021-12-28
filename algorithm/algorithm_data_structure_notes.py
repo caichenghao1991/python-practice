@@ -206,6 +206,38 @@ Dynamic Programming
 
     return dp[i][j]   # dp[j]
 
+    string comparison problem usually 2 for loop for each char in both string correspondingly
+    stock problem can have 2 dp matrix track max profit for k times buy and sell
+        complex stock problem with cooldown can draw state machine, for each state create matrix with size of time steps
+        track money in out between state and write transfer functions for each state
+
+
+Divide and Conquer
+    T(n) = aT(n/b) + f(n), let k = log_b (a)
+    1. f(n) = O(n^p)    p < k      T(n) = O(n^k)
+    2. f(n) = O(n^p)    p > k      T(n) = O(f(n))
+    3. if exist c >= 0 such that f(n) = O(n^k log_c (n))   T(n) = O(n^k log_(c+1) (n))
+    # use memoization+ divide conquer or dynamic programming
+
+    memo=[[0]*n for _ in range(n)]
+    def rec(memo,left, right):
+        if left+1 == right: return xx    # base case
+        if memo[left][right]: return memo[pos]    # already memorized
+        for i in range(left, right):
+            l = rec(memo,left, i-1)
+            r = rec(memo,i+1, right)
+            res = func(l,r)
+        memo[left][right] = res
+        return res
+
+    dp = [[0]*n for _ in xrange(n)]
+    for k in xrange(2, n):
+        for left in xrange(0, n - k):
+            right = left + k
+            for i in xrange(left + 1,right):
+                dp[left][right] = func(dp, i)
+    return dp[0][n - 1]
+
 array
     array traverse from beginning or end, two array can start both beginning or end or one each.
     use hash to save time complexity
