@@ -102,6 +102,7 @@
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         return "<p>Hello World</p>" / Response / render_template('register_student.html', **data) ...
+
     app.register_blueprint(emp.bp, url_prefix='/emp')  # put separate blue print for different model in the views folder
         # url_prefix optional, add additional in the routing path. request path match the routing path
         # able to visit additional blueprint
@@ -345,11 +346,24 @@
     app = Flask(__name__)
     api = Api(app)
 
-    class IndexView(Resource):
-        def get(self):     # post patch put delete
-            return {"username":"harry"}
-    api.add_resource(IndexView,'/',endpoint='index')
+    class StudentView(Resource):
+        def get(self, id):     # post patch put delete
+            student = Student.query.get(id)
+            if student:
+                return return student
+            abort(400)
+        def post():
+            student = Student(**{k:v for k,v in request.form.items()})
+            db.session.add(student)
+            db.session.commit()
+            return jsonify({k:v for k,v in request.form.items()},200)
+
+    api.add_resource(StudentView, '/get/<int:id>')
+    api.add_resource(StudentView,'/',endpoint='index')
+
     url_for('index')
+    curl http://localhost:5000/get/1
+
 
     flask-sqlacodegen
 
@@ -489,6 +503,7 @@ def app2():
         else:
             name = request.form.get('name')  # get parameter in post method form
             pwd = request.form.get('pwd')
+
             if name == 'harry' and pwd == '123456':
                 return '''<h2>Login successfully</h2>  '''
             else:

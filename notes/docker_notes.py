@@ -84,7 +84,7 @@
                 CMD ["<executable file or command >","<param1>","<param2>",...]   # recommended way
                 CMD ["<param1>","<param2>",...]  # provide ENTRYPOINT program default param
                     # only last CMD will be executed, previous one inside same docker file will be ignored
-                    CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]
+                    CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]   CMD ["/usr/bin/wc","--help"]
             ONBUILD <command>         # command won't be executed for building this image, only run command when some
                                       # other image have 'from thisImageName' (use this image as base image)
         docker build -t redis1:v2 .   # build image . is context path if needed from pc running the container

@@ -863,7 +863,7 @@ class Review:
     import requests  
     import urllib.request
     response = requests.get(url) # return string of source code of url
-    content = response.text   response.json()
+    content = response.text   response.json() 
     # response = urllib.request.urlopen(url)
     # content = response.read()
     with open('aa.jpg','wb') as ws:
