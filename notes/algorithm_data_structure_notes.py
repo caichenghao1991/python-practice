@@ -238,6 +238,36 @@ Divide and Conquer
                 dp[left][right] = func(dp, i)
     return dp[0][n - 1]
 
+
+Math Problems
+    greatest common divisor: keep use bigger value divide small value, and replace big value with remainder, till
+        remainder become 0, last denominator(除数) is the gcd
+    least common multiple: a*b/gcd
+    count prime number less than n: initialize list of true with size n, for loop 2 to n, if current prime is true,
+         set multiple of current value to false, finally count how many true/false remained
+    convert from 10 based to k based value: each time divide current value with k, add remainder to the right of answer
+        and replace current value with quotient(商)
+    Fisher-Yates shuffle array of number: from array index 0~n-1 random pick one swap with last item, and consider last
+        item is in complete state. then consider 0~n-2 index random pick one swap with second last item. repeat till the
+        first item
+    weight sampling: add all items in weights array [w1,w2,...wn] together as total,  random pick a value x from
+        [0,total], and find corresponding index  x- w1 -w2-... till <0
+    random sample k values from array length n with same probability: initialize size n array with all possible values
+        if necessary(is its linked list), loop from index 0 to n-1, each time at index i, generate a random number j
+        from [1, i], if j<=k, swap array[j] = array[i].  first k values are the final answer
+        consider at index i: has k/i chance to add in sample, i+1 index has k/(i+1) add to sample and i has 1/k chance
+        to be removed, so overall for each value has chance P = (k/i)*(1-(k/(i+1))*(1/k))*.... = k/i * (i/i+1) *
+        ((i+1)/(i+2))*...*((n-1)/n) = k/n
+
+Bitwise Operation
+    ^ XOR     ~ NOT     & and    | or    <<    >>
+    x ^ 0s = x    x ^ 1s = ~x   x ^ x = 0      x ^ 0s = x    x ^ 1s = ~x   x ^ x = 0
+    x | 0s = x    x | 1s = 1   x | x = x
+    n = 11110100       n & (n-1)  11110000  remove lowest 1
+    n = 11110100       n & (-n)  00000100  get lowest 1    -n: ~n+1
+    add extra 0 at left side on shorter length of operand  1010 & 1 = 1011
+    print(int("100111",2))   bin(10)
+
 array
     array traverse from beginning or end, two array can start both beginning or end or one each.
     use hash to save time complexity

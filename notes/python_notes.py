@@ -100,7 +100,7 @@ class Review:
     
     
     --Binary and nary 
-    bin(149)  # 0b10010101  binary     oct(149)  #0o225  8     hex(149) # 0x95 16     int() # back to decimal
+    bin(149)  # 0b10010101 string  binary     oct(149)  #0o225  8     hex(149) # 0x95 16     int() # back to decimal
     -7 in binary: 7 in binary ob0000 0111,    reverse ~  ob1111 1000,  then +1  ob1111 1001     ~n+1 is -7 
     binary(negative) to decimal: ob1111 1001,   -1  ob1111 1000, then reverse ^ ob0000 0111  is 7
     print(~7+1)  # -7          n << 3    # 7 * 2^3               n >> 2   # 7 // 4
@@ -626,6 +626,7 @@ class Review:
     print(birthday.day)  # 20         print(datetime.date.ctime(birthday))  # Thu Jun 20 00:00:00 2019
     datetime.date.today()   # 2021-09-07     
     now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
+    datetime.strptime('2022-10-31 16:55:00', '%Y-%m-%d %H:%M:%S'))
     print(now, now - delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
     
     x = birthday - today  # datetime.timedelta

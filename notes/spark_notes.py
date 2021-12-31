@@ -728,7 +728,7 @@
     cv_model = cv.fit(data)
     predictions = cv_model.transform(data)
     predictions.filter(predictions['prediction'] == 0).select('Descript', 'Category', 'probability', 'label',
-        'prediction').orderBy('probability', accending=False).show(n=10, truncate=30)
+        'prediction').orderBy('probability', ascending=False).show(n=10, truncate=30)
 
     evaluator = MulticlassClassificationEvaluator(predictionCol='prediction')
     print(evaluator.evaluate(predictions))
