@@ -18,6 +18,7 @@ greedy algorithm
 
 sliding window
         two pointer (start from beginning or end, can have different pace)
+        from beginning, end meet at middle, code easier than start from middle and one go to beginning and one go to end
         giving target and sorted array, use one forward and one backward pointer
         fast slow pointers: fast move two step, slow move one step. meet at point means circle,after first meet, move
             fast pointer to start and both move one step a time, second time meet at start of circle (Floyd Algorithm)
@@ -27,10 +28,12 @@ sliding window
 binary search
     avoid not including correct answer, and avoid infinite loop, compare with mid index value and eliminate half of data
     if monotone increasing, harder question need run binary search twice (multiple time) with different conditions
+    only apply on sorted array, arr[mid] can compare with neighbor arr[mid-1], arr[mid+1], need consider index range
+    and make sure cover len(arr)==1 if comparing neighbor
 
     1.  first_occurrence
         while left <= right:
-            mid = left + (right - left) // 2
+            mid = left + (right - left) // 2    # update mid inside loop
             if arr[mid] > value:
                 right = mid - 1
             elif arr[mid] < value:
@@ -74,6 +77,7 @@ sorting
         sorted
 
 
+
 Searching
     used in graph and tree search
     DFS: first explore the current node, can implemented by stack (less chance for stack overflow) or recursive
@@ -81,6 +85,8 @@ Searching
         can add state for memorization to mark some node and avoid repetition
         can use DFS for circle detection, track of parent node for each traversed node, if one visited node has
         different parent node, then it has circle
+        time complexity: O(E+V) if using adjacency list, O(n^2) if using adjacency matrix, O(N) for tree
+        space complexity: max tree/graph depth  O(V)
 
         # stack method
         for node in space:   # tree search space is root, and graph space is each nodes
@@ -144,6 +150,8 @@ Searching
     BFS: first traverse all the current node children then proceed to next grand children layer, use fifo queue. used
         for getting the shortest route. can BFS from both start and end to reduce search time (1+2+4+8+16 vs 2*(1+2+4))
         (each time switch queue for smaller size queue and BFS on that queue) can use together with backtracking
+        time complexity: O(E+V), if using adjacency list O(n^2),  O(N) for tree
+        space complexity: max queue size (max items in a layer)  O(V)
 
         queue = deque()
         queue.append(init_node)
@@ -212,12 +220,15 @@ Dynamic Programming
         track money in out between state and write transfer functions for each state
 
 
-Divide and Conquer
+Divide and Conquer (recursion)
+    time complexity: or draw the recursion tree
     T(n) = aT(n/b) + f(n), let k = log_b (a)
     1. f(n) = O(n^p)    p < k      T(n) = O(n^k)
     2. f(n) = O(n^p)    p > k      T(n) = O(f(n))
     3. if exist c >= 0 such that f(n) = O(n^k log_c (n))   T(n) = O(n^k log_(c+1) (n))
     # use memoization+ divide conquer or dynamic programming
+
+    space complexity: proportion to max depth
 
     memo=[[0]*n for _ in range(n)]
     def rec(memo,left, right):
@@ -269,15 +280,45 @@ Bitwise Operation
     print(int("100111",2))   bin(10)
 
 array
+    python use list instead
     array traverse from beginning or end, two array can start both beginning or end or one each.
     use hash to save time complexity
-    sort array might help
+    sort array might help   .sort() is in place    sorted() is not
+    be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
 
 
 linked list
+    class Node():
+        def __init__(self, value=None):
+            self.value = value
+            self.next = None
+    class LinkedList():
+        def __init__(self, value):
+            self.head = Node(value)  # head is the first element of the linked list
+            self.length = 1
+            self.tail = self.head  # tail is the end of linked list
+    take care of order of updating node and its neighbors
+    sometime create dummy node, pointing to the head of linked list and use dummy.next to retrieve linked list
+    each step only consider the current node relation (current node's next pointer)
+
+    def reverse(head, pre=Node()):    # reverse linked list recursive, need pass default pre node
+        if not head:
+            return pre
+        nex = head.next
+        head.next = pre
+        return reverse(nex, head)
+    def reverse(head):                 # reverse linked list non recursive
+        pre = Node()
+        while head:
+            nex = head.next
+            head.next = pre
+            pre = head
+            head = nex
+        return pre
 
 Queue & Stack
-    q = deque()   # queue
+    from collections import deque
+    q = deque()   # queue    or implement via linked list
     q.append(1)
     print(q[0], q.popleft(), len(q))
 
@@ -286,9 +327,164 @@ Queue & Stack
     print(s.pop())
     print(s[len(s) - 1])   # peek
 
-recursion + backtracking
+    monotone increasing/decreasing stack (via list)
+        for last item largest decreasing stack from top to bottom: for each new item, if larger than stack top item,
+        continue pop top item, till top smaller than new item or empty stack (do calculation for popped item if
+        required), push new item in stack
+
+    priority queue (implemented via heap(complete binary tree, parent node larger than child node if max heap))
+        usually use array for complete binary tree   child index i//2 => parent index   parent index => 2i+1, 2i+2
+        O(1) get largest/smallest item, O(log n) insert or remove top item
+        li = [2,3,1,5,4]
+        heapq.heapify(li)    # min heap, heapify make li[0] smallest item, inside call siftup
+        heapq.heappush(li, 6)  # O(logn)    append new item to last then sift up (continue swap with parent if smaller
+                               # than parent)
+        v=heapq.heappop(li)    # O(logn)   move last item to first then sift down (continue swap with larger child node)
+        print(li[0])  # 2    # get smallest O(1)
+        heapq.merge(li, li2)   # merge 2 list  O(n)
+        heap.nlargest(3,li)  # [5,4,3]   nsmallest
+
+        # max heap
+        heapq._heapify_max(li)                  # heapify
+        li.append(6)                            # heappush
+        heapq._siftdown_max(li, 0, len(li)-1)   # heappush
+        v=heapq._heappop_max(ll)                # heap pop
+
+    sliding window queue
+        get maximum number of sliding window for each step
+        enqueue right item, dequeue most left item, traverse through queue and remove item smaller than right item, and
+        left most item in window is the largest item at this step
+        O(n) all item is push and pop once although double loop
+
+HashSet, HashMap:
+    set and dict
+    remove item once done, can save time complexity by eliminate duplicate search on that item
+    for geometry coordinates problem can consider slope as dict key
+
+range sum query 1d and 2d
+    1d store previous sum for each index in p[] and use p[j+1]-p[i] to get the sum of arr[i,j]
+    2d use dp, for each index i,j store the area sum for the rectangle with diagonal coordinate of 0,0 and i,j
+        dp[i][j] = nums[i-1][j-1] + dp[i-1][j] + dp[i][j-1] - dp[i-1][j-1]
+        when query 2 coordinate (row1, col1), (row2,col2) use
+        sum = dp[row2+1][col2+1] - dp[row2+1][col1] - dp[row1][col2+1] + dp[row1][col1];
+
 
 binary tree
+    binary tree parent node has left and right child node. pre, in, post order traversal, recursive (iterative) way
+    most problem are solving recursively with helper function (base empty case, and return parent node state with
+    recursive call of child node state as known), only need consider one parent and corresponding one child layer
+    usually
+
+    class TreeNode(object):
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+    binary search tree: left child less than parent, right child larger than parent. in order traversal return sorted
+        list
+
+    trie
+    class Node:
+    def __init__(self, char: str):
+        self.char = char
+        self.children = []
+        self.is_finished = False
+        self.counter = 1
+
+
+Graph
+    directed/undirected, cyclic/acyclic, connected/disconnected. DAG (directed acyclic graph)
+    adjacency list: each index(node) its keep neighbors nodes (array or linked list). for each node has one index
+    adjacency matrix: 2D matrix of nodes vs nodes  G[i][j]  store edge ij 1 or value for weighted graph, 0 if no edge,
+        consume more space but O(1) for checking exist edge ij or not
+    store list of edges (i,j)
+
+    topological sort  O(V + E)
+        put all 0 in_degree(no in edge) vertex in queue, pop a 0 degree vertex and append to result order  list, update
+            all out edge vertex in_degree - 1. cyclic if result list size not equal to vertex count
+        def topologicalSort(self):    # queue way
+            in_degree = [0]*(self.V)
+            for i in self.graph:
+                for j in self.graph[i]:
+                    in_degree[j] += 1
+
+            queue = []
+            for i in range(self.V):
+                if in_degree[i] == 0:
+                    queue.append(i)
+            cnt = 0   # Initialize count of visited vertices
+            top_order = []
+            while queue:
+                u = queue.pop(0)
+                top_order.append(u)
+                for i in self.graph[u]:
+                    in_degree[i] -= 1
+                    if in_degree[i] == 0:
+                        queue.append(i)
+                cnt += 1
+            if cnt != self.V:
+                return -1 b  # cyclic
+            else :
+                return top_order
+
+        # stack + recursion way
+        def topologicalSortUtil(self, v, visited, stack):
+            visited.append(v)
+            for i in self.graph[v]:
+                if i not in visited:
+                    self.topologicalSortUtil(i, visited, stack)
+            stack.insert(0, v)
+        def topologicalSort(self):
+            visited = []
+            stack = []
+            for k in list(self.graph):
+                if k not in visited:
+                    self.topologicalSortUtil(k, visited, stack)
+            return stack
+
+    # Dijkstra  t: O(n + E)logn   s: O(n+E)
+
+    Dijkstra: add source to a heap, each time pop one node i from heap(smallest cost) and move into seen list, update
+        i's neighbor j which is not in seen list, update j cost as cost(i) + cost(i to j). until heap empty
+
+    def networkDelayTime(times: List[List[int]], n: int, k: int) -> int:
+        # Dijkstra
+        adj = [{} for _ in range(n)]
+        for i, j, t in times:
+            adj[i - 1][j - 1] = t
+        distance = [float("Inf")] * n
+        distance[k - 1] = 0
+        seen = set()
+        q = [(0, k - 1)]
+        while q:
+            d, n = heapq.heappop(q)
+            if n not in seen:
+                seen.add(n)
+            for i in adj[n]:
+                if i not in seen and d + adj[n][i] < distance[i]:
+                    distance[i] = d + adj[n][i]
+                    heapq.heappush(q, (distance[i], i))
+
+
+        # Bellman Ford     t: O(nE)   s: O(n)
+        initialize distance list, 0 for src, rest infinite. run n-1 time, n is number of nodes, for each edge, update
+            end node dist value if less than source distance + edge weight
+        run one more time if still find a smaller update of dist list, there is negative cycle
+
+        distance = [float("Inf")] * n
+        distance[src] = 0
+        for k in range(n):
+            for i, j, t in times:   # i start node, j end node,  t cost
+                if distance[j] > distance[i] + t:
+                    distance[j ] = distance[i] + t
+        """
+        return -1 if max(distance) == float("Inf") else max(distance)
+
+Union find (Disjoint set)
+    first mark all point's parent as themselves, when check_parent of a node i, while i != parent[i]: i=parent[i] return
+    i  at end as parent.   when connect an edge ij, mark parent[i] = check_parent of q,
+
 
 string
     'Hello, %s' %(name,)    'Hello {}'.format(name,)
@@ -300,6 +496,40 @@ string
     s.strip()      # ljust(30) add space padding on left till 30 char total,  rjust  center  lstrip  rstrip
     ''.join(iterable)
     char(20)   ord('A')
+    string match
+
+    search match string index : KMP  O(m+n)
+        prepare longest proper prefix which is also suffix array for each index position of the pattern, value is the
+        length of longest suffix end at that position that match the prefix (if miss match happen move to index with
+        this value will avoid checking the same prefix value, since same as suffix)
+        a,b,a,b,d  list(0,0,1,2,0)  if mismatch at d, go to the index of its corresponding value for the position
+        left beside of d which is b, has value 2, so go to list[2], check match second a or not, if not match continue
+        repeat till match or front of pattern, if at front of pattern, move to next index of string. if matching move
+        both pointer for string and pattern to the right one step
+
+        or create lps array with addition -1 at beginning indicate start
+
+    def strStr(haystack, needle):    # needle is pattern
+        n, h = len(needle), len(haystack)
+        i, j, lps = 1, 0, [-1]+[0]*n                # i: pointer for pattern, j: pointer for string, lps array
+        while i < n:                                # calculate next array
+            if j == -1 or needle[i] == needle[j]:
+                i += 1
+                j += 1
+                lps[i] = j
+            else:
+                j = lps[j]
+        i = j = 0
+        while i < h and j < n:
+            if j == -1 or haystack[i] == needle[j]:
+                i += 1
+                j += 1
+            else:
+                j = lps[j]
+        return i-j if j == n else -1
+
+    print(strStr('ababcababababd','ababd'))   # 9 index of match start
+
 
 pop clear del
 list
@@ -352,6 +582,9 @@ dict
     d.clear()
     del d
     d=sorted(d.items(),key=lambda x:x[1],reverse=False)
+
+    collections.OrderedDict()
+    same functions as dict but sort items by key
 
 set
     s=set()

@@ -67,6 +67,7 @@ class Review:
     functions:
     len   # len(var)  string length
     find    index    rfind   rindex     # var.find('_') return index of first _, return -1 if not found
+                                        # var.find('_',0,5) return index of first _ between 1st and 5th char
                                         # var.index('_')  same as find, but will raise exception if not found
                                         # var.index('_', beg=0, end=len(string))
     startswith    endswith   isalpha  isdigit  isalnum   isspace   # var.startswith('www.') return bool  
@@ -86,8 +87,14 @@ class Review:
                                         # var.rjust(30)  return 30 length string with original at right, rest spaces                                               
     join                                # ' '.join(iterable)   return string of contacting elements with space between
     
+    a ='i'    print(a =='i')  # True
+    print(a +'j')   # ij , won't change a value, since python string is immutable
+    a += 'abc'  # naive string concatenate O(n^2), since create 3, 6, 9, ...  length string
+        li =[]   for i in range(count): li.append('abc')   res = ''.join(li)
+        or ''.join(['abc' for i in range(count)])     # O(n)
+        
     chr(65)    # return string of unicode       ord('A')   # return unicode of character
-     
+    
          
     --Operators
     arithmetic operator: +  -  *  /  **  //  %  
@@ -131,7 +138,8 @@ class Review:
     else:
         pass   # run one time after for loop end
     for loop only for certain iterations, while loop can handle uncertain iterations
-    
+        # range(0) won't cause exception
+        
     seasons = ['Spring', 'Summer', 'Fall', 'Winter']
     list(enumerate(seasons))    #[(0, 'Spring'), (1, 'Summer'), (2, 'Fall'), (3, 'Winter')]     
     for i, element in enumerate(seasons):
@@ -147,8 +155,10 @@ class Review:
     [(x,y) for x in range(2) for y in range(3)]  return all combination of (x,y)
     list2 = list1.copy()  or  list2 = list1[:] # deep copy, change in new list won't affect original, 
         # if list2 = list1, when list1 changed, it will change list2 as well since they have same memory location
+    initialize list: [0] * 5   [ 0 for i in range(5)]     [[0] * 5 for row in range(3)]  [[0] * 5 for row in range(3)]
+    
     Read
-    print(list1[0], list1[:1], list1[::-2])  # [True, 1]     
+    print(list1[0], list1[:1], list1[::-2])  # [True, 1]       [:1] [0,1)
     len(list1) #3    
     list1.index(1)  # 0  exception if not found    list1.index(1,0,2)  find 1 in index between [ 0,2)
     list1.count(1)  # 1  number of appearance of value
@@ -277,6 +287,9 @@ class Review:
     name,date = function_name3(1, 2,**{'name':'JK','date':'1991-10'})  # name is 'JK', date is '1991-10' for 2nd return
         # **{'name':'JK','date':'1991-10'}   # name='JK', date='1991-10'  for parameters
     if immutable variable var, inside function, add: global var    var = 7  to change the global outside variable values
+    
+    def funcName(digits: str) -> List[str]:  # declare input type and return type
+    
     a = 6; b = []  
     def sum():
         global a
@@ -983,6 +996,12 @@ class Review:
     #sock.send(bytes('1','utf-8'))  
     print(sock.recv(1024))
     sock.close()  
+    
+    
+    Others
+    sys.maxsize   # max integer
+    abs(-10)   # 10
+    pow(3, 2)   3 ** 2  # 3^2
     
     # setup mirrors in china
     cd .pip   ls  cat pip.conf        c:/Users/cai/pip/pip.ini  

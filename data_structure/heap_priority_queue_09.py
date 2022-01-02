@@ -14,7 +14,7 @@ class MinHeap:
         length = len(self.data)
         small = pos
         if left < length and self.data[small] > self.data[left]:
-            small = left
+            small = left  ,
         if right < length and self.data[small] > self.data[right]:
             small = right
         if small != pos:
@@ -57,6 +57,7 @@ def built_in_methods():
 
     # in-built method 2 min heap
     heapq.heapify(li)
+
     heapq.heappush(li, 6)
     while len(li) > 0:
         print(heapq.heappop(li))

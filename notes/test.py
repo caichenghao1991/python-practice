@@ -1,3 +1,4 @@
+import heapq
 from multiprocessing import Process
 
 import os
@@ -12,5 +13,39 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import mean_absolute_error
 from sklearn.tree import DecisionTreeClassifier
 
-a=10
-print(int("100111",2))
+
+class Node():
+    def __init__(self, value=None):
+        self.value = value
+        self.next = None
+
+
+class LinkedList():
+    def __init__(self, value):
+        self.head = Node(value)  # head is the first element of the linked list
+        self.length = 1
+        self.tail = self.head  # tail is the end of linked list
+
+def pr(node):
+    while node:
+        print(node.value)
+        node=node.next
+
+
+def reverse(head):
+    pre = Node()
+    while head:
+        nex = head.next
+        head.next = pre
+        pre = head
+        head = nex
+    return pre
+l = LinkedList(1)
+l.head.next = Node(2)
+l.head.next.next = Node(3)
+#pr(l.head)
+
+pr(reverse(l.head))
+
+
+

@@ -3,7 +3,7 @@ class Node:
         self.char = char
         self.children = []
         self.is_finished = False
-        self.counter = 1
+        self.counter = 1  #optional
 
 
 class Trie:
