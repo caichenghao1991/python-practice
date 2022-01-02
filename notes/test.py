@@ -1,4 +1,8 @@
+import collections
+import hashlib
 import heapq
+import sys
+import urllib
 from multiprocessing import Process
 
 import os
@@ -7,6 +11,8 @@ import json
 import pandas as pd
 import numpy as np
 import random
+
+import requests
 from numpy import mean
 import matplotlib.pyplot as plt
 
@@ -43,9 +49,5 @@ def reverse(head):
 l = LinkedList(1)
 l.head.next = Node(2)
 l.head.next.next = Node(3)
-#pr(l.head)
 
-pr(reverse(l.head))
-
-
-
+print(-float("Inf"))
