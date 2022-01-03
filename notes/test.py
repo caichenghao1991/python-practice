@@ -12,6 +12,7 @@ import pandas as pd
 import numpy as np
 import random
 
+import pymysql
 import requests
 from numpy import mean
 import matplotlib.pyplot as plt
@@ -50,4 +51,3 @@ l = LinkedList(1)
 l.head.next = Node(2)
 l.head.next.next = Node(3)
 
-print(-float("Inf"))

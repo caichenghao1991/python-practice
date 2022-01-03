@@ -214,7 +214,8 @@
     conn = pymysql.connect(host='localhost', port=3306, user='cai', password='123456',
                            database='company', charset='utf8')
     with conn.cursor() as cursor:
-        cursor.execute('SELECT * from table where id = %(some_id)d', {'some_id': 1234})
+        cursor.execute('SELECT * from table where id = %(some_id)d', {'some_id': 1234})   # return item count
+        res = cursor.fetchall()    # return actual data
         result = cursor.execute("INSERT INTO t_emp VALUES(%s,%s,%s,%s,%s, %s,%s,%s)",
                     (int(e['id']), e['name'], int(e['gender']), int(e['mgr']), float(e['salary']),
                      e['address'],e['birth'],int(e['dept'])))
@@ -386,7 +387,7 @@
     capped collection:  fix size (max 1e9 bytes), high performance collection, data order same as insertion order, when
         update, don't exceed collection size to keep in same location. can't delete one document, need drop() all
         documents in the collection
-        db.createCollection("cap_coll", {capped:true, size:100000,max:1000})  # suze 1e5 bytes, max 1000 documents
+        db.createCollection("cap_coll", {capped:true, size:100000,max:1000})  # size 1e5 bytes, max 1000 documents
         db.cap_coll.isCapped()  # return whether capped collection
         db.runCommand({"convertToCapped":"Hogwarts",size:10000})   # convert collection to capped
 
@@ -467,7 +468,7 @@
     db.hogwarts_table.find({"name": {$type:'string'}})  # find by dtype
     db.hogwarts_table.distinct('name')   # find distinct name
     db.hogwarts_table.find().sort({'name':-1})  # sort by name desc
-
+    db.hogwarts_table.findOne({"name":'Harry', 'age':10})   # return one data
 
     # index
     mongodb create index in RAM, if overflow, it will remove some indexes. can't search by $in, $nin, $mod, $where
@@ -490,7 +491,7 @@
     db.hogwarts_table.find({name:'Harry',"age":{$lt:50}}).explain()  # to check whether use index
 
     # text search
-    db.posts.ensureIndex({intro:"text"})   # intro text field
+    db.posts.createIndex({intro:"text"})   # intro text field
     db.hogwarts_table.find({$text:{$search:"my name"}})  # search my name in the intro field
         db.hogwarts_table.find({$text:{$regex:"my name",$options:"$i"}})   #search via regular expression, ignore case
             or db.hogwarts_table.find({post_text:/my name/})
@@ -598,7 +599,7 @@
           ObjectId("52ffc4a5d85242602e000001")
        ]
     }
-    db.hogwarts.findOne({"name":"Tom"},{"address":1})   # include address :1
+    var result = db.hogwarts.findOne({"name":"Tom"},{"address":1})   # include address :1
     db.address.find({"_id":{"$in":result["course_ids"]}})
 
 
