@@ -219,7 +219,7 @@
                             Magic Spell     32
                             Name: Harry, dtype: int32
                 # or df.Harry   # not recommended, can't have space in column name
-            df[['Harry','Hermione']]   # select multiple columns and put into dataframe
+            df[['Harry','Hermione']]   # select multiple columns and put into dataframe, single [] cause error
             df.iloc[:, 0:2]   # select columns  iloc  [0,2)
 
             # access row/rows via row index
@@ -256,7 +256,7 @@
             # hierarchical index
             df = pd.DataFrame(data=np.random.randint(0, 100, size=(2, 2)), index=[['Grade1', 'Grade2'], ['Magic Defense'
                 ,'Magic Spell']],columns=[['Male','Male']['Harry','Ronald']])
-            # 3 ways: pd.MultiIndex.from_arrays, from_tuples, product
+            # 3 ways: pd.MultiIndex.from_arrays, from_tuples, from_product
             df = pd.DataFrame(data=np.random.randint(0, 100, size=(3, 3)), index=pd.MultiIndex.from_arrays([['Grade1',
                 'Grade1','Grade3'], ['Magic Defense','Magic Spell','Magic Creature']]),columns=pd.MultiIndex.from_tuples
                 ([('Male','Harry'),('Male','Ronald'),('Female','Hermione')]))
@@ -630,7 +630,7 @@
             fig.suptitle("Title for whole figure", fontsize=16)
             axes1 = plt.subplot(1, 2, 1, facecolor='gray')   # return .axes.SubplotBase class
             x = np.linspace(-20,20,1000)
-            axes1.plot(x, np.sin(x))
+            axes1.plot(x, np.sin(x))     # can use plt.plot() as well
             axes1.grid()
             axes1.set_title('title for axes 1', fontsize=16)
 

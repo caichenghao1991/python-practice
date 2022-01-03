@@ -178,6 +178,7 @@
         pip install lxml
         soup_lxml = BeautifulSoup(hmtl_doc, "lxml")
         print(soup_lxml.a)   # return first <a>
+        hmtl_doc = requests.get(url).text
         selector = etree.HTML(hmtl_doc)
         print(selector.xpath('//p[@class="link"]/a/@href'))  # return list under <p class='link'><a> href attribute
         links = selector.xpath('//p[@class="link"]/a[1]/text()')  # return list, index start with 1
