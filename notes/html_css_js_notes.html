@@ -541,6 +541,7 @@
                 const lis = document.querySelectorAll('#ads>li')  // return elements query by css selector
                 word = document.querySelector('#input').innerText  // get text inside #input
                 ads.removeChild(lis[0]) // remove parent's child element
+                ads.remove()     // remove element
                 let li = document.createElement('li')  // create new element
                 ads.appendChild(li) // add element to parent last position
                 ads.insertBefore(li, ads.children[0]) // add element to specific position of parent
