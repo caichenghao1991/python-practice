@@ -109,6 +109,8 @@
     if condition
     then
         xxx
+    else
+        xxx
     fi
 
     for i in `seq 1 15`   # same as range(16)
