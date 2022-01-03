@@ -74,7 +74,7 @@
                 RUN yum -y install wget     RUN tar -xvf redis.tar.gz
             HEATHCHECK [option] CMD <command>            # set command or program to monitor docker container status
                 HEATHCHECK NONE                          # block base healthcheck inside base image
-            ENTRYPOINT ["<executeable>","<param1>","<param2>",...]: similart to CMD, but provide fix param won't be
+            ENTRYPOINT ["<executeable>","<param1>","<param2>",...]: similar to CMD, but provide fix param won't be
                 changed by docker run param. docker run can add --entrypoint to change command to run during runtime
                 only last ENTRYPOINT will be executed
                 ENTRYPOINT ["nginx"]    ENTRYPOINT [ "curl", "-s", "http://ip.cn" ]
