@@ -393,6 +393,30 @@ binary tree
     post order traversal is the delete tree node order, also easier for math operation with values and operand as node
         push values in stack, when met operand, pop two values and push the result back in stack
 
+    recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
+        child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
+
+        def maxDepth(self, root):   # top down
+            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
+            def f(node, depth):
+                if not node.left and not node.right:
+                    self.maximum = max(self.maximum, depth + 1)
+                if node.left: f(node.left, depth+1)
+                if node.right: f(node.right, depth+1)
+            if not root: return 0
+            f(root, 0)
+            return self.maximum
+
+        bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
+            similar to post order traversal
+        def bottom_down(node):
+            if not root:
+                return 0
+            left_val = top_down(node.left)
+            right_val = top_down(node.right)
+            return func(left_val, right_val)
+
+
     class TreeNode(object):
     def __init__(self, val=0, left=None, right=None):
         self.val = val
