@@ -111,6 +111,23 @@ class BinarySearchTree:
             self.insert(i)
 
 
+# pre order traversal
+    def preorderTraversal(self, root):
+        res = []
+        self.helper(root, res)
+        return res
+
+    def helper(self, root, res):
+        if not root:
+            return
+        res.append(root.val)
+        self.helper(root.left, res)
+        self.helper(root.right, res)
+
+
+
+
+
 if __name__ == '__main__':
     arr = [9, 4, 6, 20, 170, 15, 1]
     tree = BinarySearchTree()

@@ -23,7 +23,7 @@ sliding window
         fast slow pointers: fast move two step, slow move one step. meet at point means circle,after first meet, move
             fast pointer to start and both move one step a time, second time meet at start of circle (Floyd Algorithm)
         double pointer can consider both pointer in outer for loop and pick the easier one
-
+        two pointer with one has delay of several steps
 
 binary search
     avoid not including correct answer, and avoid infinite loop, compare with mid index value and eliminate half of data
@@ -288,6 +288,7 @@ array
 
 
 linked list
+    compare to array, access slower O(n), but insert delete O(1)
     class Node():
         def __init__(self, value=None):
             self.value = value
@@ -300,6 +301,9 @@ linked list
     take care of order of updating node and its neighbors
     sometime create dummy node, pointing to the head of linked list and use dummy.next to retrieve linked list
     each step only consider the current node relation (current node's next pointer)
+
+    dummy = head  curr = dummy       or dummy.next = head   curr = dummy.next while curr    or dummy (while curr.next)
+    curr = head   while curr  return head (change original linked list)
 
     def reverse(head, pre=Node()):    # reverse linked list recursive, need pass default pre node
         if not head:
@@ -316,7 +320,18 @@ linked list
             head = nex
         return pre
 
+    rotate linked list can link last item next pointer to first item
+
+    fast slower (different speed) pointer, two pointer with one has a delay.  run through both linked list once and get
+        length and use that info for problem equivalent transfer
+    if only 1 step between pre, and current cursor, no need 2 cursors, can use while cur.next: cur.next=cur.next.next
+    pay attention for each step whether assign new current node, or assign current node's next pointer
+
+    for double linked list first link addition node with pre and post node, then assign pre_node.next, post_node.pre
+        double linked list might (not must) has a tail node available beside head
+
 Queue & Stack
+    stack implement via list
     from collections import deque
     q = deque()   # queue    or implement via linked list
     q.append(1)
@@ -330,7 +345,7 @@ Queue & Stack
     monotone increasing/decreasing stack (via list)
         for last item largest decreasing stack from top to bottom: for each new item, if larger than stack top item,
         continue pop top item, till top smaller than new item or empty stack (do calculation for popped item if
-        required), push new item in stack
+        required), push new item in stack. so the item in stack always sorted
 
     priority queue (implemented via heap(complete binary tree, parent node larger than child node if max heap))
         usually use array for complete binary tree   child index i//2 => parent index   parent index => 2i+1, 2i+2
@@ -374,6 +389,9 @@ binary tree
     most problem are solving recursively with helper function (base empty case, and return parent node state with
     recursive call of child node state as known), only need consider one parent and corresponding one child layer
     usually
+
+    post order traversal is the delete tree node order, also easier for math operation with values and operand as node
+        push values in stack, when met operand, pop two values and push the result back in stack
 
     class TreeNode(object):
     def __init__(self, val=0, left=None, right=None):

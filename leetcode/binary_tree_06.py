@@ -299,6 +299,77 @@ def iterativePreorder(root):
         if node.left is not None:
             nodeStack.append(node.left)
 
+
+
+    # iterative
+    def preorderTraversal(self,root):
+        stack, res = [root],[]
+        while len(stack):
+            n = stack.pop()
+            if n:
+                res.append(n.val)
+                stack.append(n.right)
+                stack.append(n.left)
+        return res
+
+    # recursive
+    def preorderTraversal(self, root):
+        res = []
+        self.helper(root, res)
+        return res
+
+    def helper(self, root, res):
+        if not root:
+            return
+        res.append(root.val)
+        self.helper(root.left, res)
+        self.helper(root.right, res)
+
+
+    def inorderTraversal(self, root):
+        stack, res = [], []
+        curr = root
+        while stack or curr:
+
+            if curr:
+                stack.append(curr)
+                curr = curr.left
+
+            else:
+                node = stack.pop()
+                res.append(node.val)
+                curr = node.right
+        return res
+
+    def postorderTraversal(self, root):
+        traversal, stack = [], [root]
+        while stack:
+            node = stack.pop()
+            if node:
+                # pre-order, right first
+                traversal.append(node.val)
+                stack.append(node.left)
+                stack.append(node.right)
+
+        # reverse result
+        return traversal[::-1]
+
+    def levelOrder(self, root):
+        if not root:
+            return []
+        res, level = [], [root]
+        while level:
+            res.append([i.val for i in level])
+            temp = []
+            for i in level:
+                if i.left:
+                    temp.append(i.left)
+                if i.right:
+                    temp.append(i.right)
+            level = temp
+        return res
+
+    
 if __name__ == "__main__":
     solution = Solution()
     r = Solution.build_tree_with_array([3, 9, 20, None, None, 15, 7])

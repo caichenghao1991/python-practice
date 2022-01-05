@@ -179,7 +179,7 @@
 
         b = tg.expand_dims(tf.random.normal([28,1]), axis=0)
         b = tg.expand_dims(b, axis=0)  # shape (1,1,28,1)
-        b2 = tf.tile(tf.ones((2,3,4),[3,5,1])   # create tensor with shape (6,15,4), repeat x times in each dimension.
+        b2 = tf.tile(tf.ones((2,3,4)),[3,5,1])   # create tensor with shape (6,15,4), repeat x times in each dimension.
                                 # same functionality as broadcast, but use more memory
 
 

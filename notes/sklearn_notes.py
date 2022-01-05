@@ -47,7 +47,7 @@
             svc = LinearSVC()   # can handle string target column, not data string column
             # rbf
             # gamma  coefficient for nonlinear kernel. greater gamma, more complicate model and more overfitting
-            # C  # penalty coeficient default 1.0, positive float, smaller stronger regularization
+            # C  # penalty coefficient default 1.0, positive float, smaller stronger regularization
             # kernel = 'rbf' (radical based kernel function,decision boundary circular arc) default, 'linear',
                 'poly'(decision boundary polynomial) 'sigmoid'
             svc.get_params()  # get input param

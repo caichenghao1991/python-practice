@@ -138,6 +138,7 @@
         seqOp, combOp = (lambda x, y: x + y), (lambda x, y: x + y)
         agg = rdd.aggregate(0, seqOp, combOp) # Aggregate in each partition(seqOp), then combine all partitions(combOp)
                                               # with initial value 0
+            seqOp = (lambda x, y: (x[0] + y, x[1] + 1)) or udf
         agg = rdd.treeAggregate(0, seqOp, combOp, depth=2)  # Aggregates in a multi-level tree pattern.
 
         from operator import add
@@ -232,7 +233,7 @@
     p1=Person("James", 40)
     print(p1.name +","+p2.name)
 
-    # use row to create df
+    # use row to create rdd
     rdd = spark.sparkContext.parallelize([Row(name="James",lang=["Java","Scala"]), prop=Row(hair="grey",eye="black"))])
 
     # print row element value
