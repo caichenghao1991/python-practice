@@ -398,13 +398,13 @@ binary tree
 
         def maxDepth(self, root):   # top down
             self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
-            def f(node, depth):
+            def f(node, depth):    # no need self
                 if not node.left and not node.right:
                     self.maximum = max(self.maximum, depth + 1)
                 if node.left: f(node.left, depth+1)
                 if node.right: f(node.right, depth+1)
             if not root: return 0
-            f(root, 0)
+            f(root, 0)    # need define inner function ahead
             return self.maximum
 
         bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
