@@ -25,6 +25,57 @@ sliding window
         double pointer can consider both pointer in outer for loop and pick the easier one
         two pointer with one has delay of several steps
 
+
+recursion:
+    define base case, either top down (process current item first then child node, function need pass result for current
+    node). or bottom up approach (get result from child then use that to get result for current item)
+    use memorization to avoid duplication calculation
+
+     recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
+        child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
+
+        def maxDepth(self, root):   # top down
+            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
+            def f(node, depth):    # no need self
+                if not node.left and not node.right:
+                    self.maximum = max(self.maximum, depth + 1)
+                if node.left: f(node.left, depth+1)
+                if node.right: f(node.right, depth+1)
+            if not root: return 0
+            f(root, 0)    # need define inner function ahead
+            return self.maximum
+
+        bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
+            similar to post order traversal
+        def bottom_down(node):
+            if not root:
+                return 0
+            left_val = top_down(node.left)
+            right_val = top_down(node.right)
+            return func(left_val, right_val)
+
+    memorization
+        def climbStairs(self, n):
+            mem = {}
+            def helper(n):
+                if n<=2: return n
+                if mem.get(n,-1)!=-1:
+                    return mem[n]
+                res = helper(n-1)+helper(n-2)
+                mem[n]=res
+                return res
+            return helper(n)
+
+    time complexity: draw execution tree,  number of nodes * process time per node
+        T(n) = aT(n/b) + f(n), let k = log_b (a)
+        1. f(n) = O(n^p)    p < k      T(n) = O(n^k)
+        2. f(n) = O(n^p)    p > k      T(n) = O(f(n))
+        3. if exist c >= 0 such that f(n) = O(n^k log_c (n))   T(n) = O(n^k log_(c+1) (n))
+
+    space complexity: need space for returning address (stack to track function call), parameters for function call, and
+        local variables inside function. the space is freed after function call is done, function (memory) chain up
+        successively until reach base case.
+
 binary search
     avoid not including correct answer, and avoid infinite loop, compare with mid index value and eliminate half of data
     if monotone increasing, harder question need run binary search twice (multiple time) with different conditions
@@ -393,28 +444,6 @@ binary tree
     post order traversal is the delete tree node order, also easier for math operation with values and operand as node
         push values in stack, when met operand, pop two values and push the result back in stack
 
-    recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
-        child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
-
-        def maxDepth(self, root):   # top down
-            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
-            def f(node, depth):    # no need self
-                if not node.left and not node.right:
-                    self.maximum = max(self.maximum, depth + 1)
-                if node.left: f(node.left, depth+1)
-                if node.right: f(node.right, depth+1)
-            if not root: return 0
-            f(root, 0)    # need define inner function ahead
-            return self.maximum
-
-        bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
-            similar to post order traversal
-        def bottom_down(node):
-            if not root:
-                return 0
-            left_val = top_down(node.left)
-            right_val = top_down(node.right)
-            return func(left_val, right_val)
 
 
     class TreeNode(object):
