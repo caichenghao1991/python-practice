@@ -130,7 +130,7 @@ sorting
 
 
 Searching
-    used in graph and tree search
+    used in graph and tree search, for graph need check for cycle in dfs and bfs valid check via create visited list/set
     DFS: first explore the current node, can implemented by stack (less chance for stack overflow) or recursive
         usually main function used for search every possible start location, sub function is recursive to dfs search
         can add state for memorization to mark some node and avoid repetition
@@ -155,12 +155,15 @@ Searching
                             stack.append(child)   # add child in stack
         return stat
 
-        # recursive method
+        # recursive method, use call stack
         valid check can add to match condition then dfs, or dfs anyway then check valid or not
-        for node in space:
-            if state(node):
-                res = operation(dfs(node))
-        return res
+        def dfs(curr, target, visited)
+            if curr is target: return True
+            for node in curr.neighbor:
+                if not visited[node]:
+                    return dfs(node)
+            return False
+
         dfs(node, state[], graph):
             if state(node):    # end return condition   or if state(node) or not_valid(node):  # post check valid
                 return 0
@@ -208,13 +211,25 @@ Searching
         queue.append(init_node)
         res = init_val
         while len(queue) > 0:   # tree search space is root, and graph space is each nodes
-            curr = stack.pop()  # current node
-            update(res)
+            curr = queue.popleft()  # current node
+            update(res)     # res update once per node
             for child in curr.children:   # child nodes for tree and neighbor for graph
-                if valid(child):  # check match valid condition
+                if valid(child) and not visited[child]:  # check match valid condition, must check if graph has loop
+                                                         # via maintain a visited list or set
                     stack.append(child)   # add child in stack
+                    visited[child] = True
                     if child_match(end_condition):
                         return res
+        while len(queue) > 0:   # tree search space is root, and graph space is each nodes
+            size = len(queue)
+            for i in range(size):
+                curr = stack.popleft()  # current node
+                if match(end_condition): return step
+                for child in curr.children:
+                    if valid(child):  # check match valid condition
+                        stack.append(child)   # add child in stack
+            step += 1    # res update once per level
+        return -1
 
 
 Dynamic Programming
@@ -426,6 +441,10 @@ HashSet, HashMap:
     set and dict
     remove item once done, can save time complexity by eliminate duplicate search on that item
     for geometry coordinates problem can consider slope as dict key
+    if constant number of items in each bucket, use array. if variable size or large, use height-balanced binary search
+    tree
+    design key: sort string,offset with first value, tree node(or serialization of tree node(string with child info),
+    row/ column ndex
 
 range sum query 1d and 2d
     1d store previous sum for each index in p[] and use p[j+1]-p[i] to get the sum of arr[i,j]
