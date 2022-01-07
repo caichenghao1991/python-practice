@@ -27,9 +27,10 @@ sliding window
 
 
 recursion:
-    define base case, either top down (process current item first then child node, function need pass result for current
-    node). or bottom up approach (get result from child then use that to get result for current item)
-    use memorization to avoid duplication calculation
+    define base case (corresponding to lowest index(index able to represent each stage)), and recurrence relationship.
+    either top down (process current item first then child node, function need pass result for current node). or bottom
+    up approach (get result from child then use that to get result for that current item) use memorization to avoid
+    duplication calculation
 
      recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
         child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
@@ -54,7 +55,7 @@ recursion:
             right_val = top_down(node.right)
             return func(left_val, right_val)
 
-    memorization
+    memorization: save calculated result in dictionary and avoid duplicated calculation to save time
         def climbStairs(self, n):
             mem = {}
             def helper(n):
@@ -67,6 +68,7 @@ recursion:
             return helper(n)
 
     time complexity: draw execution tree,  number of nodes * process time per node
+        Master Theorem limitation: only applies to sub problems with equal size.
         T(n) = aT(n/b) + f(n), let k = log_b (a)
         1. f(n) = O(n^p)    p < k      T(n) = O(n^k)
         2. f(n) = O(n^p)    p > k      T(n) = O(f(n))
@@ -75,6 +77,35 @@ recursion:
     space complexity: need space for returning address (stack to track function call), parameters for function call, and
         local variables inside function. the space is freed after function call is done, function (memory) chain up
         successively until reach base case.
+
+    tail recursion: wrap extra component inside function parameter, no memory cost for system stack, release after call.
+        save space, avoid stack overflow
+        def sum_tail_recursion(ls):
+            def helper(ls, acc):
+                if len(ls) == 0:
+                    return acc
+                return helper(ls[1:], ls[0] + acc)   # instead of non tail recursion # return ls[0] + helper2(ls[1:])
+        return helper(ls, 0)
+
+        python don't support lambda, use lambda
+            def Y(F):
+                Y_comb = lambda F: (lambda x: F(lambda *args: lambda: x(x)(*args)))
+                                   (lambda x: (F(lambda *args: lambda: x(x)(*args))))
+                def wrapper(*args):
+                    res = Y_comb(F)(*args)
+                    while callable(res):
+                        res = res()
+                    return res
+                return wrapper
+            F = lambda f: lambda n,acc: acc if not n else f(n-1,acc+n)
+            recSumY = Y(F)
+            recSumY(1000,0)   # recursion max depth 1000
+
+            to overcome max depth 1000, use another decorator which use while loop to raise error and get new loop
+                parameter via error message, so always depth 1
+
+    use stack/queue to convert recursion to iteration
+
 
 binary search
     avoid not including correct answer, and avoid infinite loop, compare with mid index value and eliminate half of data
@@ -165,23 +196,25 @@ Searching
             return False
 
         dfs(node, state[], graph):
-            if state(node):    # end return condition   or if state(node) or not_valid(node):  # post check valid
+            if state(node):    # end return condition   or   if state(node) or not_valid(node):  # post check valid
                 return 0
             state(node) = xxx    # update state of visited node
             stat = 1     # not necessary has statistical data
             for child in node.children:
                 if valid(child):   # valid check ahead
-                    stat += dfs(child)
+                    stat += dfs(child,state_new,graph)
             return stat   # not always need return
                 # return stat + sum([dfs(i) for i in node.children])   for post check valid
+
+
 
 
     Backtracking
         use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
         previous passed route)
-        when unsatisfying during dfs, back track to previous node and change to previous state, only need update the
-        combined overall state, instead of creating sub state for each condition, use reference to pass the state,
-        change back the state(flag or output) after recursion
+        when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
+        satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
+        each condition, use reference to pass the state, change back the state(flag or output) after recursion
 
         def main(state):
             ans = []
@@ -190,16 +223,32 @@ Searching
                 backtrack(state, visited, node_index, init_val, ans)
             return ans
         def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
-            if match(xx):
+            if match(xx):                # back track avoid create local variable ans
                 ans.update()
                 return
-            if not valid(xx):  # optional
-                return
-            for child in children:
-                update(state)
-                backtrack(state, xx_new, ans)
-                update_back(state)
 
+            for child in children:
+                if valid(state, xx):
+                    update(state)
+                    backtrack(state, xx_new, ans)    # difference with dfs:  dfs(new_state, xx_new, ans)
+                    update_back(state)
+
+
+        def combine(self, n, k):
+            result = []
+            def gen_comb(start, cur_comb):
+                if k == len(cur_comb):
+                    # base case, also known as stop condition
+                    result.append( cur_comb[::] )
+                    return
+                else:    # back track                                      # dfs
+                    for i in range(start, n+1):                             for i in range(start, n+1):
+                        cur_comb.append( i )                                    gen_comb(i+1, cur_comb+[i])
+                        gen_comb(i+1, cur_comb)
+                        cur_comb.pop()
+                    return
+            gen_comb( start=1, cur_comb=[] )
+            return result
 
     BFS: first traverse all the current node children then proceed to next grand children layer, use fifo queue. used
         for getting the shortest route. can BFS from both start and end to reduce search time (1+2+4+8+16 vs 2*(1+2+4))
