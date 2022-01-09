@@ -44,7 +44,7 @@
             consumers can connect to one topic. topic can be considered as a logical entity, messages are stored inside
             topic partitions. each kafka servers inside cluster have topics.
         partition
-            Kafka topic is divided into multiple partitions
+            Kafka topic is divided into multiple partitions.
             Partitions can be considered as a linear data structure, like array, named commits logs.
             each partition has a partition number, and each element inside partition has increasing index called offset
             Data are pushed at the end of partition and is immutable after publish
@@ -52,7 +52,7 @@
 
         single producer, 1 server 1 partition in 1 topic, publish all message to that partition. 1 consumer consume all.
         single producer, 1 server 2 partition in 1 topic, publish all message to 2 partitions randomly if not specified.
-            1 consumer will consume the partition in round robin manner
+            1 consumer will consume the partition in round-robin manner
         1 server 1 partition 2 consumers. same partition can't be assigned to multiple consumer in same group, only 1 '
             consumer will get the message (whoever come first). one message can be consumed multiple times for consumers
             in different group

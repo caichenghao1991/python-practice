@@ -49,7 +49,12 @@ def reverse(head):
         head = nex
     return pre
 
-d1 =('a')
-d2= ('a')
 
-print(d1==d2)
+def task1(n):
+    for i in range(n):
+        print(n)
+        yield None
+birthday = datetime.datetime(2019,6,20,10,30)
+print(datetime.datetime.ctime(birthday))
+
+

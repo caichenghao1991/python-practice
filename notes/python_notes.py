@@ -26,6 +26,7 @@ class Review:
     class name, project name: camel case, first character capitalized   class SchoolStudent:
     student_age, age = 3, 3   can declare multiple variable at same time
     a, b = b, a    swap a and b
+    id(object)  # check rendered memory location 
     
     --Data type
     immutable data types: int, float, decimal, bool (True False), string, tuple, and range.
@@ -509,7 +510,7 @@ class Review:
                 next(g1)
                 next(g2)
             except StopIteration:
-                break
+                break    # wont have error message 
                 
                    
     --Iterable and Iterator
@@ -651,9 +652,9 @@ class Review:
     time.sleep(n)   # sleep for n seconds
     import datetime
     birthday = datetime.date(2019,6,20)
-        # today = datetime.date.today()
+        # today = datetime.date.today() # 2021-09-07     
     print(birthday.day)  # 20         print(datetime.date.ctime(birthday))  # Thu Jun 20 00:00:00 2019
-    datetime.date.today()   # 2021-09-07     
+    b2 = datetime.datetime(2019,6,20,10,30)        print(datetime.datetime.ctime(birthday))  # Thu Jun 20 10:30:00 2019
     now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
     datetime.strptime('2022-10-31 16:55:00', '%Y-%m-%d %H:%M:%S'))
     print(now, now - delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159
