@@ -5,7 +5,7 @@ import sys
 import urllib
 import datetime
 from multiprocessing import Process
-
+import redis
 import os
 
 import json
@@ -57,4 +57,5 @@ def task1(n):
 birthday = datetime.datetime(2019,6,20,10,30)
 print(datetime.datetime.ctime(birthday))
 
+redis.Redis()
 

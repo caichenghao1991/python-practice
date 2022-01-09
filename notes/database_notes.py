@@ -43,6 +43,7 @@
     yum install -y mariadb mariadb-server  # install MariaDB
     systemctl start/stop/status mariadb  # start maria server on centos 8
         # windows  inside bin    mariadbd.exe --console
+    net start/stop mysql
     netstat -nap | grep 3306   # maria server default port 3306, open 3306 to specific ip, not to public
         process name mysqld: daemon (won't stop system shutdown, close app same time)
 
@@ -125,7 +126,7 @@
     select stu_name, sch_name from t_student t1, t_school t2 where t1.school_id=t2.sch_id
     select stu_name, avg_score from t_student t1, (select stu_id, avg(score) as avg_score from t_score
         group by stu_id) t2 where t1.stu_id=t2.stu_id
-    select stu_name, ifnull(avg_score,0) from t_student t1 left outer join (select stu_id, avg(score) as
+    select stu_name, ifnull(avg_score,0) from t_student t1 left join (select stu_id, avg(score) as
         avg_score from t_score group by stu_id) t2 on t1.stu_id=t2.stu_id limit 5
     a inner join b on a.xid=b.xid inner join c on b.yid=c.yid
     inner join: include data only match a.xid=b.xid constraint
@@ -170,6 +171,7 @@
     end$$
     delimiter ;
     select genPerson('student')
+    drop function if exists genPerson
 
     # trigger
     trigger is not used to. when do some operation, some other operation defined by trigger is done in
@@ -258,7 +260,7 @@
         --bind xxx.xxx.xx.xx > redis.log     get ip from ifconfig eth0     save console log to redis.log
     jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
 
-    redis-server redis-5.0.4/redis.conf &   # use config file
+    redis-server redis-5.0.4/redis.conf    # use config file
     redis-client  auth 123456      shutdown nosave
     redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
 
@@ -356,7 +358,8 @@
 
     connection problem: add ip to whitelist in server, check firewall
 
-    conn = redis.Redis(host='127.0.0.1', port=6379, password=123456)
+    import redis
+    conn = redis.Redis(host='127.0.0.1', port=6379, password=123456, db=1)
     conn.flushdb()
     conn.set('user1', 'Harry', ex=300)
 
@@ -424,7 +427,7 @@
 
     # insert document
         automatically generate _id for document
-    db.hogwarts_table.insert({name: 'Harry Potter'})
+    db.hogwarts_table.insert({name: 'Harry Potter',age:10})
     db.hogwarts_table.insertOne({name: 'Harry Potter'})
     db.hogwarts_table.insertMany([{name: 'Harry Potter'}, {name: 'Hermione Granger'}])
 
@@ -582,8 +585,9 @@
 
 
     # relationship
+    # manual reference
     either embed the whole many objects to one object or embed their references
-    {   # embed objects
+    {   # embed objects relationship
        "_id":ObjectId("52ffc33cd85242f436000001"),
        "name": "Tom",
        "course": [
@@ -591,7 +595,9 @@
           {"name": "Magic History"}
        ]
     }
-    {   # embed references
+    db.hogwarts_table.findOne({"name":"Tom"},{"course":1})   # get address
+
+    {   #  references relationship
        "_id":ObjectId("52ffc33cd85242f436000001"),
        "name": "Tom Benzamin",
        "course_ids": [
@@ -599,10 +605,10 @@
           ObjectId("52ffc4a5d85242602e000001")
        ]
     }
-    var result = db.hogwarts.findOne({"name":"Tom"},{"address":1})   # include address :1
-    db.address.find({"_id":{"$in":result["course_ids"]}})
+    var result = db.hogwarts_table.findOne({"name":"Tom"},{"course_ids":1})
+    db.course_table.find({"_id":{"$in":result["course_ids"]}})
 
-
+    # DBRef reference  (across multiple db, collections)
     # document reference
     inside one document can reference other document data
     { $ref: , $id: , $db:  }   # collection name, object id, database name
@@ -612,9 +618,9 @@
        "course": {
        "$ref": "course_table",
        "$id": ObjectId("534009e4d852427820000002"),
-       "$db": "test"},
+       "$db": "Hogwarts"},
     }
-    var dbRef = db.users.findOne({"name":"Tom"}).address
+    var dbRef = db.hogwarts_table.findOne({"name":"Tom"}).course
     db[dbRef.$ref].findOne({"_id":(dbRef.$id)})    # find course with collection name, id
         # {"_id":ObjectId(dbRef.$id)}
 
@@ -637,5 +643,5 @@
         db.fs.chunks.find({files_id:ObjectId('534a811bf8b4aa4d33fdf94d')})   # find all documents(chunks)
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")
-    res = client.hogwarts.student.create_index([('name', 1),('_id', -1)], unique=True)
+    res = client.hogwarts.hogwarts_table.create_index([('name', 1),('_id', -1)], unique=True)
 """
