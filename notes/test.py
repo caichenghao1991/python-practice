@@ -54,8 +54,10 @@ def task1(n):
     for i in range(n):
         print(n)
         yield None
-birthday = datetime.datetime(2019,6,20,10,30)
-print(datetime.datetime.ctime(birthday))
 
-redis.Redis()
+
+d1 = list()
+d1.append(1)
+
+print(d1)
 

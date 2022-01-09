@@ -34,7 +34,7 @@ sliding window
                 sum -= nums[index]
                 index += 1
         return 0 if res==float("inf") else res
-
+    3sum (O(n^2)), 4sum(O(n^3)) sort then use 2 different side pointers
 
 recursion:
     define base case (corresponding to lowest index(index able to represent each stage)), and recurrence relationship.
@@ -504,14 +504,19 @@ Queue & Stack
 HashSet, HashMap:
     set and dict
     if more value after hash function than bucket number, use remainder   (hash_val % bucket_count)
+    can use list to replace dict/set if the bucket size is fixed, list faster than hash(dict, set) since no need hash
+        function, but too many buckets cost lots memory. usually use list for 26 character
     remove item once done, can save time complexity by eliminate duplicate search on that item
     for geometry coordinates problem can consider slope as dict key
     if constant number of items in each bucket, use linked list . if variable size or large, use height-balanced binary
-    search tree. Or when bucket size> item size, can relocate items in same bucket to new bucket
+        search tree. Or when bucket size> item size, can relocate items in same bucket to new bucket
     design key: sort string,offset with first value, tree node(or serialization of tree node(string with child info),
-    row/ column index
+        row/ column index
+    can use hashset to check whether contain cycle
     collections.OrderedDict()    keep insertion order. use double linked list and dict, all operations O(1), query use
         dict
+    collections.defaultDict()   # has default value, even for key not exist, also all value must same type
+        d = defaultdict(int)
 
 range sum query 1d and 2d
     1d store previous sum for each index in p[] and use p[j+1]-p[i] to get the sum of arr[i,j]

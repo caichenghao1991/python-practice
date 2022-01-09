@@ -534,7 +534,10 @@
                 const email = document.getElementsByName('email')[0]  // first of list of items with name="email"
                 const first = document.getElementById('button').firstChild
                     // enter also count as child, so don't switch line in html.
-                    // .parentNode: get parent    .previousSibling / .nextSibling   get same level above/below element
+                    // .parentNode: get parent
+                    // .childNodes    get all children elements
+                    // .firstChild  .lastChild     get first/last child element
+                    //.previousSibling / .nextSibling   get same level above/below element
                     // .previousElementSibling / .nextElementSibling   only tag above/below element
                 const first = document.getElementById('ads').children[0] //first children tag, under item id="ads"
                 const img = document.querySelector('#ads>img')  // return one element query by css selector
@@ -544,7 +547,8 @@
                 ads.remove()     // remove element
                 let li = document.createElement('li')  // create new element
                 ads.appendChild(li) // add element to parent last position
-                ads.insertBefore(li, ads.children[0]) // add element to specific position of parent
+                ads.insertBefore(li, ads.childNodes[0]) // add element to specific position of parent
+                ads.insertAfter(li, ads.childNodes[0])
 
                 for(var i = 0; i<lis.length;i++){
                     lis[i].addEventListener('click',function(evt){    // callback function
@@ -715,6 +719,16 @@
              }).on('click',() => {
                 $('.clear').remove()   // remove content
                 $('#async').prev().empty()
+                $('#async').next().empty()
+                $("div").first()     // first div     .first().next()  # second element
+                $("div").last()     // last div
+                $("div").children()   // all direct children of item
+                $("div").children().eq(5)   // 6th child item
+                $("div").children("p.bold")   // direct children tag <p> class name bold
+                $("div").find("span")  // all children with span tag
+                $("div").parent()  // get direct parent object
+                $("div").parents()  // get all parent objects
+
              }).on('mouseout',() => {
                 // 3. $() parameter is a html tag, create this tag and return as jquery object
                 $('.clear').append($('<p>').text('new line')).append($('<p>').html("<span>see you later</span>"))
@@ -723,10 +737,12 @@
             $('form input').on('focus', (evt) => {
                 // 4. $() parameter is native js object, return corresponding jquery object
                 $(evt.target).parent().css({'color':'gray','font-weight':'bold'})  //.parent() get parent object
+
                 // .prev()  get previous sibling
                 // evt.stopPropagation()  stop default action of element
             }).on('blur', (evt) => {
                 $(evt.target).parent().css({'color':'black','font-weight':'normal'})
+
             })
 
             // ajax asynchronous get json data, limitation: only for get and json data

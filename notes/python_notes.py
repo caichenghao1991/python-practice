@@ -161,6 +161,7 @@ class Review:
     mutable array able to store different data type entries
     Create / Copy
     list1 = []  list1 = [1, '2', True]    list2 = list(str)  # create char list from string
+    list1 = list()
     list(range(3,5))  # [3,4]       [i * 2 for i in [1, 2, 3, 4] if i % 2 == 0 and i >= 0]  # [4, 8]      
     [i for i in 'hi']  # ['h', 'i' ]   
     [w.lower() if w.startswith('h') else w.upper() for w in list1]  list1 item start with h then lower otherwise upper 
@@ -218,6 +219,7 @@ class Review:
     same dictionary key, the value will be override    use hash O(1) operations
     Create
     my_dict = {'name': 'Andrei Neagoie', 'age': 30, 18: False}    dict1 = {}   dict2 = dict1.copy()
+    dict1 = dict()
     dict2 = dict([('name','Harry'),('age',[10,1])])
     dict2 = eval('{"name":"Harry", "age":10}')
     dict2 = json.loads('{"name":"Harry", "age":10}')  # must double quote
