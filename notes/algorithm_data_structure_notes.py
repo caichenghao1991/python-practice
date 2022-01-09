@@ -17,13 +17,23 @@ greedy algorithm
 
 
 sliding window
-        two pointer (start from beginning or end, can have different pace)
-        from beginning, end meet at middle, code easier than start from middle and one go to beginning and one go to end
-        giving target and sorted array, use one forward and one backward pointer
-        fast slow pointers: fast move two step, slow move one step. meet at point means circle,after first meet, move
-            fast pointer to start and both move one step a time, second time meet at start of circle (Floyd Algorithm)
-        double pointer can consider both pointer in outer for loop and pick the easier one
-        two pointer with one has delay of several steps
+    two pointer (start from beginning or end, can have different pace)
+    from beginning, end meet at middle, code easier than start from middle and one go to beginning and one go to end
+    giving target and sorted array, use one forward and one backward pointer
+    fast slow pointers: fast move two step, slow move one step. meet at point means circle,after first meet, move
+        fast pointer to start and both move one step a time, second time meet at start of circle (Floyd Algorithm)
+    double pointer can consider both pointer in outer for loop and pick the easier one
+    two pointer with one has delay of several steps
+
+    def minSubArrayLen(self, s: int, nums: List[int]) -> int:
+        res, sum, index = float("inf"), 0, 0
+        for i in range(len(nums)):
+            sum += nums[i]
+            while sum >= s:
+                res = min(res, i-index+1)
+                sum -= nums[index]
+                index += 1
+        return 0 if res==float("inf") else res
 
 
 recursion:
@@ -395,7 +405,7 @@ Bitwise Operation
     print(int("100111",2))   bin(10)
 
 array
-    python use list instead
+    python use list instead, continuous memory location, need shift items if insert/delete, index start 0
     array traverse from beginning or end, two array can start both beginning or end or one each.
     use hash to save time complexity
     sort array might help   .sort() is in place    sorted() is not
@@ -405,34 +415,39 @@ array
 linked list
     compare to array, access slower O(n), but insert delete O(1)
     class Node():
-        def __init__(self, value=None):
+        def __init__(self, value=None, next=None):
             self.value = value
-            self.next = None
+            self.next = next
     class LinkedList():
         def __init__(self, value):
-            self.head = Node(value)  # head is the first element of the linked list
-            self.length = 1
-            self.tail = self.head  # tail is the end of linked list
+            self.head = Node(0)  # head is the first element of the linked list
+            self.length = 0
+            self.tail = self.head  # tail is the end of linked list, optional
     take care of order of updating node and its neighbors
-    sometime create dummy node, pointing to the head of linked list and use dummy.next to retrieve linked list
-    each step only consider the current node relation (current node's next pointer)
+    create dummy node when need delete node (if not create dummy node, logic would be different when delete
+    head node and rest of the nodes) and when using 2 pointer(header don't have pre node)
+    dummy node pointing to the head of linked list and return dummy.next to retrieve linked list each step only consider
+    the current node relation (current node's next pointer)
 
     dummy = head  curr = dummy       or dummy.next = head   curr = dummy.next while curr    or dummy (while curr.next)
     curr = head   while curr  return head (change original linked list)
 
-    def reverse(head, pre=Node()):    # reverse linked list recursive, need pass default pre node
-        if not head:
-            return pre
-        nex = head.next
-        head.next = pre
-        return reverse(nex, head)
+    def reverseList(self, head: ListNode) -> ListNode:
+        def reverse(pre,cur):
+            if not cur:
+                return pre
+            tmp = cur.next
+            cur.next = pre
+            return reverse(cur,tmp)
+        return reverse(None,head)
+
     def reverse(head):                 # reverse linked list non recursive
-        pre = Node()
-        while head:
-            nex = head.next
-            head.next = pre
-            pre = head
-            head = nex
+        pre, curr = None, head          # can't use dummy node here
+        while curr:
+            nex = curr.next
+            curr.next = pre
+            pre = curr
+            curr = nex
         return pre
 
     rotate linked list can link last item next pointer to first item
@@ -488,12 +503,15 @@ Queue & Stack
 
 HashSet, HashMap:
     set and dict
+    if more value after hash function than bucket number, use remainder   (hash_val % bucket_count)
     remove item once done, can save time complexity by eliminate duplicate search on that item
     for geometry coordinates problem can consider slope as dict key
-    if constant number of items in each bucket, use array. if variable size or large, use height-balanced binary search
-    tree
+    if constant number of items in each bucket, use linked list . if variable size or large, use height-balanced binary
+    search tree. Or when bucket size> item size, can relocate items in same bucket to new bucket
     design key: sort string,offset with first value, tree node(or serialization of tree node(string with child info),
-    row/ column ndex
+    row/ column index
+    collections.OrderedDict()    keep insertion order. use double linked list and dict, all operations O(1), query use
+        dict
 
 range sum query 1d and 2d
     1d store previous sum for each index in p[] and use p[j+1]-p[i] to get the sum of arr[i,j]
@@ -521,15 +539,42 @@ binary tree
         self.right = right
 
     binary search tree: left child less than parent, right child larger than parent. in order traversal return sorted
-        list
+        list. search, insert, delete time complexity O(h)  (height of tree)
+        search node with value v: compare current node, if equal return current node, if v less than current node value,
+            search in left child node, if greater than current node value, search right child node
+        insert node v: similar to search, only insert node when the position is empty, and added node become leaf node
+        delete node v: 1. If the target node has no child, we can simply remove the node.
+            2. If the target node has one child, we can use its child to replace itself.
+            3. If the target node has two children, replace the node with its in-order successor or predecessor node
+
 
     trie
+        root is empty string, each node present a character. all the descendants of a node have a common prefix of the
+        string associated with that node. That's why Trie is also called prefix tree. word can end at middle of tree,
+        not always at leaf node, so need boolean flag to indicate end of words
     class Node:
     def __init__(self, char: str):
         self.char = char
-        self.children = []
+        self.children = []   # if need using index O(1) access time, need create constant list size children,
         self.is_finished = False
         self.counter = 1
+#   or use dict with key of character and value of trie node (a bit slower O(1), more flexible, save space)
+        self.children = {}
+
+    # insert word
+    curr = Node(' ')
+    for c in list(str):
+        if c not in curr.children.keys():
+            curr.children[c] = Node(c)
+        curr = curr.children[c]
+
+    # search word
+    for c in list(str):
+        if c not in curr.children.keys():
+           return False
+        curr = curr.children[c]
+    else:
+        return curr.is_finished
 
 
 Graph

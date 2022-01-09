@@ -95,7 +95,7 @@ class Review:
         or ''.join(['abc' for i in range(count)])     # O(n)
         
     chr(65)    # return string of unicode       ord('A')   # return unicode of character
-    
+    ord('c') - ord('a')   # 2
          
     --Operators
     arithmetic operator: +  -  *  /  **  //  %  
@@ -142,15 +142,20 @@ class Review:
     for i in range(5):  # [0, 5)      range(1, 5):  # [1, 5)    range(1, 10, 3)  # [1, 10) step size 3
         pass    # i can only be accessed to inside loop
     else:
-        pass   # run one time after for loop end
+        print(i)  # run one time after for loop end, 4
+        
     for loop only for certain iterations, while loop can handle uncertain iterations
         # range(0) won't cause exception
         
     seasons = ['Spring', 'Summer', 'Fall', 'Winter']
     list(enumerate(seasons))    #[(0, 'Spring'), (1, 'Summer'), (2, 'Fall'), (3, 'Winter')]     
     for i, element in enumerate(seasons):
-        print i, element     # 0 Spring ,...
-
+        print(i, element)     # 0 Spring ,...
+    
+    
+    list, set, dict are equal o1 == o2 if has same values inside, but have different memory location, unless
+    o1 = o2 assignment. tuple always same location if value same.
+        
     --List
     mutable array able to store different data type entries
     Create / Copy
@@ -1021,6 +1026,13 @@ class Review:
     
     chinese character encode decode different rule show gibberish code 
     chinese character show ?? encoding wrong rule
+    
+    memory alignment: pointer read 4/8 bytes one time for 32/64 bit system, for multi-platform program, memory alignment
+        happened when using datatype don't fill 4/8 byte followed by another datatype, to align memory, it move the next 
+        data item to the start of next 4/8 place, instead of place next to the previous data. So that when read next 
+        data, instead of reading 2 4/8 block and merge without alignment, it only need read once.
+    
+    
     """
 
 
