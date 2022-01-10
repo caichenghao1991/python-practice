@@ -411,6 +411,44 @@ array
     sort array might help   .sort() is in place    sorted() is not
     be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
 
+String
+    convert string to list for operations to save memory for recreate string for every modification, finally convert
+    back to string. consider doing operation from end of string to front of string (avoid shifting after add an element)
+    consider reverse the whole string, then reverse again for the word.  also reverse whole string and then reverse
+    part of string
+
+        search match string index : KMP  O(m+n)
+        prepare longest proper prefix which is also suffix array for each index position of the pattern, value is the
+        length of longest suffix end at that position that match the prefix (if miss match happen move to index with
+        this value will avoid checking the same prefix value, since same as suffix)
+        a,b,a,b,d  list(0,0,1,2,0)  if mismatch at d, go to the index of its corresponding value for the position
+        left beside of d which is b, has value 2, so go to list[2], check match second a or not, if not match continue
+        repeat till match or front of pattern, if at front of pattern, move to next index of string. if matching move
+        both pointer for string and pattern to the right one step
+
+        or create lps array with addition -1 at beginning indicate start
+
+    def strStr(haystack, needle):    # needle is pattern
+        n, h = len(needle), len(haystack)
+        i, j, lps = 1, 0, [-1]+[0]*n                # i: pointer for pattern, j: pointer for string, lps array
+        while i < n:                                # calculate next array
+            if j == -1 or needle[i] == needle[j]:
+                i += 1
+                j += 1
+                lps[i] = j
+            else:
+                j = lps[j]                # [-1, 0, 0, 1, 2, 0]  lps for keep track of index should go back to after a
+        i = j = 0                         # match failed
+        while i < h and j < n:
+            if j == -1 or haystack[i] == needle[j]:
+                i += 1
+                j += 1
+            else:
+                j = lps[j]
+        return i-j if j == n else -1     # if last d (j=4) not match, j=lps[4] (previous character match length) =2
+                                         # check second a next
+    print(strStr('ababcababababd','ababd'))   # 9 index of match start
+
 
 linked list
     compare to array, access slower O(n), but insert delete O(1)
@@ -687,37 +725,7 @@ string
     char(20)   ord('A')
     string match
 
-    search match string index : KMP  O(m+n)
-        prepare longest proper prefix which is also suffix array for each index position of the pattern, value is the
-        length of longest suffix end at that position that match the prefix (if miss match happen move to index with
-        this value will avoid checking the same prefix value, since same as suffix)
-        a,b,a,b,d  list(0,0,1,2,0)  if mismatch at d, go to the index of its corresponding value for the position
-        left beside of d which is b, has value 2, so go to list[2], check match second a or not, if not match continue
-        repeat till match or front of pattern, if at front of pattern, move to next index of string. if matching move
-        both pointer for string and pattern to the right one step
 
-        or create lps array with addition -1 at beginning indicate start
-
-    def strStr(haystack, needle):    # needle is pattern
-        n, h = len(needle), len(haystack)
-        i, j, lps = 1, 0, [-1]+[0]*n                # i: pointer for pattern, j: pointer for string, lps array
-        while i < n:                                # calculate next array
-            if j == -1 or needle[i] == needle[j]:
-                i += 1
-                j += 1
-                lps[i] = j
-            else:
-                j = lps[j]
-        i = j = 0
-        while i < h and j < n:
-            if j == -1 or haystack[i] == needle[j]:
-                i += 1
-                j += 1
-            else:
-                j = lps[j]
-        return i-j if j == n else -1
-
-    print(strStr('ababcababababd','ababd'))   # 9 index of match start
 
 
 pop clear del

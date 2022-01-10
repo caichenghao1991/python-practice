@@ -57,7 +57,25 @@ def task1(n):
         yield None
 
 
+def strStr(haystack, needle):  # needle is pattern
+    n, h = len(needle), len(haystack)
+    i, j, lps = 1, 0, [-1] + [0] * n  # i: pointer for pattern, j: pointer for string, lps array
+    while i < n:  # calculate next array
+        if j == -1 or needle[i] == needle[j]:
+            i += 1
+            j += 1
+            lps[i] = j
+        else:
+            j = lps[j]
+    i = j = 0
+    print(lps)
+    while i < h and j < n:
+        if j == -1 or haystack[i] == needle[j]:
+            i += 1
+            j += 1
+        else:
+            j = lps[j]
+    return i - j if j == n else -1
 
-a = tf.ones([4,20,28,3])
-b = tf.ones([4,20,28,3])
-print(tf.stack([a,b], axis=0).shape)
+
+print(strStr('ababcababababd', 'ababd'))  # 9 index of match start
