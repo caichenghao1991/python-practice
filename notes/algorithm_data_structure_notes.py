@@ -499,7 +499,7 @@ linked list
         double linked list might (not must) has a tail node available beside head
 
 Queue & Stack
-    stack implement via list
+    stack implement via list/linked list, queue implemented by deque(based on double linked list)
     from collections import deque
     q = deque()   # queue    or implement via linked list
     q.append(1)
@@ -509,6 +509,12 @@ Queue & Stack
     s.append(1)
     print(s.pop())
     print(s[len(s) - 1])   # peek
+
+    implement queue with 2 stacks(one hold input, one output), for dequeue pop out stack if has item. if empty, pop all
+        input and push to output stack. For enqueue, just push to input stack. for peek just pop output stack, then push
+        it back. O(1) for push pop peek.
+    implement stack with queue: for push, just enqueue. for pop get the size n of queue, repeat n-1 times dequeue first
+        item and enqueue back, then last time dequeue is the item popped.
 
     monotone increasing/decreasing stack (via list)
         for last item largest decreasing stack from top to bottom: for each new item, if larger than stack top item,

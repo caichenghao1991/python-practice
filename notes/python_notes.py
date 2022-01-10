@@ -10,6 +10,8 @@ import datetime
 class Review:
     """"""
     """
+    Python
+        written by C language
     Pycharm 
         read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
     
