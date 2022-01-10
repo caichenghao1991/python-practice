@@ -42,7 +42,7 @@
         tf.matmul,tf.nn.conv2d, tf.nn.relu, tf.nn.max_pool2d,  tf.nn.sigmoid,  tf.nn.softmax, tf.nn.leaky_relu
         layers.Dense, layers.Conv2D, layers.SimpleRNN, layers.LSTM, layers.ReLU, layers.MaxPool2D
         layers.BatchNormalization()   layers.Activation('relu')  layers.UpSampling2D(size=3)  layers.Dropout(0.4)
-
+        CONV/FC -> BatchNorm -> ReLu(or other activation) -> Dropout
 
     installation
         cuda:  custom install, skip NVIDIA Geforce Experience, under options: cuda: skip Visual Studio Integration if
@@ -66,7 +66,7 @@
 
 
     Data type
-        int, float, double, bool, string
+        int, float, double(more decimal place, double space), bool, string
         tf.constant(1)  # int32   # return created tensor (id, shape, dtype, numpy)
                         # tf.Tensor(1, shape=(), dtype=int32)
             # tf.constant(1.)  # float32
@@ -105,7 +105,7 @@
         a = tf.random.truncated_normal((2,2),mean=1, stddev=1)   # resample if outside [-2*std+mean, 2*std+mean]
         a = tf.random.uniform((2,2), minval=1, maxval=1)   # 2*2 tensor with uniform distribution, dtype optional
         index = tf.random.shuffle(ind)
-
+        tf.random.set_seed(8)
 
     Variable
         a = tf.range(5)
@@ -156,8 +156,8 @@
 
     dimension change
         a = tf.ones([4,28,28,3])
-        b = tf.reshape([4,784,3])
-        c = tf.reshape([4,-1,3])   # shape (4,784,3), only allow one -1, automatically calculate size
+        b = tf.reshape(a, [4,784,3])
+        c = tf.reshape(a, [4,-1,3])   # shape (4,784,3), only allow one -1, automatically calculate size
 
         a = tf.ones([4,20,28,3])
         b = tf.transpose(a)   # shape (3,28,20,4)
@@ -190,7 +190,7 @@
                                       # the contacted axis
         b2 = tf.ones([4,20,28,3])
         c = tf.stack([a,b2] axis=0)    # create a new axis 0 to wrap around 2 tensors, a and b2 must have same shape
-
+                                         # shape (2, 4, 20, 28, 3)
         res = tf.unstack(a, axis=3)     # return a list with 3 tensors with shape (4,28,28)
         res = tf.split(a, axis=0, num_or_size_splits=2)   # return list of 2 same shape (2,28,28,3) tensors
         res = tf.split(a, axis=0, num_or_size_splits=[1,3])   # list of tensors with shape (1,28,28,3),(3,28,28,3)

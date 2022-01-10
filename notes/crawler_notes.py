@@ -89,7 +89,7 @@
         proxy_handler = urllib.request.ProxyHandler({'sock5': 'localhost:1080'})
             # need valid proxy{'http':'http://iguye.com:41801'}
 
-            # basic auth authentication need usernamem password
+            # basic auth authentication need username password
             # proxy_handler = urllib.request.ProxyBasicAuthHandler()
             #proxy_auth_handler.add_password('realm', 'host', 'username', 'password')
         opener = urllib.request.build_opener(proxy_handler) # add , proxy_auth_handler for basic auth
@@ -105,6 +105,7 @@
     requests
         # get request
         headers = {'User-Agent': 'Mozilla/5.0'}  # some websites need headers, default user-agent: python-requests
+        resp = requests.request('GET','http://httpbin.org/get')
         resp = requests.get('http://httpbin.org/get')  # , headers=headers)
         print(resp.status_code, resp.reason, resp.text)  # return response object string response content
         # get request with parameter
@@ -551,7 +552,7 @@ from io import BytesIO
 from queue import Queue
 
 import certifi
-import pycurl
+#import pycurl
 import pyexcel
 import requests
 import json

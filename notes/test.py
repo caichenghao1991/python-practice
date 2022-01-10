@@ -7,6 +7,7 @@ import datetime
 from multiprocessing import Process
 import redis
 import os
+import tensorflow as tf
 
 import json
 import pandas as pd
@@ -56,8 +57,7 @@ def task1(n):
         yield None
 
 
-d1 = list()
-d1.append(1)
 
-print(d1)
-
+a = tf.ones([4,20,28,3])
+b = tf.ones([4,20,28,3])
+print(tf.stack([a,b], axis=0).shape)
