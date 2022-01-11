@@ -41,7 +41,7 @@ class Review:
     data type can be changed once the value has been changed
     pi = Decimal('1.1')  # used to avoid inaccuracy   float might get 1.1000000000000001
     type(pi)  # <class 'Decimal'>  return data type of pi
-    
+    eval('3+5')   eval('3+{}'.format(5))  # 8   
     
     --Print and input
     print(object(s), sep=separator, end=end, file=file, flush=flush)

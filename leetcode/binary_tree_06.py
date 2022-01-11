@@ -1,3 +1,4 @@
+from collections import deque
 from typing import List
 from queue import Queue
 
@@ -330,11 +331,9 @@ def iterativePreorder(root):
         stack, res = [], []
         curr = root
         while stack or curr:
-
             if curr:
                 stack.append(curr)
                 curr = curr.left
-
             else:
                 node = stack.pop()
                 res.append(node.val)
@@ -367,8 +366,32 @@ def iterativePreorder(root):
                 if i.right:
                     temp.append(i.right)
             level = temp
+            # que = deque([root])
+            # while que:
+            #     size = len(que)
+            #     result = []
+            #     for _ in range(size):
+            #         cur = que.popleft()
+            #         result.append(cur.val)
+            #         if cur.left:
+            #             que.append(cur.left)
+            #         if cur.right:
+            #             que.append(cur.right)
+            #     results.append(result)
         return res
 
+    def levelOrder(self, root: TreeNode) -> List[List[int]]:
+        res = []
+
+        def helper(root, depth):
+            if not root: return []
+            if len(res) == depth: res.append([])  # start the current depth
+            res[depth].append(root.val)  # fulfil the current depth
+            if root.left: helper(root.left, depth + 1)  # process child nodes for the next depth
+            if root.right: helper(root.right, depth + 1)
+
+        helper(root, 0)
+        return res
     
 if __name__ == "__main__":
     solution = Solution()

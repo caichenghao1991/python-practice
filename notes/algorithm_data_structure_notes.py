@@ -41,8 +41,11 @@ recursion:
     either top down (process current item first then child node, function need pass result for current node). or bottom
     up approach (get result from child then use that to get result for that current item) use memorization to avoid
     duplication calculation
+    return None (usually immutable data or object) if no need result for bottom up case, pass in parameter (usually
+        mutable data) need to process during recursion, don't define result inside recursion function as local variable
+        usually top down approach use parameter, and bottom up approach return None or some value
 
-     recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
+    recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
         child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
 
         def maxDepth(self, root):   # top down
@@ -515,19 +518,27 @@ Queue & Stack
         it back. O(1) for push pop peek.
     implement stack with queue: for push, just enqueue. for pop get the size n of queue, repeat n-1 times dequeue first
         item and enqueue back, then last time dequeue is the item popped.
+    consider using stack if need constantly modify the last or last several items, while consider the last added item
+        first. add items in stack until some signal to pop items, then repeat till end of loop. (ex. reverse polish
+        notation)
 
-    monotone increasing/decreasing stack (via list)
-        for last item largest decreasing stack from top to bottom: for each new item, if larger than stack top item,
-        continue pop top item, till top smaller than new item or empty stack (do calculation for popped item if
-        required), push new item in stack. so the item in stack always sorted
+    monotone increasing/decreasing queue/sliding window queue (via deque/list)
+        maintain all possible largest item in queue(not all items inside window), while item in queue is from large to
+        small. during push item, continue pop last item until smaller than peek item, or till empty. during pop, only
+        remove first item if it's the item exiting the window
+
 
     priority queue (implemented via heap(complete binary tree, parent node larger than child node if max heap))
+        heap time complexity: build heap: O(log1) + O(log2) + O(log3) + … O(logn) = O(n)
+            heapify: O(log n)
+        keep k largest item use minheap, pop item if size > k
         usually use array for complete binary tree   child index i//2 => parent index   parent index => 2i+1, 2i+2
         O(1) get largest/smallest item, O(log n) insert or remove top item
         li = [2,3,1,5,4]
-        heapq.heapify(li)    # min heap, heapify make li[0] smallest item, inside call siftup
+        heapq.heapify(li)    # min heap, heapify make li[0] smallest item, inside call siftup  O(log n)
         heapq.heappush(li, 6)  # O(logn)    append new item to last then sift up (continue swap with parent if smaller
                                # than parent)
+        heapq.heappush(li, (6,'index'))    # heap sort based on first item of tuple (6)
         v=heapq.heappop(li)    # O(logn)   move last item to first then sift down (continue swap with larger child node)
         print(li[0])  # 2    # get smallest O(1)
         heapq.merge(li, li2)   # merge 2 list  O(n)
@@ -539,11 +550,11 @@ Queue & Stack
         heapq._siftdown_max(li, 0, len(li)-1)   # heappush
         v=heapq._heappop_max(ll)                # heap pop
 
-    sliding window queue
-        get maximum number of sliding window for each step
-        enqueue right item, dequeue most left item, traverse through queue and remove item smaller than right item, and
-        left most item in window is the largest item at this step
-        O(n) all item is push and pop once although double loop
+        # heap sort
+        build heap, remove first item, get first item(largest), put last item to first place, and do heapify. repeat
+            until empty tree
+
+
 
 HashSet, HashMap:
     set and dict
@@ -575,11 +586,42 @@ binary tree
     most problem are solving recursively with helper function (base empty case, and return parent node state with
     recursive call of child node state as known), only need consider one parent and corresponding one child layer
     usually
+    full binary tree, last layer full (2^k - 1 nodes (k: depth of tree)).
+    complete binary tree , last layer right side can be empty, last node's parent can only have left child node as last
+        node
 
     post order traversal is the delete tree node order, also easier for math operation with values and operand as node
         push values in stack, when met operand, pop two values and push the result back in stack
 
+    list presentation: parent index i, left/right child index 2i+1 and 2i+2
+    traversal: dfs(pre(root first), in(root middle), post order(root last)), bfs(level order)
+        pre-order: init root in stack, pop node n, add to result, push n.left, n.right in stack
+        post-order: same as pre order, but push n.right, then n.left. finally reverse result
+        in-order: loop when stack not empty or curr node not none: if curr, add to stack, update curr = curr.left, else
+            curr = stack.pop(), add it to result, and update curr = curr.right
 
+        or add a None after add root node, use universal for switch order to reverse correct order inside loop
+        for pre order:  right, left, mid    in-order: right, mid, left    post-order:mid, right, left
+        post-order
+        def postorderTraversal(self, root: TreeNode) -> List[int]:
+            result, st = [],[], depth=0  (depth some other stats need to trace)
+            if root: st.append(root)
+            while st:
+                node = st.pop()
+                if node != None:
+                    st.append(node) # mid
+                    st.append(None)
+                    depth += 1
+                    if node.right: st.append(node.right)
+                    if node.left: st.append(node.left)
+                else:
+                    node = st.pop()
+                    depth -= 1   # here need reverse change 1 step
+                    result.append(node.val)
+            return result
+
+        bfs(level order): add root to deque, get size of deque, iterate size time: node = deque.popleft(), do some
+            operation, if node.left add node.left to deque, same for right
 
     class TreeNode(object):
     def __init__(self, val=0, left=None, right=None):
@@ -595,6 +637,11 @@ binary tree
         delete node v: 1. If the target node has no child, we can simply remove the node.
             2. If the target node has one child, we can use its child to replace itself.
             3. If the target node has two children, replace the node with its in-order successor or predecessor node
+
+        balanced binary search tree: left sub tree and right subtree, height difference <= 1
+
+    complete binary tree: can consider left and right subtree, can separate the tree to full binary trees (has 2^h-1)
+        nodes. when check full binary tree, compare left.left... and right.right....  same height or not
 
 
     trie

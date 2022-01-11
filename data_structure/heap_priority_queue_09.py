@@ -14,7 +14,7 @@ class MinHeap:
         length = len(self.data)
         small = pos
         if left < length and self.data[small] > self.data[left]:
-            small = left  ,
+            small = left
         if right < length and self.data[small] > self.data[right]:
             small = right
         if small != pos:
