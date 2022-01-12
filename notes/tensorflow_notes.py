@@ -42,7 +42,7 @@
         tf.matmul,tf.nn.conv2d, tf.nn.relu, tf.nn.max_pool2d,  tf.nn.sigmoid,  tf.nn.softmax, tf.nn.leaky_relu
         layers.Dense, layers.Conv2D, layers.SimpleRNN, layers.LSTM, layers.ReLU, layers.MaxPool2D
         layers.BatchNormalization()   layers.Activation('relu')  layers.UpSampling2D(size=3)  layers.Dropout(0.4)
-        CONV/FC -> BatchNorm -> ReLu(or other activation) -> Dropout
+        CONV/FC -> ReLu(or other activation) -> BatchNorm  -> Pooling -> Dropout
 
     installation
         cuda:  custom install, skip NVIDIA Geforce Experience, under options: cuda: skip Visual Studio Integration if

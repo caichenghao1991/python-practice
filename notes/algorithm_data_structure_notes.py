@@ -224,7 +224,7 @@ Searching
 
     Backtracking
         use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
-        previous passed route)
+        previous passed route), time complexity is visiting every possible answer (O(2^n), O(n!), O(k^n), k is constant)
         when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
         satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
         each condition, use reference to pass the state, change back the state(flag or output) after recursion
@@ -319,7 +319,7 @@ Dynamic Programming
             # s0,s1,...,sn-1,sn =s1, ...sn,cur   # shift one step to newer state
     return dp[n]
 
-    #2D
+    #2D bagging problem
     for i in range(x, xx):
         for j in range(x, xx):
         dp[i][j] = some function(dp[i-1][j],dp[i][j-1],..., state[i][j])
@@ -341,6 +341,7 @@ Dynamic Programming
                 # if value multi-dimension, add addition inner for loop
 
     return dp[i][j]   # dp[j]
+
 
     string comparison problem usually 2 for loop for each char in both string correspondingly
     stock problem can have 2 dp matrix track max profit for k times buy and sell
