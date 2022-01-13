@@ -100,7 +100,7 @@ recursion:
                 return helper(ls[1:], ls[0] + acc)   # instead of non tail recursion # return ls[0] + helper2(ls[1:])
         return helper(ls, 0)
 
-        python don't support lambda, use lambda
+        python don't support tail recursion, use lambda
             def Y(F):
                 Y_comb = lambda F: (lambda x: F(lambda *args: lambda: x(x)(*args)))
                                    (lambda x: (F(lambda *args: lambda: x(x)(*args))))
