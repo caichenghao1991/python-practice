@@ -41,9 +41,9 @@ recursion:
     either top down (process current item first then child node, function need pass result for current node). or bottom
     up approach (get result from child then use that to get result for that current item) use memorization to avoid
     duplication calculation
-    return None (usually immutable data or object) if no need result for bottom up case, pass in parameter (usually
-        mutable data) need to process during recursion, don't define result inside recursion function as local variable
-        usually top down approach use parameter, and bottom up approach return None or some value
+    return None if no need result for bottom up case, pass in parameter need to process during recursion, don't define
+        result inside recursion function as local variable usually top down approach use parameter, and bottom up
+        approach return None (if modify global/nonlocal (outer function) variable) or some value
 
     recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
         child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
@@ -228,6 +228,9 @@ Searching
         when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
         satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
         each condition, use reference to pass the state, change back the state(flag or output) after recursion
+        iterative method put extra variable together with node into a tuple and add to stack/queue
+        must reverse change if using global/ nonlocal variable and modify value during expanding child node stage. in
+        comparison, if only modify passed in function parameter no need to reverse change
 
         def main(state):
             ans = []
@@ -507,7 +510,7 @@ Queue & Stack
     from collections import deque
     q = deque()   # queue    or implement via linked list
     q.append(1)
-    print(q[0], q.popleft(), len(q))
+    print(q[0], q.popleft() **  , len(q))
 
     s = []   # stack
     s.append(1)
@@ -638,6 +641,8 @@ binary tree
         delete node v: 1. If the target node has no child, we can simply remove the node.
             2. If the target node has one child, we can use its child to replace itself.
             3. If the target node has two children, replace the node with its in-order successor or predecessor node
+        binary search tree search node iterative method no need stack/queue, since only need explore one node (either
+            left or right base on comparison value with root value) a time
 
         balanced binary search tree: left sub tree and right subtree, height difference <= 1
 
