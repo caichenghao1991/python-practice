@@ -35,6 +35,7 @@ sliding window
                 index += 1
         return 0 if res==float("inf") else res
     3sum (O(n^2)), 4sum(O(n^3)) sort then use 2 different side pointers
+    2 pointer can also used to get min value of sorted list, instead of use global min variable
 
 recursion:
     define base case (corresponding to lowest index(index able to represent each stage)), and recurrence relationship.
@@ -60,7 +61,7 @@ recursion:
             return self.maximum
 
         bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
-            similar to post order traversal
+            similar to post order traversal  (dfs post order)
         def bottom_down(node):
             if not root:
                 return 0
@@ -231,6 +232,7 @@ Searching
         iterative method put extra variable together with node into a tuple and add to stack/queue
         must reverse change if using global/ nonlocal variable and modify value during expanding child node stage. in
         comparison, if only modify passed in function parameter no need to reverse change
+        not suitable for iterative since too complicated
 
         def main(state):
             ans = []
@@ -593,6 +595,7 @@ binary tree
     full binary tree, last layer full (2^k - 1 nodes (k: depth of tree)).
     complete binary tree , last layer right side can be empty, last node's parent can only have left child node as last
         node
+    balanced binary tree, left child height and right child height difference less than 1
 
     post order traversal is the delete tree node order, also easier for math operation with values and operand as node
         push values in stack, when met operand, pop two values and push the result back in stack
