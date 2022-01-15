@@ -14,7 +14,9 @@ greedy algorithm
     each step choose local most optimized option, generate final global possible most efficient solution under certain
     situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
     questions: intervals (sort on end/ start depends on question), assignment problems
-
+    think about invalid cases, if can't find any, try greedy algorithm, otherwise use dynamic programming
+    usually start with the smallest/largest suitable item. picking the desire next item from local optimized lead to
+    global optimized
 
 sliding window
     two pointer (start from beginning or end, can have different pace)
