@@ -50,7 +50,8 @@ recursion:
         child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
 
         def maxDepth(self, root):   # top down
-            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
+            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode, or
+                               # write __init__ method and initialize self.var
             def f(node, depth):    # no need self
                 if not node.left and not node.right:
                     self.maximum = max(self.maximum, depth + 1)
@@ -225,19 +226,22 @@ Searching
 
     Backtracking
         use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
-        previous passed route), time complexity is visiting every possible answer (O(2^n), O(n!), O(k^n), k is constant)
+        previous passed route), splitting string(array), n queen/ sudoku problem, time complexity is visiting every
+        possible answer (O(2^n), O(n!), O(k^n), k is constant)
         when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
         satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
         each condition, use reference to pass the state, change back the state(flag or output) after recursion
         iterative method put extra variable together with node into a tuple and add to stack/queue
         must reverse change if using global/ nonlocal variable and modify value during expanding child node stage. in
-        comparison, if only modify passed in function parameter no need to reverse change
+        comparison, if only modify passed in function parameter no need to reverse change. function usually don't have
+        return value
+        prune the for loop if start index plus k nodes required larger than end index
         not suitable for iterative since too complicated
 
         def main(state):
-            ans = []
+            ans = []  # can use global/nonlocal variable replace function parameters
                 # visited = []   optional create visited matrix
-            for node in space:  # space can only have one node
+            for node in space:  # space can only have one node, also node doesn't have to be tree explicitly
                 backtrack(state, visited, node_index, init_val, ans)
             return ans
         def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
@@ -245,10 +249,13 @@ Searching
                 ans.update()
                 return
 
-            for child in children:
+            for child in children:  # combination from different arr horizontal traverse, ran O(V) same as vertices
+            # for i in range(startIndex, (len(arr)-(k-len(path)))+2)  # for combination in one arr, can sort arr first
+                                    # to avoid duplicated value, or add dict/set as function param to track used item
                 if valid(state, xx):
                     update(state)
-                    backtrack(state, xx_new, ans)    # difference with dfs:  dfs(new_state, xx_new, ans)
+                    backtrack(state, xx_new, ans)     # vertical traverse
+                        # difference with dfs:  dfs(new_state, xx_new, ans)
                     update_back(state)
 
 
@@ -652,6 +659,7 @@ binary tree
     complete binary tree: can consider left and right subtree, can separate the tree to full binary trees (has 2^h-1)
         nodes. when check full binary tree, compare left.left... and right.right....  same height or not
 
+    iterative method traverse one path to node no need stack/queue 
 
     trie
         root is empty string, each node present a character. all the descendants of a node have a common prefix of the
