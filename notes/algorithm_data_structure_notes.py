@@ -156,7 +156,7 @@ sorting
         then repeat for left and right part
 
         quick selection find kth largest element: find partition of correct index for an item, then binary search left
-            and right part according to comparison target with pivot value
+            and right part according to comparison target with pivot value   time: O(n)
 
     merge sort: recursive merge sort until length 1, each time split to right and left half then two pointer from front
         and merge them together into sorted array
@@ -638,6 +638,8 @@ binary tree
         delete node v: 1. If the target node has no child, we can simply remove the node.
             2. If the target node has one child, we can use its child to replace itself.
             3. If the target node has two children, replace the node with its in-order successor or predecessor node
+
+        also can consider traverse right-> mid -> left if need get sum of nodes on given node's right side
 
         balanced binary search tree: left sub tree and right subtree, height difference <= 1
 
