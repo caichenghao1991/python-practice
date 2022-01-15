@@ -227,7 +227,7 @@ Searching
     Backtracking
         use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
         previous passed route), splitting string(array), n queen/ sudoku problem, time complexity is visiting every
-        possible answer (O(2^n), O(n!), O(k^n), k is constant)
+        possible answer (O(2^n)(subset,combination) O(n*2^n if using list), O(n!)(permutation), O(k^n), k is constant)
         when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
         satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
         each condition, use reference to pass the state, change back the state(flag or output) after recursion
@@ -237,6 +237,7 @@ Searching
         return value
         prune the for loop if start index plus k nodes required larger than end index
         not suitable for iterative since too complicated
+        return bool if only need find one path
 
         def main(state):
             ans = []  # can use global/nonlocal variable replace function parameters
@@ -251,7 +252,9 @@ Searching
 
             for child in children:  # combination from different arr horizontal traverse, ran O(V) same as vertices
             # for i in range(startIndex, (len(arr)-(k-len(path)))+2)  # for combination in one arr, can sort arr first
-                                    # to avoid duplicated value, or add dict/set as function param to track used item
+                                # to avoid duplicated value, or add dict/set/list (list preferred with update and
+                                # un update to save space) as function param to track used item better prune when
+                                #  comparing same level previous node, instead of check in path
                 if valid(state, xx):
                     update(state)
                     backtrack(state, xx_new, ans)     # vertical traverse
