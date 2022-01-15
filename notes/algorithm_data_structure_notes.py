@@ -35,21 +35,23 @@ sliding window
                 index += 1
         return 0 if res==float("inf") else res
     3sum (O(n^2)), 4sum(O(n^3)) sort then use 2 different side pointers
+    2 pointer can also used to get min value of sorted list, instead of use global min variable
 
 recursion:
     define base case (corresponding to lowest index(index able to represent each stage)), and recurrence relationship.
     either top down (process current item first then child node, function need pass result for current node). or bottom
     up approach (get result from child then use that to get result for that current item) use memorization to avoid
     duplication calculation
-    return None (usually immutable data or object) if no need result for bottom up case, pass in parameter (usually
-        mutable data) need to process during recursion, don't define result inside recursion function as local variable
-        usually top down approach use parameter, and bottom up approach return None or some value
+    return None if no need result for bottom up case, pass in parameter need to process during recursion, don't define
+        result inside recursion function as local variable usually top down approach use parameter, and bottom up
+        approach return None (if modify global/nonlocal (outer function) variable) or some value
 
     recursion has top down approach: visit current node first, if current node answer is known, then pass down deduced
         child node answer for calculation when calling recursively on its child nodes, similar to preorder traversal
 
         def maxDepth(self, root):   # top down
-            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode
+            self.maximum = 0   # define instance variable and inner function to avoid global variable in leetcode, or
+                               # write __init__ method and initialize self.var
             def f(node, depth):    # no need self
                 if not node.left and not node.right:
                     self.maximum = max(self.maximum, depth + 1)
@@ -60,7 +62,7 @@ recursion:
             return self.maximum
 
         bottom up approach: get the answer for child node first, then process current node base on child nodes' result,
-            similar to post order traversal
+            similar to post order traversal  (dfs post order)
         def bottom_down(node):
             if not root:
                 return 0
@@ -224,15 +226,22 @@ Searching
 
     Backtracking
         use DFS with saving state to solve permutation and combination problem (restore state allow traverse through
-        previous passed route), time complexity is visiting every possible answer (O(2^n), O(n!), O(k^n), k is constant)
+        previous passed route), splitting string(array), n queen/ sudoku problem, time complexity is visiting every
+        possible answer (O(2^n), O(n!), O(k^n), k is constant)
         when unsatisfying during dfs, back track to previous node and change to previous state as soon as seeing not
         satisfy the potential solution, only need update the combined overall state, instead of creating sub state for
         each condition, use reference to pass the state, change back the state(flag or output) after recursion
+        iterative method put extra variable together with node into a tuple and add to stack/queue
+        must reverse change if using global/ nonlocal variable and modify value during expanding child node stage. in
+        comparison, if only modify passed in function parameter no need to reverse change. function usually don't have
+        return value
+        prune the for loop if start index plus k nodes required larger than end index
+        not suitable for iterative since too complicated
 
         def main(state):
-            ans = []
+            ans = []  # can use global/nonlocal variable replace function parameters
                 # visited = []   optional create visited matrix
-            for node in space:  # space can only have one node
+            for node in space:  # space can only have one node, also node doesn't have to be tree explicitly
                 backtrack(state, visited, node_index, init_val, ans)
             return ans
         def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
@@ -240,10 +249,13 @@ Searching
                 ans.update()
                 return
 
-            for child in children:
+            for child in children:  # combination from different arr horizontal traverse, ran O(V) same as vertices
+            # for i in range(startIndex, (len(arr)-(k-len(path)))+2)  # for combination in one arr, can sort arr first
+                                    # to avoid duplicated value, or add dict/set as function param to track used item
                 if valid(state, xx):
                     update(state)
-                    backtrack(state, xx_new, ans)    # difference with dfs:  dfs(new_state, xx_new, ans)
+                    backtrack(state, xx_new, ans)     # vertical traverse
+                        # difference with dfs:  dfs(new_state, xx_new, ans)
                     update_back(state)
 
 
@@ -507,7 +519,7 @@ Queue & Stack
     from collections import deque
     q = deque()   # queue    or implement via linked list
     q.append(1)
-    print(q[0], q.popleft(), len(q))
+    print(q[0], q.popleft() **  , len(q))
 
     s = []   # stack
     s.append(1)
@@ -590,6 +602,7 @@ binary tree
     full binary tree, last layer full (2^k - 1 nodes (k: depth of tree)).
     complete binary tree , last layer right side can be empty, last node's parent can only have left child node as last
         node
+    balanced binary tree, left child height and right child height difference less than 1
 
     post order traversal is the delete tree node order, also easier for math operation with values and operand as node
         push values in stack, when met operand, pop two values and push the result back in stack
@@ -638,6 +651,8 @@ binary tree
         delete node v: 1. If the target node has no child, we can simply remove the node.
             2. If the target node has one child, we can use its child to replace itself.
             3. If the target node has two children, replace the node with its in-order successor or predecessor node
+        binary search tree search node iterative method no need stack/queue, since only need explore one node (either
+            left or right base on comparison value with root value) a time
 
         also can consider traverse right-> mid -> left if need get sum of nodes on given node's right side
 
@@ -646,6 +661,7 @@ binary tree
     complete binary tree: can consider left and right subtree, can separate the tree to full binary trees (has 2^h-1)
         nodes. when check full binary tree, compare left.left... and right.right....  same height or not
 
+    iterative method traverse one path to node no need stack/queue 
 
     trie
         root is empty string, each node present a character. all the descendants of a node have a common prefix of the
