@@ -14,9 +14,10 @@ greedy algorithm
     each step choose local most optimized option, generate final global possible most efficient solution under certain
     situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
     questions: intervals (sort on end/ start depends on question), assignment problems
-    think about invalid cases, if can't find any, try greedy algorithm, otherwise use dynamic programming
-    usually start with the smallest/largest suitable item. picking the desire next item from local optimized lead to
-    global optimized
+    if there are 2 dimension, sort the first one and considering next dimension based on the fixed first dimension,
+        don't consider both dimension at the same time
+        merge stop point for previous item, consider traverse from back to front if traverse from front to back will
+            cause chain updates(need to update more than one previous item)
 
 sliding window
     two pointer (start from beginning or end, can have different pace)
@@ -322,8 +323,13 @@ Dynamic Programming
     dp can also store intermediate sub solution, and accumulate sum/ length of dp become final answer
     try keep the state transfer function simple by derive the new state by <=2 previous state
     including subcategory problem: splitting value, common sequence, knapsacks, string manipulation, stock trading
-
-
+    1. define index i and dp[i] meaning
+    2. get transfer function
+    3. initialize dp value  start with index that actually match the index meaning, not always need dp[0],dp[1]
+    4. get traverse direction
+    5. validate by example
+    must check fpr loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
+        list
 
     dp=[0 for i in range(xx)]
     if n <= x:      # base case
