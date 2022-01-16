@@ -109,13 +109,22 @@
         -- stu_id in (103,104)    -- stu_id between 101 and 105
 
     select * from t_student;
-    select distinct stu_name, stu_address as address, case stu_gender when 1 then 'male' else 'female' end
+    select distinct stu_name, stu_address as address, case when stu_gender=1 then 'male' else 'female' end
         from t_student where stu_birth >= '1980-1-1' and stu_name like 'Har%' and stu_address is not null
+        and grade in (1,2,3) and age not between 10 and 12
+        ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
         # as alias    %: 0 or more any character   _: 1 character     <>: not equal
         is null    is not null          order by asc default   desc
-    select max(stu_birth) from t_student;         # (null is excluded)  min  max  sum  avg   count
+        CASE WHEN weight > 250 THEN 'over 250' WHEN weight > 200 AND weight <= 250 THEN '201-250'
+            ELSE '175 or under' END AS weight_group
+
+    select max(stu_birth) from t_student;         # (null is excluded)  min  max  sum(treat null as 0)
+                                                  # avg(not include null)   count
     select stu_gender, count(stu_id) from t_student group by stu_gender having stu_id > 100;
+        group by age, gender
+        # use group by to limit aggregate function(count, max, sum,...) affected scope from whole table to part of table
+        count(*) include null,   count(stu_id) doesn't include null    count(distinct age)
     where -> group -> order
     select avg(score) as m from t_score group by stu_id having m>90
     use having to filter after group by (), can't use where because avg(score) is result after group by
@@ -128,7 +137,9 @@
         group by stu_id) t2 where t1.stu_id=t2.stu_id
     select stu_name, ifnull(avg_score,0) from t_student t1 left join (select stu_id, avg(score) as
         avg_score from t_score group by stu_id) t2 on t1.stu_id=t2.stu_id limit 5
-    a inner join b on a.xid=b.xid inner join c on b.yid=c.yid
+    select * from t_student stu join t_courses c on stu.course = c.id  # default inner join
+        # join t_courses c where stu.course = c.id
+    a inner join b on a.xid=b.xid inner join c on b.yid=c.yid where a.xid>10
     inner join: include data only match a.xid=b.xid constraint
     left/right/full outer join: include left table data even it don't match the on a.xid=b.xid constraint
     ifnull(avg_score,0): return avg_score, if null return 0.
