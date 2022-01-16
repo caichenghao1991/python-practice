@@ -109,9 +109,10 @@
         -- stu_id in (103,104)    -- stu_id between 101 and 105
 
     select * from t_student;
-    select distinct stu_name, stu_address as address, case when stu_gender=1 then 'male' else 'female' end
-        from t_student where stu_birth >= '1980-1-1' and stu_name like 'Har%' and stu_address is not null
-        and grade in (1,2,3) and age not between 10 and 12
+    select distinct stu_name, stu_address as address, cast(age as integer), age::integer, case when stu_gender=1 then
+        'male' else 'female' end from t_student where stu_birth >= '1980-1-1' and stu_name like 'Har%' and stu_address
+        is not null and grade in (1,2,3) and age not between 10 and 12 and
+        cast(age as integer)  age::integer  cast data type to integer
         ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
         # as alias    %: 0 or more any character   _: 1 character     <>: not equal
@@ -121,6 +122,8 @@
 
     select max(stu_birth) from t_student;         # (null is excluded)  min  max  sum(treat null as 0)
                                                   # avg(not include null)   count
+    select NOW() - join_date::timestamp - interval '2 weeks' as period from t_student
+        # ::timestamp   cast to time stamp      NOW() current date time    interval: time difference
     select stu_gender, count(stu_id) from t_student group by stu_gender having stu_id > 100;
         group by age, gender
         # use group by to limit aggregate function(count, max, sum,...) affected scope from whole table to part of table
@@ -130,6 +133,20 @@
     use having to filter after group by (), can't use where because avg(score) is result after group by
     select stu_name from t_student where stu_birth = (select min(stu_birth) from t_student)   # sub query
     use where stu_id in (subquery)   if subquery have more than 1 result
+        select * from (subquery) join (subquery) on id where id = (subquery)
+    select LEFT(date, 10)  # substring start from left with length 10 characters
+        RIGHT(date, LENGTH(date)-11)   # substring start from right with 11 character
+        TRIM(both '()' FROM date)      # heading/trailing/both  remove front/end/both side of () from date
+        POSITION('A' IN descript)     # get the index of first occurrence of 'A'
+        SUBSTR(date, 4, 2) AS day      # substring of date   start position, number of characters
+        CONCAT(date, ', ', LEFT(date, 10)) as day   # concat column name or constant string
+        UPPER(address), LOWER(address)   # convert to upper,lower case
+        EXTRACT('year' FROM date), DATE_TRUNC('month', date)    # deconstruct and extract year of date data type object
+                                                                # round dates to the nearest unit of measurement
+        COALESCE(date, '1900/01/01')                            # replace null value with value
+
+        CURRENT_DATE, CURRENT_TIME, CURRENT_TIMESTAMP, LOCALTIME, LOCALTIMESTAMP, NOW()
+
 
     # use same columns value constraint to avoid Cartesian product (combination of two table items)
     select stu_name, sch_name from t_student t1, t_school t2 where t1.school_id=t2.sch_id
@@ -145,9 +162,27 @@
     ifnull(avg_score,0): return avg_score, if null return 0.
     limit 5: paging first 5 items       limit 5 offset 10  (or limit 10,5)  # skip 10 items get 5 items
 
+    select * from a union select * from b     # append b to a with same number of columns with same data type and
+                                              # remove duplicated row, not ecessary same column name
+        # union all     # keep duplicated value
+
     explain select stu_name from t_student where e_id =101   <>  not equal
     # show type (constant, all, range, searching type)  rows (how many lines to search)
         key (key related to search)
+
+    select sum(score) over (partition by gender order by age) as total from t_student
+        # partition similar function as group by but for window function, total will accumulate upper cell values
+        # partition by anf order by optional    select sum(score) over () from t_student
+    select ROW_NUMBER() OVER () from t_student       # add row number column start at 1
+        RANK OVER (ORDER BY age)  # give same age value same rank number then skip count of same value   1,2,2,2,5
+        DENSE_RANK()   # do not skip rank number after duplication    1,2,2,2,3
+        NTILE(5) OVER (ORDER BY age)   # assign percentile value 1-5 based on age same order as age
+        LAG(score, 1) OVER () as lag     # create lag column from score shift down(pull from previous row) one step
+        LEAD()                         # pull from following row
+        select duration -LAG(duration, 1) as diff OVER ()   # create column with duration difference from row above
+    select ROW_NUMBER() OVER win as rows from t_student where age < 10 WINDOW win as (ORDER BY age) ORDER BY age
+        # use alias win and declare WINDOW, must declare it after where
+    sdd EXPLAIN  in front of query to get rough execution time
 
     # create index on frequent filtered and less modified value column
     INDEX idx_stu_name (stu_name),  during create
