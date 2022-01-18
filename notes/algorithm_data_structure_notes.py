@@ -349,8 +349,12 @@ Dynamic Programming
     return dp[n]
 
     #2D bagging problem
-    for i in range(x, xx):
-        for j in range(x, xx):
+    first column must initialize 0 first row first item till lowest weight item 0 rest lowest item value. rest item can
+        initialize any value (but 0 for convenience, if has negative weight, initialize to -float("Inf"))
+        weight and values can be same item, and bag_weight= max item size*count for transformed problem (pick item in
+        collection to get target sum)
+    for i in range(x, xx):  # item
+        for j in range(x, xx):   # weight
         dp[i][j] = some function(dp[i-1][j],dp[i][j-1],..., state[i][j])
             # dp[j] = some function(dp[j-1],...state[i][j])  # space compression
             # consider only need one line of stored data if only require dp[i-1][j],dp[i][j-1], dp[i-1][j] transfer to
@@ -358,15 +362,37 @@ Dynamic Programming
             # need consider second loop whether forward traverse(depend on current level previous state) or backward
             # traverse(depend on previous level previous state)
                 # knapsack one item one time (first i item, total weight j):
-                    for i in range(N): for j in range(W):
-                        if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i-1][j-w[i]]+v[i])
-                        else: dp[i][j]=dp[i-1][j]
-                    for i in range(N): for j in range(W, w[i],-1): dp[j]=max(dp[j],dp[j-w[i]]+v[i])
+                    dp = [[0 for _ in range(len(weight))] for _ in range(bag_weight+1)]
+                    for j in range(1, cols):
+                        dp[0][j] = value[0] if j>= weight[0]
+                    for i in range(len(weight)):  # iterate over items
+                        for j in range(bag_weight+1):    # can switch for loop order
+                            if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i-1][j-weight[i]]+value[i])
+                            else: dp[i][j]=dp[i-1][j]   # not enough weight capacity to hold item i
+                    dp = [0] * (bag_weight + 1)
+                    for i in range(len(weight)): for j in range(bag_weight, weight[i]-1,-1):
+                        dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
+                                # initialize with all 0 for positive value item, value with capacity j from higher
+                                # weight to lower weight to avoid add item multiple time as capacity increasing, since
+                                # higher weight value use result from lower weight value since initialize 0, when from
+                                # higher to lower, higher always retrieve 0 for lower value. In contrast, if from
+                                # capacity lower to higher, higher capacity value can use updated lower capacity value
+                                # (add same item multiple times)  can only loop weight in inner loop, otherwise dp[j]
+                                # only have one item
+                # can't switch loop order, must item first, dp cell update order(left-> right, then top down top->down,
+                    then left->right)
+
                 # knapsack one item multiple time (first i item, total weight j):
-                    for i in range(N): for j in range(W):
-                        if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i][j-w[i]]+v[i])
-                        else: dp[i][j]=dp[i-1][j]
-                    for i in range(N): for j in range(w[i],W,1): dp[j]=max(dp[j],dp[j-w[i]]+v[i])
+                    for i in range(len(weight)):  # iterate over items
+                        for j in range(bag_weight+1):    # can switch for loop order
+                            if j>= weight[i]: dp[i][j]=max(dp[i-1][j], dp[i][j-weight[i]]+value[i])
+                            else: dp[i][j]=dp[i-1][j]
+                    dp = [0]*(bag_weight + 1)
+                    for i in range(len(weight)):
+                        for j in range(weight[i],bag_weight+1):
+                            dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
+                # can switch loop order, draw dp cell value to make sense (left-> right, then top down top->down,
+                    then left->right)
                 # if value multi-dimension, add addition inner for loop
 
     return dp[i][j]   # dp[j]
