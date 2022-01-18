@@ -320,7 +320,7 @@ def iterativePreorder(root):
         return res
 
     def helper(self, root, res):
-        if not root:
+        if not root:   # raise error if use none.val
             return
         res.append(root.val)
         self.helper(root.left, res)

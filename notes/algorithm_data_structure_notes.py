@@ -215,7 +215,7 @@ Searching
 
         dfs(node, state[], graph):
             if state(node):    # end return condition   or   if state(node) or not_valid(node):  # post check valid
-                return 0
+                return 0       # if not root: return None    if left>right: return None
             state(node) = xxx    # update state of visited node
             stat = 1     # not necessary has statistical data
             for child in node.children:
@@ -250,8 +250,9 @@ Searching
             return ans
         def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
             if match(xx):                # back track avoid create local variable ans
+                                        # if len(path)==len(res)    if startIndex == len(res)
                 ans.update()
-                    # ans.append(state.copy())  # must use copy() for mutable variable otherwise update_back(state) will
+                    # ans.append(state[:])  # must use copy() for mutable variable otherwise update_back(state) will
                                                 # cause issue. no need copy() if update state in function param
                 return
 
@@ -261,9 +262,12 @@ Searching
                                 # un update to save space) as function param to track used item better prune when
                                 #  comparing same level previous node, instead of check in path
                 if valid(state, xx):
+                    if not valid(state):
+                        continue
                     update(state)
                     backtrack(state, xx_new, ans)     # vertical traverse
                         # difference with dfs:  dfs(new_state, xx_new, ans)
+                        # if backtrack(state, xx_new, ans): return True   for only search one result
                     update_back(state)
 
 
@@ -491,12 +495,12 @@ linked list
             self.length = 0
             self.tail = self.head  # tail is the end of linked list, optional
     take care of order of updating node and its neighbors
-    create dummy node when need delete node (if not create dummy node, logic would be different when delete
+    create dummy node when need delete or modify node (if not create dummy node, logic would be different when delete
     head node and rest of the nodes) and when using 2 pointer(header don't have pre node)
     dummy node pointing to the head of linked list and return dummy.next to retrieve linked list each step only consider
     the current node relation (current node's next pointer)
 
-    dummy = head  curr = dummy       or dummy.next = head   curr = dummy.next while curr    or dummy (while curr.next)
+    dummy = Node(0) dummy.next=head  curr = dummy      while curr    or dummy (while curr.next)
     curr = head   while curr  return head (change original linked list)
 
     def reverseList(self, head: ListNode) -> ListNode:
