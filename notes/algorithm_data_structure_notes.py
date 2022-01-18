@@ -371,9 +371,14 @@ Dynamic Programming
 
     return dp[i][j]   # dp[j]
 
-
+    also can initialize values inside dp update loop with if condition
+    splitting problem loop through max length, then loop through valid item list, dp[i] = func(dp[i-valid item length])
+    subsequence problem dp[i] means stat for subsequence ends on i, need count all dp in the end. update
+        dp[i]=max(dp[i],dp[j]+1)
     string comparison problem usually 2 for loop for each char in both string correspondingly
     stock problem can have 2 dp matrix track max profit for k times buy and sell
+     loop through days and max buy count   buy[j] = max(buy[j], sell[j-1] - prices[i])
+            sell[j] = max(sell[j], buy[j] + prices[i]);
         complex stock problem with cooldown can draw state machine, for each state create matrix with size of time steps
         track money in out between state and write transfer functions for each state
 
