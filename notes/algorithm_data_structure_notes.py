@@ -251,6 +251,8 @@ Searching
         def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
             if match(xx):                # back track avoid create local variable ans
                 ans.update()
+                    # ans.append(state.copy())  # must use copy() for mutable variable otherwise update_back(state) will
+                                                # cause issue. no need copy() if update state in function param
                 return
 
             for child in children:  # combination from different arr horizontal traverse, ran O(V) same as vertices
@@ -558,7 +560,7 @@ Queue & Stack
         keep k largest item use minheap, pop item if size > k
         usually use array for complete binary tree   child index i//2 => parent index   parent index => 2i+1, 2i+2
         O(1) get largest/smallest item, O(log n) insert or remove top item
-        li = [2,3,1,5,4]
+        li = [2,3,1,5,4]   # li=[]
         heapq.heapify(li)    # min heap, heapify make li[0] smallest item, inside call siftup  O(log n)
         heapq.heappush(li, 6)  # O(logn)    append new item to last then sift up (continue swap with parent if smaller
                                # than parent)

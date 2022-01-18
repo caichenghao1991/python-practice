@@ -80,3 +80,7 @@ def strStr(haystack, needle):  # needle is pattern
 
 print(strStr('ababcababababd', 'ababd'))  # 9 index of match start
 print(eval('3+{}'.format(5)))
+h=heapq()
+h.heappush(1)
+print(h[0])
+
