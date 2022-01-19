@@ -113,6 +113,7 @@
         'male' else 'female' end from t_student where stu_birth >= '1980-1-1' and stu_name like 'Har%' and stu_address
         is not null and grade in (1,2,3) and age not between 10 and 12 and
         cast(age as integer)  age::integer  cast data type to integer
+        select age*2, age+year
         in (1,2,3)   # not in ('a','b','c')    (grade, age) in (select max(grade), age from student group by age)
         ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
@@ -133,6 +134,8 @@
         mid(name, 1,3)   # substring   len()    round(age, 1) # round to specified decimal count    now()
         format(now(), 'YYYY-MM-DD')
 
+    execution order: from & joins, where, group by, having, select, distinct, order by, limit & offset
+
     where -> group -> order
     select avg(score) as m from t_score group by stu_id having m>90
     use having to filter after group by (), can't use where because avg(score) is result after group by
@@ -143,6 +146,7 @@
         RIGHT(date, LENGTH(date)-11)   # substring start from right with 11 character
         TRIM(both '()' FROM date)      # heading/trailing/both  remove front/end/both side of () from date
         LTRIM()  RTRIM()    # remove left/right side leading space
+        length(name)        # return length of char
         POSITION('A' IN descript)     # get the index of first occurrence of 'A'
         SUBSTR(date, 4, 2) AS day      # substring of date   start position, number of characters. length optional,
                                         # default length till end of string

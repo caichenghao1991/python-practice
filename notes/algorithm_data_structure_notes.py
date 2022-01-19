@@ -448,6 +448,7 @@ array
     use hash to save time complexity
     sort array might help   .sort() is in place    sorted() is not
     be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
+    rotate array by k step use reverse array
 
 String
     convert string to list for operations to save memory for recreate string for every modification, finally convert

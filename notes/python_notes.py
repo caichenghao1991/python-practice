@@ -96,6 +96,7 @@ class Review:
     a += 'abc'  # naive string concatenate O(n^2), since create 3, 6, 9, ...  length string
         li =[]   for i in range(count): li.append('abc')   res = ''.join(li)
         or ''.join(['abc' for i in range(count)])     # O(n)
+        can't concat integer array,  need convert to string:  ''.join([str(_) for _ in [2,3,4]])
         
     chr(65)    # return string of unicode       ord('A')   # return unicode of character
     ord('c') - ord('a')   # 2
