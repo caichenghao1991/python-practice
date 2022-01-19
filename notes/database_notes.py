@@ -205,16 +205,24 @@
         # partition by anf order by optional    select sum(score) over () from t_student
     select ROW_NUMBER() OVER () from t_student       # add row number column start at 1
         RANK() OVER (ORDER BY age)  # give same age value same rank number then skip count of same value   1,2,2,2,5
+            # rank(), row_number() must have order by
+        AVG(age) OVER (partition by house ORDER BY name )     # partition stack same attribute values rows together one
+                # after another, not into one row(different from group by), first partition then order
+        AVG(age) OVER (ORDER BY name ROWS between 1 preceding and 1 following)    # for current role get average from
+                # 1 row above and 1 row below and current row
         DENSE_RANK()   # do not skip rank number after duplication    1,2,2,2,3
         NTILE(5) OVER (ORDER BY age)   # assign percentile value 1-5 based on age same order as age
-        PERCENT_RANK    CUME_DIST
-        MIN   MAX  SUM  COUNT  AVG
+        PERCENT_RANK()    CUME_DIST
+        MIN(age)   MAX  SUM  COUNT  AVG
         sum(case when score>=60 then 1 else 0 end) as pass
 
         LAG(score, 1) OVER () as lag     # create lag column from score shift down(pull from previous row) one step
         LEAD()                         # pull from following row
         select duration -LAG(duration, 1) as diff OVER ()   # create column with duration difference from row above
-        FIRST_VALUE()   LAST_VALUE()
+        FIRST_VALUE()   LAST_VALUE()  # not in mysql
+        nth_value(age, 3) over (order by time)   # return item age value from role with third smallest time value among
+                                                # all rows above's time value
+
     select ROW_NUMBER() OVER win as rows from t_student where age < 10 WINDOW win as (ORDER BY age) ORDER BY age
         # use alias win and declare WINDOW, must declare it after where
 
