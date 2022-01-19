@@ -334,7 +334,7 @@ Dynamic Programming
     3. initialize dp value  start with index that actually match the index meaning, not always need dp[0],dp[1]
     4. get traverse direction
     5. validate by example
-    must check fpr loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
+    must check for loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
         list
 
     dp=[0 for i in range(xx)]
@@ -368,7 +368,7 @@ Dynamic Programming
                     for i in range(len(weight)):  # iterate over items
                         for j in range(bag_weight+1):    # can switch for loop order
                             if j>= w[i]: dp[i][j]=max(dp[i-1][j], dp[i-1][j-weight[i]]+value[i])
-                            else: dp[i][j]=dp[i-1][j]   # not enough weight capacity to hold item i
+                            else: dp[i][j]=dp[i-1][j]   # must has else not enough weight capacity to hold item i
                     dp = [0] * (bag_weight + 1)
                     for i in range(len(weight)): for j in range(bag_weight, weight[i]-1,-1):
                         dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
@@ -391,6 +391,7 @@ Dynamic Programming
                     for i in range(len(weight)):
                         for j in range(weight[i],bag_weight+1):
                             dp[j]=max(dp[j],dp[j-weight[i]]+value[i])
+                                sum/max/min(fun(dp[j - weight[i]],dp[j])
                 # can switch loop order, draw dp cell value to make sense (left-> right, then top down top->down,
                     then left->right)
                 # if value multi-dimension, add addition inner for loop
@@ -400,7 +401,7 @@ Dynamic Programming
 
     string comparison problem usually 2 for loop for each char in both string correspondingly
     stock problem can have 2 dp matrix track max profit for k times buy and sell
-        complex stock problem with cooldown can draw state machine, for each state create matrix with size of time steps
+        complex stock problem with cool down can draw state machine, for each state create matrix with size of time steps
         track money in out between state and write transfer functions for each state
 
 
