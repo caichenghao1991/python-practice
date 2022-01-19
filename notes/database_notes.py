@@ -114,7 +114,11 @@
         is not null and grade in (1,2,3) and age not between 10 and 12 and
         cast(age as integer)  age::integer  cast data type to integer
         select age*2, age+year
-        in (1,2,3)   # not in ('a','b','c')    (grade, age) in (select max(grade), age from student group by age)
+        in (1,2,3)   # not in ('a','b','c')
+        (grade, age) in (select max(grade), age from student group by age)
+        select breed from cats group by breed order by count(breed) desc limit 1# find breed of cat with most population
+        select  a.name, a.weight from cats a inner join (select avg(weight) mweight, breed from cats group by breed) b
+            on a.breed=b.breed where a.weight>b.mweight      # find cat has higher weight than average in its breed
         ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
         # as alias    %: 0 or more any character   _: 1 character     <>: not equal
@@ -130,8 +134,7 @@
         group by age, gender
         # use group by to limit aggregate function(count, max, sum,...) affected scope from whole table to part of table
         count(*) include null,   count(stu_id) doesn't include null    count(distinct age)
-        first(name)  # return first attribute in table    last()   ucase()  # upper case   lcase()
-        mid(name, 1,3)   # substring   len()    round(age, 1) # round to specified decimal count    now()
+           round(age, 1) # round to specified decimal count    now()
         format(now(), 'YYYY-MM-DD')
 
     execution order: from & joins, where, group by, having, select, distinct, order by, limit & offset
@@ -148,8 +151,8 @@
         LTRIM()  RTRIM()    # remove left/right side leading space
         length(name)        # return length of char
         POSITION('A' IN descript)     # get the index of first occurrence of 'A'
-        SUBSTR(date, 4, 2) AS day      # substring of date   start position, number of characters. length optional,
-                                        # default length till end of string
+        SUBSTR(date, 4, 2) AS day      # substring of date   start position,length (start at 1), number of characters.
+                                    #length optional, default length till end of string
         CONCAT(date, ', ', LEFT(date, 10)) as day   # concat column name or constant string
         UPPER(address), LOWER(address)   # convert to upper,lower case
         EXTRACT('year' FROM date), DATE_TRUNC('month', date)    # deconstruct and extract year of date data type object
