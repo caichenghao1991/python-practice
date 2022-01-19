@@ -7,7 +7,7 @@
 5. test your solution on a few examples
 6. computer don't know whole picture, they check item one by one, which is different than our multi combined steps
         thinking in mind. keep this in mind during coding
-7. check edge cases, and unique cases
+7. check edge cases, and special cases
 8. reduce the possibilities without eliminating the correct answer
 
 greedy algorithm
@@ -302,7 +302,7 @@ Searching
             for child in curr.children:   # child nodes for tree and neighbor for graph
                 if valid(child) and not visited[child]:  # check match valid condition, must check if graph has loop
                                                          # via maintain a visited list or set
-                    stack.append(child)   # add child in stack
+                    queue.append(child)   # add child in stack
                     visited[child] = True
                     if child_match(end_condition):
                         return res
@@ -324,8 +324,7 @@ Dynamic Programming
     Also able to use space optimization if only use constant previous step state, no need store all states result.
     It's a bottom up algorithm, solve sub problem then main problem. If need solution path, need state record.
     dp[i] only consider the result consist state i, if need get all solution, might need sum all dp[i] i=0,...n
-    for 4 direction (up, down, left, right) grid search can run two times one from top left search right down, and other
-    from bottom right search top left.
+
     dp can also store intermediate sub solution, and accumulate sum/ length of dp become final answer
     try keep the state transfer function simple by derive the new state by <=2 previous state
     including subcategory problem: splitting value, common sequence, knapsacks, string manipulation, stock trading
@@ -334,7 +333,7 @@ Dynamic Programming
     3. initialize dp value  start with index that actually match the index meaning, not always need dp[0],dp[1]
     4. get traverse direction
     5. validate by example
-    must check fpr loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
+    must check for loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
         list
     if need check 4 direction in grid need do 2 dp loop from top left to right bottom, and from right bottom to top left
         because if do 4 direction at same time, 2 direction will based on value not initialized yet
@@ -447,7 +446,7 @@ Bitwise Operation
 
 array
     python use list instead, continuous memory location, need shift items if insert/delete, index start 0
-    array traverse from beginning or end, two array can start both beginning or end or one each.
+    array traverse from beginning or end, two pointer can start both beginning or end or one each.
     use hash to save time complexity
     sort array might help   .sort() is in place    sorted() is not
     be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
@@ -550,7 +549,7 @@ Queue & Stack
     s = []   # stack
     s.append(1)
     print(s.pop())
-    print(s[len(s) - 1])   # peek
+    print(s[-1])   # peek
 
     implement queue with 2 stacks(one hold input, one output), for dequeue pop out stack if has item. if empty, pop all
         input and push to output stack. For enqueue, just push to input stack. for peek just pop output stack, then push
@@ -587,7 +586,7 @@ Queue & Stack
         heapq._heapify_max(li)                  # heapify
         li.append(6)                            # heappush
         heapq._siftdown_max(li, 0, len(li)-1)   # heappush
-        v=heapq._heappop_max(ll)                # heap pop
+        v=heapq._heappop_max(li)                # heap pop
 
         # heap sort
         build heap, remove first item, get first item(largest), put last item to first place, and do heapify. repeat
@@ -636,7 +635,7 @@ binary tree
     list presentation: parent index i, left/right child index 2i+1 and 2i+2
     traversal: dfs(pre(root first), in(root middle), post order(root last)), bfs(level order)
         pre-order: init root in stack, pop node n, add to result, push n.left, n.right in stack
-        post-order: same as pre order, but push n.right, then n.left. finally reverse result
+        post-order: similar to pre order, but push n.right, then n.left. finally reverse result
         in-order: loop when stack not empty or curr node not none: if curr, add to stack, update curr = curr.left, else
             curr = stack.pop(), add it to result, and update curr = curr.right
 
@@ -808,7 +807,7 @@ Graph
 
 Union find (Disjoint set)
     first mark all point's parent as themselves, when check_parent of a node i, while i != parent[i]: i=parent[i] return
-    i  at end as parent.   when connect an edge ij, mark parent[i] = check_parent of q,
+    i  at end as parent.   when connect an edge ij, mark parent[j] = check_parent of i,
 
 
 string
