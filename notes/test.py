@@ -78,9 +78,5 @@ def strStr(haystack, needle):  # needle is pattern
     return i - j if j == n else -1
 
 
-print(strStr('ababcababababd', 'ababd'))  # 9 index of match start
-print(eval('3+{}'.format(5)))
-h=heapq()
-h.heappush(1)
-print(h[0])
+print(''.join(['2','3','4']))
 

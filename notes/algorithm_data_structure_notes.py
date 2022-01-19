@@ -336,8 +336,11 @@ Dynamic Programming
     5. validate by example
     must check for loop dp list index is valid, might need initiate a row/column values instead of 1/2 value in 2d
         list
-
-    dp=[0 for i in range(xx)]
+    if need check 4 direction in grid need do 2 dp loop from top left to right bottom, and from right bottom to top left
+        because if do 4 direction at same time, 2 direction will based on value not initialized yet
+    if deep means minimized value, then need initialize as float('inf')
+    dp=[0 for i in range(n+1)]  # need n+1 so when n=0 dp[1] won't cause error, and end till dp[n]
+    dp[0],dp[1] = xx,xx
     if n <= x:      # base case
         return xxx
     dp[0],...,dp[x] = x,...,x  # update base case
@@ -401,6 +404,9 @@ Dynamic Programming
 
     string comparison problem usually 2 for loop for each char in both string correspondingly
     stock problem can have 2 dp matrix track max profit for k times buy and sell
+     loop through days and number of times of buy    buy[j] = max(buy[j], sell[j-1] - prices[i])
+            sell[j] = max(sell[j], buy[j] + prices[i]);
+        complex stock problem with cooldown can draw state machine, for each state create matrix with size of time steps
         complex stock problem with cool down can draw state machine, for each state create matrix with size of time steps
         track money in out between state and write transfer functions for each state
 
@@ -470,6 +476,7 @@ array
     use hash to save time complexity
     sort array might help   .sort() is in place    sorted() is not
     be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
+    rotate array by k step use reverse array
 
 String
     convert string to list for operations to save memory for recreate string for every modification, finally convert
