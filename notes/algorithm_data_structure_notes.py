@@ -10,6 +10,8 @@
 7. check edge cases, and special cases
 8. reduce the possibilities without eliminating the correct answer
 
+talk about brute force, time complexity, and verify edge case
+
 greedy algorithm
     each step choose local most optimized option, generate final global possible most efficient solution under certain
     situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
