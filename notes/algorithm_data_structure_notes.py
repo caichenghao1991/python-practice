@@ -10,6 +10,12 @@
 7. check edge cases, and special cases
 8. reduce the possibilities without eliminating the correct answer
 
+careful list:
+    copy paste, double check pasted item while missing any updates
+    handling duplicate value in array
+    edge case validity
+
+
 greedy algorithm
     each step choose local most optimized option, generate final global possible most efficient solution under certain
     situations. choose a greedy way to ensure the local optimization can also ensure global optimization. example
@@ -805,6 +811,9 @@ Graph
         """
         return -1 if max(distance) == float("Inf") else max(distance)
 
+    Floyd algorith(multiple sources/start positions)
+
+
 Union find (Disjoint set)
     first mark all point's parent as themselves, when check_parent of a node i, while i != parent[i]: i=parent[i] return
     i  at end as parent.   when connect an edge ij, mark parent[j] = check_parent of i,
@@ -865,7 +874,8 @@ dict
     d=eval('{"name":"Harry"}')
     d=json.loads('{"name":"Harry"}')
     d=dict.fromkeys(['name','age'], 1)
-    dict1.get('name', "NA")   # return default if not found
+    dict1.get('name', "NA")   # return default(None if not specified) if not found
+        # don't use if not dic.get('key'):   since both none and 0 evaluate same.  use if dic.get('key') !=None:
     len(d)
     'name' in d
     list(d.keys())   # .values()  .items()
