@@ -145,7 +145,7 @@ binary search
             if arr[mid] > value:
                 right = mid - 1
             elif arr[mid] < value:
-                left = mid + 1
+                left = mid + 1         # update index only  not recursive call
             else:
                 # res = mid   for search an unique exist item
                 res = mid

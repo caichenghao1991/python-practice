@@ -4,6 +4,7 @@ array:
             11 (2 pointer both side, eliminate lower item because all combination inward has lower volume than
                 current, since width smaller, and height either same or lower)
             26 only need find result between [1, len(arr)+1]
+            31
     review:
             15 use map (key: value, value: count of occurrence of that value), double loop in map, check desired value
                 key exist
@@ -31,6 +32,17 @@ stack
                 add a height 0 at end and init stack -1 (compare to the last 0 height item)
 
 binary search:
+    good:   33: first half if condition search the certain monotonous increase section, rest leave in else part
+    review:
+    bad:
+
+
+back track
+    good:
+    review:
+    bad:
+
+dp
     good:
     review:
     bad:

@@ -176,6 +176,7 @@ class Review:
     
     Read
     print(list1[0], list1[:1], list1[::-2])  # [True, 1]       [:1] [0,1),  from last item to front step 2
+    list1[::-1]  # reverse string
     len(list1) #3    
     list1.index(1)  # 0  exception if not found    list1.index(1,0,2)  find 1 in index between [ 0,2)
     list1.count(1)  # 1  number of appearance of value
