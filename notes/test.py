@@ -76,5 +76,10 @@ def strStr(haystack, needle):  # needle is pattern
         else:
             j = lps[j]
     return i - j if j == n else -1
-
-
+print('abcde_'.find('_',0,5))
+set1= {1}
+set2={2}
+set1.update(set2)
+print(set1)
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

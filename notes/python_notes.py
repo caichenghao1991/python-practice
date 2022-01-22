@@ -45,8 +45,8 @@ class Review:
     
     --Print and input
     print(object(s), sep=separator, end=end, file=file, flush=flush)
-    print(a, b)  # default space separate variables, default new line use sep=',' to add separator  end='' no new line
-    print(a,b,sep=',',end='')
+    print(a, b)  # default space separate variables, default new line. both are None.  
+    print(a,b,sep=',',end='')    # use sep=',' to add separator  end='' no new line
     input(prompt string) allows user input. program pause until input received. always return string object
     
     
@@ -62,8 +62,8 @@ class Review:
         print("{name} is {age} years old.".format(name='Harry', age=10))
         name='Harry' 
         print(f"{name} is nice")    # name variable is defined ahead
-        values = {'city': 'San Francisco', 'state': 'California'}
-        s = "I live in %(city)s, %(state)s" % values    # I live in San Francisco, California
+        dic = {'city': 'San Francisco', 'state': 'California'}
+        s = "I live in %(city)s, %(state)s" % dic    # I live in San Francisco, California
 
     variable with same string value share the same memory location (reference), but change one won't affect other
     slicing: s[start:end:step]  [start,end) :step is optional.   start, end can be negative, last char has index -1. 
@@ -71,7 +71,7 @@ class Review:
     functions:
     len   # len(var)  string length
     find    index    rfind   rindex     # var.find('_') return index of first _, return -1 if not found
-                                        # var.find('_',0,5) return index of first _ between 1st and 5th char
+                                        # var.find('_',0,5) return index of first _ between index [0,5)
                                         # var.index('_')  same as find, but will raise exception if not found
                                         # var.index('_', beg=0, end=len(string))
     startswith    endswith   isalpha  isdigit  isalnum   isspace   # var.startswith('www.') return bool  
@@ -164,7 +164,7 @@ class Review:
     mutable array able to store different data type entries
     Create / Copy
     list1 = []  list1 = [1, '2', True]    list2 = list(str)  # create char list from string
-    list1 = list()
+    list1 = list()      
     list(range(3,5))  # [3,4]       [i * 2 for i in [1, 2, 3, 4] if i % 2 == 0 and i >= 0]  # [4, 8]      
     [i for i in 'hi']  # ['h', 'i' ]   
     [w.lower() if w.startswith('h') else w.upper() for w in list1]  list1 item start with h then lower otherwise upper 
@@ -200,7 +200,7 @@ class Review:
     list1.sort(reverse=True)    # return None  mutate original list  large -> small
     list1.reverse()   # return None   mutates list to [True, '2', 1]
     li = sorted(list1)  # return new sorted array
-    reversed(li)  # return iterable object   for i in reversed(list1): print(i)   [True, '2', 1]
+    reversed(li)  # return iterable object   for i in reversed(list1): print(i)   [True, '2', 1]    or li[::-1]
     Aggregate functions
     min(list1)   max(list1)  sum(list1)
     
@@ -234,7 +234,7 @@ class Review:
     dict1.get('age')                   # 30 --> Returns None if key does not exist.
     dict1.get('ages', 0 )              # 0 --> Returns default 0 (2nd param) if key is not found   
     len(my_dict)        # 3  
-    'name' in my_dict   #True
+    'name' in my_dict   #True  check key in dic
     list(my_dict.keys())                 # ['name', 'age', 18]
     list(my_dict.values())               # ['Andrei Neagoie', 30, False]
     list(my_dict.items())                # [('name', 'Andrei Neagoie'), ('age', 30), (18, False)]  list of tuple    
@@ -263,7 +263,7 @@ class Review:
     Insert
     set1.add(1)  # return None {1}  won't add additional duplicate item
     Update
-    set1.update(set2)  # add set 2 to add 1, set 2 unchanged
+    set1.update(set2)  # add set 2 to add 1 (in place, no need assign), set 2 unchanged
     set3 = set1.union(set2)               # {1,2,3,4,5}    set1 | set2
     set4 = set1.intersection(set2)        # {3}    set1 & set2
     set5 = set1.difference(set2)          # {1, 2}  unique item in set1
@@ -351,7 +351,7 @@ class Review:
                   
     decorator function can have input parameters as well need extra layer of outer function
         functions inside function can't be directly called
-    def with_param(para2):
+    def with_param1(para2):
         def decor(func):
             @wraps(func)    # for f.__name__, return function name (f) instead of decorating function name (decor)
             def d(*args. **kwargs):  # def d(para1) if known parameter
@@ -359,8 +359,10 @@ class Review:
                 return func(*args. **kwargs)
             return d
         return decor
-        
-    @with_param(para2_val)
+    
+    @with_param2()   # can have multiple decorator, execution order outer function-> inner function, closer to function
+                     # -> further to function, https://www.jb51.net/article/148431.htm  
+    @with_param1(para2_val)
     def f(para1_val):
         return para1_val+para2_val
     
@@ -436,7 +438,7 @@ class Review:
     
     create json object 
         import json
-        data = json.dumps({'a': 123, 'b': 456}, separators=[',', ':'], ensure_ascii=False, indent=4, sort_keys=True)
+        str_data = json.dumps({'a': 123, 'b': 456}, separators=[',', ':'], ensure_ascii=False, indent=4, sort_keys=True)
                 .encode('utf-8')  
             # separators use ',' instead of default ', ',  use ':' instead of default ': 'remove space
             # ensure_ascii=False: prevent convert utf8 to ascii
@@ -445,7 +447,7 @@ class Review:
                 language to string
         if object is not JSON serializable, write a function to return necessary attribute and value as dictionary
         
-        json.loads(data)  # load bytes or string to dict 
+        dic = json.loads(data)  # load bytes or string to dict 
         
     import os   
     os.path.isabs(string)   # return bool check path is absolute path
@@ -563,7 +565,8 @@ class Review:
         @staticmethod
         def create(name):         # static method, no self/cls, can only use / update class variable and class method 
             Person.model='Xiaomi' # used for define actions taken before instance created
-        def __call__(self,para):  # needed when run the class instance like method:  ph(1)
+        def __call__(self,para):  # needed when run the class instance like method: ph=CellPhone('XiaoMi')  ph(1)
+            print(para)           # 1
         def __del__(self):        # usually don't need to write, use parent's object.__del__. executed when there is no       
                                   # reference to a class object or at the end of execution 
         def __str__(self):        # return string, used for print(ph) debugging with specific info  without __str__,  
@@ -604,7 +607,7 @@ class Review:
         name = field.attname
         value = getattr(self, name)
     
-    polymorphism： same method base on input type (isinstance(var, type)), run different code block
+    polymorphism: same method base on input type (isinstance(var, type)), run different code block
     
     class Singleton: 
         __instance = None    # when initialize object, always return the same one
@@ -998,7 +1001,7 @@ class Review:
     # socket
     # server side
     import socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # default value same as socket.socket()
     sock.bind(('localhost', 8001))
     sock.listen(5)
     while True:
