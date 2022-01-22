@@ -256,13 +256,14 @@ Searching
             for node in space:  # space can only have one node, also node doesn't have to be tree explicitly
                 backtrack(state, visited, node_index, init_val, ans)
             return ans
-        def backtrack(state, xx, ans):   # xx can be multiple variables pass into function
-            if match(xx):                # back track avoid create local variable ans
-                                        # if len(path)==len(res)    if startIndex == len(res)
-                ans.update()
-                    # ans.append(state[:])  # must use copy() for mutable variable otherwise update_back(state) will
+        def backtrack(state, xx, ans):  # xx can be multiple variables pass into function
+            if match(xx):               # validation check can be added at front or inside for loop, here its checking
+                ans.update()            # during final add, while for loop check each step during extending path
+            # if len(path)==len(res)    if startIndex == len(res)   # no need length check if result can have any length
+                # ans.append(state[:])  # must use copy() or [:] for mutable variable otherwise update_back(state) will
                                                 # cause issue. no need copy() if update state in function param
-                return
+                return                  # return
+                                        # back track avoid create local variable ans
 
             for child in children:  # combination from different arr horizontal traverse, ran O(V) same as vertices
             # for i in range(startIndex, (len(arr)-(k-len(path)))+2)  # for combination in one arr, can sort arr first
@@ -542,6 +543,9 @@ linked list
 
     dummy = Node(0) dummy.next=head  curr = dummy      while curr    or dummy (while curr.next)
     curr = head   while curr  return head (change original linked list)
+
+    dummy = ListNode(None); curr=dummy   while xx:  curr.next = ListNode(v); curr=curr.next
+
 
     def reverseList(self, head: ListNode) -> ListNode:
         def reverse(pre,cur):

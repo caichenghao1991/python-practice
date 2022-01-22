@@ -77,10 +77,4 @@ def strStr(haystack, needle):  # needle is pattern
             j = lps[j]
     return i - j if j == n else -1
 
-li =[1,2,3,4,5]
-heapq._heapify_max(li)                  # heapify
-li.append(6)                            # heappush
-heapq._siftdown_max(li, 0, len(li)-1)   # heappush
-v=heapq._heappop_max(li)
-print(v)
 
