@@ -41,7 +41,12 @@ string:
 
 linked list:
     good:   2  pay attention to last remaining 1 after both list finished.  dummy = ListNode(None); curr=dummy
-                while l1 or l2:  curr.next = ListNode(v); curr=curr.next
+                while l1 or l2:  curr.next = ListNode(v); curr=curr.next    # for adding node
+            19 dummy = ListNode(None); dummy.next=head;  curr=dummy;  while curr    # for traverse
+            24 dummy = ListNode(0, head)  curr = dummy.next;  pre =dummy; while curr and curr.next:  # swap node need
+                previous node info
+            23 heap
+            92
     review:
     bad:
 
@@ -59,13 +64,17 @@ stack
 
 binary search:
     good:   33 first half if condition search the certain monotonous increase section, rest leave in else part
+
     review:
     bad:
 
-graph:
-    good:   79 need change visited node value to '#' otherwise will revisit node in the path already. or keep visited
-                matrix
-    review:
+tree:
+    good:   100 condition similar as 101
+            103
+    review: 95 parameter: start, end, return all_trees (must return since need results from left and right child)
+                base case: if start>end: return [None]
+            101 if both child empty return true, if left, right value same then return left and right recursive result
+                else return False
     bad:
 
 back track
@@ -75,10 +84,16 @@ back track
                 continue when start index in recursive parameter > index in for loop
     bad:
 
-dp
-    to be done: 5  32
-    good:
+graph:
+    good:   79 need change visited node value to '#' otherwise will revisit node in the path already. or keep visited
+                matrix
     review:
+    bad:
+dp
+    to be done:   32
+    good:
+    review: 5 initialize 1 and 2 character case,then dp[i][j]=True means s[i:j+1] is valid  dp[i][j]=dp[i+1][j-1]
+                don't forget update max length
     bad:
 '''
 l=[1,11]

@@ -544,8 +544,8 @@ linked list
     dummy = Node(0) dummy.next=head  curr = dummy      while curr    or dummy (while curr.next)
     curr = head   while curr  return head (change original linked list)
 
-    dummy = ListNode(None); curr=dummy   while xx:  curr.next = ListNode(v); curr=curr.next
-
+    dummy = ListNode(None); curr=dummy   while xx:  curr.next = ListNode(v); curr=curr.next     # create new node
+    dummy = ListNode(None); dummy.next=head;  curr=dummy;  while curr    # traverse
 
     def reverseList(self, head: ListNode) -> ListNode:
         def reverse(pre,cur):

@@ -17,11 +17,10 @@
     non-relational database (NoSQL): faster flexible. MongoDB, Redis (key-value pair, cache),
         ElasticSearch (search engine)
         BASE
-        Basic Availability: The database appears to work most of the time.
-        Soft-state: Stores don’t have to be write-consistent, nor do different replicas have to be
-            mutually consistent all the time.
-        Eventual consistency: Stores exhibit consistency at some later point (e.g., lazily at read time).
-        NoSQL database type:
+        Basic Availability: the system guarantees availability.
+        Soft-state: the state of the system may change over time, even without input.
+        Eventual consistency: the system will become consistent over a period of time, given that the system doesn't
+            receive input during that period.
         document (MongoDB(able to create some search index, and other SQL functionalities), ElasticSearch),
         key-value (Redis,value can be any dtype), wide-column (Hbase, store on columns), graph store (Neo4J)
 

@@ -11,7 +11,15 @@
                   UDP (faster, no handshake, ex. send video)
     application: HTTP / SMTP / POP3 / FTP / SSH
 
-    or 7 layer model: physical, data link, network, transport, session, presentation, application
+    OSI(open systems interconnection) 7 layers model:
+        1. physical (physical structure: cables, hubs). use Hub
+        2. data link: transfer data frames('envelopes', contains mac address) between nodes. use switch bridge WAP
+        3. network: decide data physical path taken. Packets('letter' contains IP address). use Routers
+        4. Transport: ensure correct deliver message in sequence. TCP host to host flow control. TCP, UDP
+        5. Session: allow session between processes on different station. Synch & send to ports. use logical ports
+        6. Presentation: formats(translate) data to present.  syntax layer, encrypt & decrypt. JPEG/ASCII/TIFF/GIF
+        7. Application: serve as window for user. end user layer. application ex.SMTP(Simple Mail Transfer Protocol)
+
 
     HTML: hyper-text markup language
     HTTP: hyper-text transfer protocol  (1.0  1.1  2.0)
