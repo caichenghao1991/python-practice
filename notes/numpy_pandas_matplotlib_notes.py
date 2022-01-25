@@ -200,7 +200,7 @@
             a.add(b, fill_value=0)    # instead of fill NaN, fill 0
                 subtract()/sub()    multiply()/mul()   divide()/div()    floordiv()   mod()  pow()
             aggregate function same as numpy a.sum()  # add numeric, concatenate string
-                prod,  mean, std, var, argmin, argmax, median, precentile, any, all, power
+                prod,  mean, std, var, argmin, argmax, median, percentile, any, all, power
 
         DataFrame: 2 dimensional
             each row or column is a Series

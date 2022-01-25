@@ -663,7 +663,7 @@ class Review:
     birthday = datetime.date(2019,6,20)
         # today = datetime.date.today() # 2021-09-07     
     print(birthday.day)  # 20         print(datetime.date.ctime(birthday))  # Thu Jun 20 00:00:00 2019
-    b2 = datetime.datetime(2019,6,20,10,30)        print(datetime.datetime.ctime(birthday))  # Thu Jun 20 10:30:00 2019
+    b2 = datetime.datetime(2019,6,20,10,30)        print(datetime.datetime.ctime(b2))  # Thu Jun 20 10:30:00 2019
     now, delta = datetime.datetime.now(), datetime.timedelta(hours=2)  #(weeks=3,days=2)
     datetime.strptime('2022-10-31 16:55:00', '%Y-%m-%d %H:%M:%S'))
     print(now, now - delta)   # 2021-09-07 00:19:10.488159  2021-09-06 22:19:10.488159

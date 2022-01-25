@@ -746,5 +746,5 @@
         db.fs.chunks.find({files_id:ObjectId('534a811bf8b4aa4d33fdf94d')})   # find all documents(chunks)
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")
-    res = client.hogwarts.hogwarts_table.create_index([('name', 1),('_id', -1)], unique=True)
+    res = client.hogwarts.hogwarts_table.create_index({'name': 1}, unique=True)
 """

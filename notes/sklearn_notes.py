@@ -22,7 +22,7 @@
             # min_samples_leaf=2      # default 1, if 1 items in node, stop split
         tree.fit(X_train, y_train)
 
-        randomforest
+        random forest
             random samples(same total) for each tree, random feature column for different tree
         rfc=RandomForestClassifier()
             # n_estimators  # number of trees in forest default 100
@@ -59,7 +59,7 @@
             svc.coef_,  svc.intercept_
             svc.decision_function((x,y))  # return distance of point to decision hyperplane
 
-        LinearSVR()  svm regressor, regresion scre closer to 1 better
+        LinearSVR()  svm regressor, regression score closer to 1 better
             svr = LinearSVR()
             svr.fit(X_train, y_train)  # train model
             print(svr.predict(X_test))  # 2D array (dataframe/[[]]) as input

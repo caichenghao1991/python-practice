@@ -9,12 +9,12 @@
     $ w                      # show detailed version with cpu usage, idle time...
     $ last                   # show recent login record
     $ exit / logout          # exit connection
-    $ adduser                # create user
-    $ passwd                 # change password
-    $ userdel                # delete user
+    $ adduser [] cai         # create user
+    $ passwd [] cai          # change password
+    $ userdel cai            # delete user
     $ su username            # switch user to username
     $ date   $ cal           # check date and calender
-    $ write user [ttyname]   # send message to a user
+    $ write user [ttyname]   # send message to user, command used for connection,after connected type message ctrl+c end
     $ wall [ message ]       # send message to all (mesg set to yes)
     $ mesg [ny]              # whether receive message
     $ clear                  # clear console output

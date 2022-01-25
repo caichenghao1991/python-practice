@@ -91,6 +91,7 @@
 
 
         Docker Compose
+            docker-compose.yml
             docker compose is a tool used for define and run application on multiple docker container. use YML file to
                 configure all the application's service (version, services(ports, build, volume, links, args, target,
                 dockerfile, context, command, container_name, depends_on, cap_add, cap_drop, cgroup_parent,
