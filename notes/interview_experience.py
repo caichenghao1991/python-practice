@@ -22,7 +22,7 @@
         docker and kubernetes
         On side project, I have worked on various web development, machine learning, crawling framework associate with
         various SQL, NoSQL database. I also have some practice on PySpark for processing large data.
-          
+
 
 
 
@@ -38,4 +38,10 @@
     what do you like most about the company?
     what are the biggest problems you are solving for today, and what is their impact on BP’s business
 
+
+    Tableau/ Power BI
+    multivariate
+    data wrangling( process of cleaning and unifying messy and complex data sets for easy access and analysis),
+    manipulation and management of technologies
+    distributed data parallelism and distributed training
 '''
