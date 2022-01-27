@@ -27,7 +27,6 @@
         a[:, 1] = [1, 2]
         a[::-1,::-1]    # reverse in first and second dimension   array([[6, 5, 4],[3, 2, 1]])
             # plt.imshow(img[:,::-1])    left-right reverse image
-        print(np.repeat(a, 2, axis=0))  # [[0 1 0][0 1 0][4 2 0][4 2 0]]
         # doesn't change array unless assign the result, repeat in dimension 0, repeated value beside original
         print(a)  # [[0 1 0][4 2 0]]
 
@@ -76,6 +75,7 @@
         np.concatenate([np.ones((2, 2)), np.zeros((2, 3))], axis=1)  #[[1., 1., 0., 0., 0.],[1., 1., 0., 0., 0.]]
             # final result and original same size in axis dimension
         np.unique([1,1,2,3])  # array([1,2,3]) return np.array with unique value
+        print(np.repeat(a, 2, axis=0))  # [[0 1 0][0 1 0][4 2 0][4 2 0]]
         np.histogram(np.array([1,1,2,3,5]))
         np.logical_xor(data[:, 0] > 0, data[:, 1] > 0)   # return array of true(2,4 quadrant) and false(1,3 quadrant)
             logical_or, logical_and, logical_not
@@ -143,7 +143,7 @@
         print((~((file_data > 0) & (file_data < 100))))  # s<=0 or >=100
         # [[ True False False  True  True][False False False False  True][False False False False  True]]
         print(np.any([[True, False], [False, False]], axis=0))  # [ True False]
-        print(np.all([[True, False], [False, False]], axis=0))  # [False False]
+        print(np.all([[True, True], [False, False]], axis=0))  # [False False]
         print(np.where(a < 1, a, -1))  # if element < 1, return element, otherwise -1 [[ 0 -1  0][-1 -1  0]]
 
 

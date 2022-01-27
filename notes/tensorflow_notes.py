@@ -285,6 +285,9 @@
         plt.imshow(z, origin='lower', interpolation='none')   # draw heat value map for z
         plt.show()
 
+    y = tf.one_hot(y,depth=10, dtype=tf.int32)
+    db = tf.data.Dataset.from_tensor_slices((x,y))
+
 
     tf.keras (implementation) is not keras(wrapper)
         components inside tf.keras: datasets, layers, losses, metrics, optimizers
@@ -468,6 +471,49 @@
         y = tf.argmax(test_y, axis=1)
         pred = tf.argmax(pred, axis=1)
         print(y, pred)
+
+
+        x_train, x_val = tf.split(x, num_or_size_splits=[50000,10000])
+        train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
+        loss_m = metrics.Mean()
+        model = tf.keras.Sequential([
+            keras.layers.Dense(256, activation='relu'),
+            keras.layers.Dense(10)
+        ])
+        optimizer = optimizers.Adam(learning_rate=1e-3)
+        for epoch in range(10):
+            for step, (x, y) in enumerate(train_dataset):
+                x = tf.reshape(x, [-1, 28 * 28])
+                with tf.GradientTape() as tape:
+                    logits = model(x)
+                    y_onehot = tf.one_hot(y, depth=10)
+                    loss_mse = tf.reduce_mean(tf.losses.MSE(y_onehot, logits))
+                    loss_ce = tf.reduce_mean(tf.losses.categorical_crossentropy(y_onehot, logits, from_logits=True))
+
+                    loss_m.update_state(loss_ce)
+
+                grads = tape.gradient(loss_ce, model.trainable_variables)
+                optimizer.apply_gradients(zip(grads, model.trainable_variables))
+
+                if step % 100 == 0:
+                    print(epoch, step, 'loss: ', float(loss_ce), loss_m.result().numpy())
+                    loss_m.reset_states()
+
+            total_correct, total_num = 0, 0
+            acc_m.reset_states()
+            for x, y in test_dataset:
+                x = tf.reshape(x, [-1, 28 * 28])
+                logits = model(x)
+                prob = tf.nn.softmax(logits, axis=1)
+                pred = tf.cast(tf.argmax(prob, axis=1),dtype=tf.int32)
+                correct = tf.equal(y, pred)
+                correct = tf.reduce_sum(tf.cast(correct, dtype=tf.int32))
+                total_correct += int(correct)
+                total_num += x.shape[0]
+
+            acc = total_correct / total_num
+            acc_m.update_state(y, pred)
+            print('test acc', acc,  acc_m.result().numpy())
 
     self defined layer
         in order to use keras.Sequential to ease the getting gradient update for trainable_variable, we need extend

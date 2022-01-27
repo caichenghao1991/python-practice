@@ -108,6 +108,8 @@
         resp = requests.request('GET','http://httpbin.org/get')
         resp = requests.get('http://httpbin.org/get')  # , headers=headers)
         print(resp.status_code, resp.reason, resp.text)  # return response object string response content
+        resp.content   # binary content
+
         # get request with parameter
         resp = requests.get('http://httpbin.org/get', params={'Harry Potter': 10})
         print(resp.json())
@@ -177,6 +179,7 @@
             text()    # text content inside tag
 
         pip install lxml
+        from lxml import etree
         soup_lxml = BeautifulSoup(hmtl_doc, "lxml")
         print(soup_lxml.a)   # return first <a>
         hmtl_doc = requests.get(url).text
@@ -444,8 +447,8 @@
             from scrapy_redis.spiders import RedisSpider
             class Example1Spider(RedisSpider):
                 # remove url
-            then in redis-cli:  lpush example1:start_urls https://www.xiachufang.com/    #scraper name in class starturl
-
+            scrapy crawl example1   # run spyder
+            then in redis-cli:  lpush example1  https://www.xiachufang.com/    # add start url to scheduler
 
         css encrypt: crawl css. tinycss parse css file,  find svg img, characters in svg image(x,y coordinate)
         font encrypt: download the random font file, analyze font and character  (TTFont)

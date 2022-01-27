@@ -81,5 +81,4 @@ set1= {1}
 set2={2}
 set1.update(set2)
 print(set1)
-import socket
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+print(np.all([[True, True], [False, False]], axis=0))  # [False False]
