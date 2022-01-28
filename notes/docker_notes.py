@@ -263,14 +263,23 @@
             this pod, will reassign a replica with same service IP instead of assigning a new IP each time container
             failed. And pods communicate to each other via service. All the replicas of application share a service
             with same service IP. Service also act as a load balancer.
+            there are 4 type of services: ClusterIP, Headless, NodePort, LoadBalancer
         Ingress: The request first goes to ingress, so user can access page via https://my-app.com, then ingress route
-            traffic to service IP address (http://ip:port).
+            traffic to service IP address (http://ip:port). Can have many ingress to connect internal service to some
+            domain name, but only one Ingress Controller Pod required to have to evaluate all the rules and manage
+            redirection, also act as entrypoint to cluster, implemented by 3rd-party(ex. K8s Nginx Ingress Controller).
+            'minikube addons enable ingress' to start k8s nginx implementation of ingress controller for minikube.
+                check via 'kubectl get pod -n kubesystem'  # check nginx-ingress-controller
+            Can have cloud loud balancer connect to ingress controller, or configure some entrypoint yourself. Need
+            entry point either inside of cluster or outside as separate (proxy) server (software/hardware solution)
+
         Configure Map: external configuration of application, connect to the pods. so if need to change the config of
             the service, no need to rebuild the image with new application properties file.
         Secret: similar to configure map, (credential, certificate) but not stored in plain text format. secret are
             accessible by pods
         Volume: attach a (local/remote) physical storage to pod. So all the data will be persisted with pod restarts.
             Kubernetes don't manage data persistence, so you have to backup with other solution.
+            3 component of kubernetes: persistent volume, persistent volume claim, and storage class
         Deployment: blue print for pods, another layer of abstraction over pods. User specify number of replica in
             deployment. Deployment can only replicate application, not database(has state(changed data))
             deployment manage all the replica set (replica of pod). user only need manage deployment, any thing below is
@@ -291,6 +300,30 @@
             master node need less resource since it's nodes that do actually jobs.
             master and nodes recommended located on different machine, can be same machine though
         Cluster: control plane and corresponding nodes
+        Namespace: can have multiple namespace(cluster) in cluster to organize resource. default has some namespace:
+            kube-node-lease(node associated lease object in namespace, heartbeats of nodes to determine availability);
+            kube-public(public accessible data, a config map with cluster information, use 'kubectl cluster info' to get
+            print values ); kube-system(don't modified, for system processes(master, kubectl)); default (used to hold
+            created new name spaces and other resource you created), kubernetes-dashboard(for minikube)
+            use namespace to group resource with same kind together; allow different team to work on same deployment
+            within same k8s cluster, using their own namespace(cluster in k8s cluster) will make sure they don't
+            override(interrupt) each other deployment, and each team have isolated environment, and can limit resource
+            assign to each namespace; can make different environment (prod, dev), blue/green deployment their own
+            namespace, so they can retrieved shared other namespace information, without need of create two clusters
+            Since can't access most resources from another namespace, each namespace need their own configmap, secret.
+                but you can access service in other namespace.
+            volume and node can't be assign to namespace. use 'kubectl api-resources --namspaced=false/true' to list
+                resource (not) bound to namespace
+            by default, components are created in default namespace if not specified. after command add
+                'kubectl apply -f deployment.yaml --namespace=my-namespace' to assign to specified namespace
+                or inside configuration file(recommended): under metadata add:    namespace: my-namespace
+            when using get command need add -n to specify namespace if not default:
+                'kubectl get configmap -n my-namespace'
+            use kubens to change default namespace to specified namespace a, so no need -n when refer to namespace a
+                in command line:  $ brew install kubectx       $kubens
+                $ kubens my-namespace   # change default namespace to my-namespace
+        Helm: package manager for kubernetes, package yaml files and distribute in repositories. create Helm charts
+            and push to Helm repository, so other people can download and use with same need(ex. build nginx cluster)
 
         installation: minikube, kubeadm, yum, binary, 3rd party, cloud(Amazon EKS)
         minikube simulate kubernetes in virtual environment for learning
@@ -341,24 +374,108 @@
                             cpu: "500m"
                         ports:
                         - containerPort: 5000
-        ---
+                        env:
+                        - name: USER
+                            value: root
+                        - name: PASSWORD           # name should be retrieved from docker hub image configuration if any
+                            valueFrom:                          # retrieve secret value from secret service
+                                secretKeyRef:
+                                    name: nginx-secret          # match secret service name
+                                    value: password-secret      # retrieve from secret service via key
+                        - name: URL
+                            valueFrom:                          # retrieve secret value from secret service
+                                configMapKeyRef:
+                                    name: nginx-configmap       # match configure map service name
+                                    value: my_url               # retrieve from configure map via key
+        ---                     # new document starting
         apiVersion: apps/v1
         kind: Service           # create service
         metadata:
-            name: np-service   # NodePort to access server in cluster
+            name: np-service    # NodePort to access server in cluster
         spec:
             selector:
                 app: nginx      # connect with deployment metadata labels
-            type: NodePort      # only for nodeport
+            type: NodePort      # only for node port, need type for external service, internal service type is DEFAULT,
+                                # no need specify
+                # type: LoadBalancer  # for external service
             ports:
             - port: 80                          # service port
                 targetPort:5000                 # pod port, match containerPort
-                nodePort: 30080    # optional assign outer network port, automatically assigned if not specified
+                nodePort: 30080                 # optional. assign outer network port(for browser), range 30000-32767
+                                                # automatically assigned if not specified
+                                                # access via external service
+                                                # or instead of nodePort and having type, use default type and assign
+                                                # ingress to have https://myapp.com instead of ip:port
 
             ports
                 - protocol: TCP
                     port: 80                    # service port
                     targetPort:5000             # pod port, match containerPort
+
+        Secret: store secret (encrypt) values
+        my-secret.yaml              # create secret
+        apiVersion: apps/v1
+        kind: Secret
+        metadata:
+            name: nginx-secret
+        type: Opaque            # key-value pairs, there are other type of secret
+        data:
+            password-secret: VsaTAfC=          # get encoded data in terminal echo -n 'user_name_encoded' | base64
+        ---
+        apiVersion: v1
+        kind: Secret
+        metadata:
+            name: myapp-secret-tls
+            namespace: default         # same namespace as ingress
+        data:
+            tls.crt: base64 encoded cert
+            tls.key: base64 encoded key
+
+        kubectl apply -f my-secret.yaml     # need to run secret first before it can be referenced
+
+
+        ConfigureMap: store global values
+        my-map-config.yaml              # create configure map (store global variable)
+        apiVersion: apps/v1
+        kind: ConfigMap
+        metadata:
+            name: nginx-configmap
+            namespace: my-namespace             # assign to specified namespace instead of default
+        data:
+            my_url: np-service                  # my_url: np-service.namespace_name  if located in namespace
+
+            kubectl apply -f my-secret.yaml
+
+        Ingress controller: use following configuration to forward traffic to internal service
+        my-ingress.yaml              # create configure map (store global variable)
+        apiVersion: apps/v1
+        kind: Ingress
+        metadata:
+            name: myapp-ingress
+        spec:
+            tls:                            # required for HTTPS request
+            - hosts:                        # add secret
+                - myapp.com
+                secretName: myapp-secret-tls
+            rules:
+            - host: myapp.com               # valid domain name and map to entrypoint of node
+                http:                       # incoming request gets forward to internal service via http
+                    paths:                  # part of url after ip:port/
+                    - backend:              # single path
+                        serviceName: np-service   # internal service name, has type ClusterIP with no external IP
+                        servicePort: 80
+
+                    - path: /analytics      # for multiple paths
+                        backend:
+                        serviceName: analytics-service
+                        servicePort:3000
+            or with subdomain
+            -host: analytics.myapp.com
+                http:
+                    paths:
+                    - backend:
+                        serviceName: analytics-service
+                        servicePort:3000
 
         use service(NodePort) to access server in cluster
         minikube start --vm-driver=hyperkit     # start cluster
@@ -370,8 +487,9 @@
                   #  kubectl create deployment nginx-depl --image=nginx           # [--dry-run][options]
                                                 # if not specify deployment.yaml, will automatically generate one
                                                 # can use for services and volume as well
-        kubectrl apply -f [file name]           # same as create but no need write name, image, options
+        kubectl apply -f [file name]            # same as create but no need write name, image, options
                                                 # run command again with file update to start new deployment
+                                        # --namespace=my-namespace   to deploy in specified namespace instead of default
         kubectl edit deployment [name]          # get deployment.yaml file, after save the change of deployment file,
                                                 # old pod will terminate and new pod will start automatically
         kubectl delete deployment [name]        # delete deployment
@@ -383,21 +501,45 @@
         kubectl describe service [service name]     # show target port and endpoints(pod ip:port)
         kubectl exec -it [pod name] --bin/bash  # get interactive terminal (get inside pod container)   exit  to quit
 
-        kubectrl get pod                        # check pod name, ready, status, restarts, age
+        kubectl get pod                         # check pod name, ready, status, restarts, age
                                                 # pod name is deployment name-replicaset hash-some hash
                                                 # -o wide  to get more information: ip address
-        kubectrl get nodes                      # check nodes name, status, roles, age, version
-        kubectrl get services                   # check service name, type, cluster-ip, external-ip, ports, age
-        kubectrl get deployment                 # check deployment name, ready, up-ro-date, available, age
+        kubectl get nodes                       # check nodes name, status, roles, age, version
+        kubectl get services                    # check service name, type, cluster-ip, external-ip, ports, age
+        kubectl get deployment                  # check deployment name, ready, up-ro-date, available, age
                                                 # -o yaml    get deployment yaml file with status
-        kubectrl get replicaset                 # check replica name, desired, current, ready, age
+                                                # -n my-namespace   for access item not in the default namespace
+        kubectl get replicaset                  # check replica name, desired, current, ready, age
+        kubectl get configmap                   # check configure map: name, data, age
+        kubectl get all                         # check pods, deployment and replica set
 
-
-        kubectrl apply -f deployment.yaml       # start/update (blue/green) deployment
+        kubectl apply -f deployment.yaml        # start/update (blue/green) deployment
         kubectl get service                     # check deployed service
-        minikube service service-name           # open service in browser
-        kubectrl delete -f deployment.yaml       # delete deployment
+        minikube service service-name           # assign a public ip address to the external service and open service
+                                                # in browser, port will be nodePort: 30080, defined in deployment
+        kubectl delete -f deployment.yaml       # delete deployment
 
+        kubectl cluster info                    # get kubernetes public configuration map information
+        kubectl get namespace                   # print existing namespace
+        kubectl create namespace [namespace name]   # create custom namespace
+            # or create with configuration file
+                apiVersion: v1
+                kind: ConfigMap
+                metadata:
+                    name: nginx-configmap
+                    namespace: my-namespace
+            data:
+                url: np-service
+
+
+        minikube addons enable ingress           # start k8s nginx implementation of ingress controller for minikube.
+            # kubectl get pod -n kubesystem      # check nginx-ingress-controller
+            after create ingress file
+            apply -f my-ingress.yaml        kubectl get ingress   # get assigned Address of ingress
+            inside /etc/host    add:   ingress IP address  myapp.com
+            then in browser able to visit http://myapp.com
+            kubectl describe ingress my-ingress   # show default backend to handle no rules match and return 404 page
+                can create a service with name default-http-backend and same port to override default action
 
     kubeadm
             disable swap, cpu 2+ core, 2G+ memory, centos 7.x, machine in cluster able to communicate
