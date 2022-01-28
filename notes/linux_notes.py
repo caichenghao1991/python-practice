@@ -74,6 +74,7 @@
                              # 127.0.0.1 localhost  (set under /etc host file)
     $ netstat                # network status   -n number format    -a  all   -p process
                              # stream: tcp type    ugram: udp type    ip type
+    $ ip                     #  ip a    check all ip address (after inet)
     $ kill                   # kill 1211   kill  process 1211  -9 force
                              # kill -HUP 1211   non-stop restart
     ps /jobs                 # check running process
@@ -217,6 +218,8 @@
     systemctl start firewalld    # use own firewall
     firewall-cmd --add-port=80/tcp --permanent
     systemctl restart/stop firewalld
+    sysctl --system  # update and sync system setting
+
 
     Github      https://gitee.com    https://coding.net
     https://git-scm.com    tarballs
