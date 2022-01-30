@@ -422,7 +422,7 @@
     sdiff set1 set2      # return item only in set1
     spop set1 2          # randomly delete 2 items in set1 and return
 
-    zset
+    zset                 # ordered set
     zadd scoreboard 10 a 50 b 30 c  # add items and relative score to z set scoreboard
     zrange scoreboard 0 -1     # "a" "c" "b"  return item with score small to large
     zreverange scoreboard 0 -1  # "b" "c" "a"  return item with score large to small

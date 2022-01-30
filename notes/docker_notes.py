@@ -110,6 +110,7 @@
                 logging, network_mode, restart, secrets, security_opt, stop_grace_period, stop_signal, sysctls, tmpfs,
                 ulimits, volumes). use docker-compose up to start the application
             docker-compose up   # create and run environment with docker-compose.yml
+                # docker-compose -f nginx.yaml up   # if name is not docker-compose.yml, need add -f and specify name
             docker-compose down  # stop and remove container    --volumes   delete volumes
 
             docker-compose.yml
@@ -117,7 +118,7 @@
             command: [bundle, exec, thin, -p, 3000]  # optional, overwrite default command after container initialized
                 # command: bundle exec thin -p 3000
             services:
-                web:   # custom service name
+                ngix-app:   # custom service name
                     build: .                        # must have build or image
                         context: ./dir              # specify dockerfile location, can be git url
                         dockerfile: Dockerfile      # specify Dockerfile name, optional if same as default Dockerfile
@@ -259,11 +260,36 @@
             with extra functionality like: load balancing, allocate resource and servers, fail over.
         Pod is the smallest executable unit(single/multiple container, ex. web service server, database server), usually
             one main application per pod, each pod gets its own IP address. It is a layer of abstraction over container.
-        Service: each pod's service get a fix IP, even the container died won't change the service IP associate with
-            this pod, will reassign a replica with same service IP instead of assigning a new IP each time container
-            failed. And pods communicate to each other via service. All the replicas of application share a service
-            with same service IP. Service also act as a load balancer.
+            Pod IP address from Node's IP range
+        Service: each pod in replica set share a same service(a component, byt not process) with fix IP, port, even the
+            container died won't change the service IP associate with this pod, will reassign a replica on different
+            node with same service IP instead of assigning a new IP each time container failed. And pods communicate to
+            each other via service. All the replicas of application share a service with same service IP. Service also
+            act as a load balancer. user can call a single IP (service) instead of calling different individual pod ip.
+            service can connect with other cluster component or outside cluster, like browser (through ingress),
+            database. service connect to pods via label of pod in same replica set and service selector (match all
+            key-value pair). When request come, service will randomly send to one (prefer least load) pod in the replica
+            set(same labels as service selector), with the port of pod's targetPort. service span all nodes with replica
+            pod inside.
+            When create service, kubernetes create an endpoint object with same name of service('kubectl get endpoints')
+            use this endpoint object to track which pods are member/endpoint of the service, updated if pods die.
+            If service has multiple port corresponding to multiple application (different port), service ports need
+            to have a '- name:' to specify the port name
             there are 4 type of services: ClusterIP, Headless, NodePort, LoadBalancer
+            ClusterIP: default type of service, if not specify any type.
+            Headless: handle client's need communicate with specific pods, usually for stateful application, since pods
+            are not identical(master, worker). client need to know IP address for each pod via: API call to kubernetes
+            API server (inefficient), or use DNS lookup (in service config file, under spec add clusterIP: None), this
+            will return pods' IP addresses instead of service (cluster) IP, and no cluster IP address is assigned in
+            this case.
+            NodePort: create service in each worker node with a static port(NodePort(range 30000-32767)) and browser can
+            directly connect with node ip and node port. compare to default, service IP only accessible within the
+            cluster, need ingress to connect to browser. Node port create external port for all nodes in replica set,
+            and make nodes publicly accessible to outside, so not efficient and secure. so nodeport usually only for
+            testing purpose and not for production. Wither use ingress + clusterIP or load balancer for external access.
+            LoadBalancer: service become accessible externally via cloud providers load balancer. This will also create
+            node port for the node where pod replica lives in, but node port only accessible via cloud load balancer
+
         Ingress: The request first goes to ingress, so user can access page via https://my-app.com, then ingress route
             traffic to service IP address (http://ip:port). Can have many ingress to connect internal service to some
             domain name, but only one Ingress Controller Pod required to have to evaluate all the rules and manage
@@ -280,12 +306,58 @@
         Volume: attach a (local/remote) physical storage to pod. So all the data will be persisted with pod restarts.
             Kubernetes don't manage data persistence, so you have to backup with other solution.
             3 component of kubernetes: persistent volume, persistent volume claim, and storage class
+            Kubernetes default don't provide data persistence, data is gone after pod life cycle ends.
+            When try to achieve data persistence, storage must be available on all nodes, since not certain pod will be
+            restart on which node. Storage must not depend on pod life cycle. Storage need to survive even cluster
+            crushes. local volume depends on node and won't survive crash. So fo Database persistence use remote storage
+
+            Persistent Volume: pre-configured directory (session file, configure file), it's a cluster resource to store
+                data, created via yaml. It needs actual physical storage (local disk, nfs(Network File Sharing) server
+                or cloud storage). its like external plugin to the cluster, each application in the cluster can configure
+                to use different storage. kubernetes only provide storage interface, you need to create and manage
+                (create backup, check corruption) storage. It is outside namespace, and accessible to whole cluster.
+                persistent volume should be there already before pod refer to it.
+                ConfigMap and Secret are local volume not created by persistent volume and claim, but managed by
+                kubernetes. Also need to mount configMap/secret to volume of pod
+            Persistent Volume Claim: application need to claim the persistent volume, created via yaml configure. only
+                persistent volume satisfied the claim will be used for application. In the pod configure file need add
+                volumes section under spec. Pods request volume through persistent volume claim, trying to find a
+                persistent volume that satisfy the claim. and pod and it's claim must be in the same name space. After
+                find a persistent volume, volume is mounted into the Pod and then mounted into one/ multiple container.
+                After container died, new container will have access and able to see the same data on the volume.
+                One pod can claim multiple persistent volume.
+            Storage Class: provisions persistent volume dynamically, created by yaml config file. each storage has own
+                provisioner (internal provisioner with prefix kubernetes.io). Need to specify in persistent volume claim
+                config file under spec: add storageClassName: value (same as storage class config meta name)
+                When pod claim storahe via persistent volume claim,  persistent volume claim will request storage from
+                storage class, storage class provision and create the persistent volume that meets the pod claim.
+
         Deployment: blue print for pods, another layer of abstraction over pods. User specify number of replica in
             deployment. Deployment can only replicate application, not database(has state(changed data))
             deployment manage all the replica set (replica of pod). user only need manage deployment, any thing below is
             handled by kubernetes
         Stateful set: used to replicate database for pods. make sure synchronized data across replica. stateful set is
             harder than deployments, so it's common to host database outside kubernetes cluster.
+            stateful applications: databases, or applications that stores data to keep track of state via storage.
+                deployed via Stateful Set. replica pods are not identical, they have pod (sticky) identity. can't be
+                created/deleted at same time/ random order. can't randomly addressed. They are created from same
+                specification, but not interchangeable. persistent identifier across any rescheduling (replaced pod keep
+                original identity)
+            stateless applications: don't keep record of state, each request is completely new, sometime forward request
+                to stateful application. deployed via deployment. Pods are identical and interchangeable, created in
+                random order with random hashes, one service load balances to any pod.
+            configure storage the same way. But when scaling the stateful application(database), only master can read
+            and write, worker can only read, and each pods have their own storage (replica of storage to access by only
+            themself), and need to synchronizing the data. When new worker replica join, it create own storage by
+            cloning data from previous pod. When pod died and got replaced, it keep the pod state(stored remotely).
+            unlike deployment get deploymentName-randomHash for the pod identity, stateful set has StatefulSetName-$(ordinal)
+            next pod is only created if previous is up and running. deletion is in reverse order, start from the last
+            one. Each pod in stateful set get own dns endpoint([podname].[governing service domain]) from load balancer
+            service. with new pod replaced old one, although IP changes, sticky identity: pod name and DNS endpoint
+            stays same. sticky identity retain state and role.
+            You still need configure the cloning and data synchronization, make remote storage available, managing and
+            backup, kubernetes can't provide help on those, because stateful applications not perfect for containerized
+            environments, mostly for stateless application.
         Nodes(worker): have single/multiple pod (must have kubelet(process that schedule the container, interacts with
             node and container, assign resource to container), kube-proxy(intelligently forward request from service to
              pod), Pod(container runtime))
@@ -324,6 +396,21 @@
                 $ kubens my-namespace   # change default namespace to my-namespace
         Helm: package manager for kubernetes, package yaml files and distribute in repositories. create Helm charts
             and push to Helm repository, so other people can download and use with same need(ex. build nginx cluster)
+            helm search <keyword>   or search in Helm Hub.  install with 'helm' install [chartname]'
+                'helm install --values=my-values.yaml [chartname]'  will merge values in my-value.yaml and default
+                values.yaml values.
+                or use 'helm install --set version=2.0.0'   # override individual value
+            Helm can also be used as a template engine, by creating template.yaml with {{ .Values.[name] }} and
+            values.yaml  [name]: value. Can be used in CI/CD. Also helpful when deploy same set of application for
+            different clusters(pod, dev, qa) Helm chart structure: mychart/ (top level name of chart), Chart.yaml
+            (meta info about chart), values.yaml (values for the template files), chart/ (chart dependencies folder),
+            templates/ (actual template files)
+            Helm also provide release management. in Helm 2, there is client (helm cli) and server(Tiller). when client
+            send request to Tiller, Tiller create components and runs inside k8s cluster. When create or change
+            deployment, Tiller store copy of configuration client sent and keep track of all chart executions.
+            When using 'helm upgrade [chartname]', changes are applied to existing deployment instead of create new one.
+            If something went wrong, use 'helm rollback [chartname]' to change back to previous deployment. Tiller has
+            too much permission, cause security issue. So in Helm 3, Tiller got removed.
 
         installation: minikube, kubeadm, yum, binary, 3rd party, cloud(Amazon EKS)
         minikube simulate kubernetes in virtual environment for learning
@@ -366,7 +453,8 @@
                         app: nginx
                 spec:
                     containers:
-                    - name: nginx
+                    - name: nginx               # can have multiple container in pod
+                                                # - name: log-collector    with different containerPort
                         image: nginx:1.10   # specify docker image (can be on docker hub)
                         resources:      # optional
                             limits:
@@ -411,6 +499,16 @@
                 - protocol: TCP
                     port: 80                    # service port
                     targetPort:5000             # pod port, match containerPort
+
+            ports:
+                - name: mongodb                 # if service has multiple port for multiple pod application, need have
+                    protocol: TCP                   # - name
+                    port: 27017
+                    targetPort: 27017
+                - name: mongodb-exporter
+                    protocol: TCP
+                    port: 9216
+                    targetPort: 9216
 
         Secret: store secret (encrypt) values
         my-secret.yaml              # create secret
@@ -540,6 +638,96 @@
             then in browser able to visit http://myapp.com
             kubectl describe ingress my-ingress   # show default backend to handle no rules match and return 404 page
                 can create a service with name default-http-backend and same port to override default action
+
+
+        template yaml config
+        apiVersion: v1                                              values.yaml
+        kind: Pod                                                   name: my-app
+        metadata:                                                   container:
+            name: {{ .Values.name }}                                    name: my-app-container
+        spec:                                                           image: my-app-image
+            containers:                                                 port: 9001
+            - name: {{ .Values.container.name }}
+                image: : {{ .Values.container.image }}
+                port: {{ .Values.container.port }}
+
+
+        persistence volume yaml config
+        apiVersion: v1       # nfs here,        can use local hard disk and cloud storage as well
+        kind: PersistentVolume
+        metadata:                                   # local storage         # Google cloud
+            name: pv-name                                                   # labels:
+                                                                            #   failure-domain.beta.kubernetes.io/zone:
+                                                                            #   us-central1-a__us-central1-b
+        spec:
+            capacity:
+                storage: 6Gi
+            volumeMode: Filesystem                                         # no need volumeMode
+            accessModes:
+                - ReadWriteOnce
+            persistentVolumeReclaimPolicy: Recycle    # Delete              # gcePersistentDisk
+            storageClassName: slow                    # local-storage       #    pdName: my-data-disk
+            mountOptions:                             # local:              #    fsType: ext4
+                - hard                                #   path: /mnt/disks/ssd1
+                - nfsvers=4.0                         # nodeAffinity:
+            nfs:                                      #   required:
+                path: /dir/path/on/nfs/server         #      nodeSelectorTerms:
+                server: nfs-server-ip-address         #      - matchExpressions:
+                                                      #         - key: kubernetes.io/hostname
+                                                      #            operator: In
+                                                      #            values:
+                                                      #            - example-node
+
+
+        Persistent Volume Claim     # claim persistent volume
+        kind: PersistentVolumeClaim
+        apiVersion: v1
+        kind: Pod
+        metadata:
+            name: pvc-name
+        spec:
+            storageClassName: manual
+            volumeMode: Filesystem
+            accessModes:
+                - ReadWriteOnce
+            resources:
+                requests:
+                    storage: 10Gi
+            storageClassName: storage-class-name    # same as storage class config
+
+        apiVersion: v1      # pod configure
+        kind: Pod
+        metadata:
+            name: mypod
+        spec:
+            containers:
+                -name: myfrontend
+                image:nginx
+                volumeMounts:       # add this for Persistent Volume Claim
+                - mountPath: "/var/www/html"        # application can access the mounted data here: "/var/www/html"
+                    name: mypd
+            volumes:                # add this for Persistent Volume Claim
+                -name: mypd
+                    PersistentVolumeClaim:
+                        claimName: pvc-name     # match the claim name
+
+            volumes:                # mount secret or configMap
+                -name: config-dir
+                    ConfigMap:
+                        claimName: bb-configmap
+
+
+    Storage Class
+    apiVersion: storage.k8s.io/v1
+    kind: StorageClass
+    metadata:
+        name: storage-class-name
+    provisioner: kubernetes.io/aws-ebs      # each storage has own provisioner
+    parameters:
+        type: io1
+        iopsPerGB: "10"
+        fsType: ext4
+
 
     kubeadm
             disable swap, cpu 2+ core, 2G+ memory, centos 7.x, machine in cluster able to communicate

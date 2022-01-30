@@ -12,6 +12,7 @@ class Review:
     """
     Python
         written by C language
+    function paradigm and oop
     Pycharm 
         read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
     
