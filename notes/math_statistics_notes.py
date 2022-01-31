@@ -70,7 +70,10 @@
         Acceptance rejection sampling: if meet the requirement keep the data, else drop. keep data with probability from
             PDF function. for generate a value v, PDF(v) = p, generate a uniform distribution u [0,1], if u<p keep it,
             otherwise reject it
-        a
+
+        Percentile: sort data, if n% smaller than the data, then it's n% percentile. median(50%), 1st quantile(25%), 3rd
+            quantile(75%)
+
 
 
 
