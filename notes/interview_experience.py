@@ -46,4 +46,8 @@
     data wrangling( process of cleaning and unifying messy and complex data sets for easy access and analysis),
     manipulation and management of technologies
     distributed data parallelism and distributed training
+    Collaborative filtering
+    Matrix factorization
+    Ranking algorithms
+
 '''
