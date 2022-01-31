@@ -46,4 +46,147 @@
     data wrangling( process of cleaning and unifying messy and complex data sets for easy access and analysis),
     manipulation and management of technologies
     distributed data parallelism and distributed training
+
+
+    steps data scientist
+    define goal, data collection.
+    load data from logs
+    sanity check ata
+    scrape, munge, transform, clean data
+    data exploration
+    feature engineering
+    feature selection
+    choose model and fit mode
+    generate model output
+    model evaluation
+    model result and visualization
+    test hypothesis and data
+
+    key technology: python, r, sql, jupyter notebooks, tensorflow, aws, unix, tableau, c, nosql, matlab, java, hadoop/
+        hive/pig, spark/mllib, excel
+    key knowledge: logistic regression, decision tree, random forest, neural networks, bayesian, ensemble methods, svm,
+        gradient boost, cnn, rnn, evolutionary approaches, hmm, markov logic networks, gans
+    questions: sql, algorithm, statistic (conditional probability, bayes rule, probability in sampling: bootstrap,
+        reservoir, a/b test, p-value), probabilities and static inference(probabilities distribution(normal, binomial,
+        poisson), law of large number, ventral limit theorem, expectation, variance, quantiles, correlation and
+        covariance, parametric vs non parametric methods, bootstrap), hypothesis testing(causal inference, a/b
+        experiment design, sample size calculation, type I, II error, power, p-value, one sample, two sample t-test,
+        chi-square test, confidence interval, pitfalls, ANOVA), experimental design, machine learning (linear regression
+        (simple/generalized/ multivariate linear regression, cost function, mse and mle(maximum likelihood estimation),
+        hypothesis testing in lm, f test, multicollinearity, regularization(ridge, lasso, elastic net), bias variance
+        tradeoff, cross validation), logistic regression(binomial/multinomial logistic regression, confusion matrix, roc
+        auc, cost benefit analysis(profit curve)) svm, kernel, train decision tree(greedy, over fit), entropy, ensemble
+        learning (bagging, random forest, gradient boost, adaboost), performance metrics, precision, recall, roc, auc,
+        sampling impact performance(unbalance data), model selection(cross validation, hyper-parameter tuning, bias
+        variance and over fitting, regularization and feature selection), neural network, auto encoder, back propagation,
+        gradient vanish), natural language processing(extract feature from text, tokenization and stop words, stemming
+        and lemmatization, bag of words and tf-idf, distance and similarity, topic modeling and sentiment analysis,
+        naive bayes), unsupervised learning(clustering(kmeans, hierarchical clustering), dimension reduction(PCA, SVD,
+        non-negative matrix factorization, latent features and relation with clustering)), deep learning(auto encoder,
+        feed-forward neutal network, CNN, RNN, embedding space, word embedding, LSTM, transfer learning)
+        case study (how to build a
+        recommendation(cold start and exploration, collaborative filtering, content-based recommendation, matrix
+        factorization)/search/fraud detection system/predict churn rate)/lend money violation rate, customer transfer
+        rate/ credit risk prediction/ price forecasting/ ads click through rate/ conversion rate prediction(marketing/
+        user acquisition/ face detection), case interview(problem formation(clarify input output, goal), feature extraction and label/
+        target definition, ML end-to-end workflow, cold start and exploration, experiment)
+    business insight from model coefficient or perform experiment and test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 '''
