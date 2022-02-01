@@ -73,7 +73,7 @@
 
         Percentile: sort data, if n% smaller than the data, then it's n% percentile. median(50%), 1st quantile(25%), 3rd
             quantile(75%)
-
+            Z score: area outside  [-z, z] is α (alpha), Z_[α/2] = -1.96 for α=0.05
 
 
 
