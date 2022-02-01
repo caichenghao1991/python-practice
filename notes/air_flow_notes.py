@@ -22,8 +22,13 @@
         scheduler DAG execution queue.
         Executor support many implementationL Sequential, Local (multiprocess), Celery, and Dask(distributed numpy),
         Kubernetes Executor
+        DagFileProcessor: parses DAGs into serialized_dags table
         In cluster settings, Airflow has webserver and (multiple) scheduler to access DAG files and use Celery worker(on
         different server) to execute task based on queue broker (rabbitMQ/ Redis) assigning task.
+        scheduler: do_scheduling(), processor_agent.heartbeat(), heartbeat(), timed_events.run()
+        DagFileProcessor: collect_result_from_processor, start_new_processes, send heartbeat, refresh_dag_dir
+        multiple scheduler(active, active) use db task lock synchronous to ensure only one scheduler access a task at a
+            time, and only one scheduler can access resource like pool at a time for update without wait
 
     Install: only for linux and max. 1, create virtualenv   python3 -m venv /path/to/new/virtual/environment
         2. install airflow locally with script at https://airflow.apache.org/docs/apache-airflow/stable/start/local.html
@@ -55,6 +60,8 @@
                         # catchup whether need to run multiple times for previous missing runs or one time is enough
                 task_a = PythonOperator(task_id = 'task_name', python_callable = my_func)   # func1 is a function
                 task_a >> task_b   # to create sequential dag steps
+                t0 >> t1 >> [t2, t3]  # list of dependencies
+                t0.set_downstream(t1)  # set_upstream(t1)
 
         UI will display changes inside DAG folder for any updates with auto_refresh enable, click run in UI to run DAG
             or click off to on to turn on scheduler (ex. run once a day after the full time(24hr) period is covered)
@@ -86,6 +93,7 @@
         airflow scheduler -D
 
         inside UI admin tab connections, edit connection info(ConnId, Conn type, host, port, schema, login, password)
+            host is host.docker.internal if use docker
         from airflow.hooks.base_hook import BaseHook
         from airflow.providers.mysql.operators.mysql import MySqlOperator
         conn = BaseHook.get_connection('conn_id')   # conn_id is ConnId defined in UI, use hook to grab connection info,
@@ -129,6 +137,79 @@
         for alert when failure, change the default_args in airflow.cfg
             default_args= {'email':[harry@gmail.com], 'email_on_failure':True, 'email_on_retry':True, 'retries':1,
                 'retry_delay':timedelta(seconds=30)}        # retry is task retry not email
+
+
+    Provider
+        Airflow provide basic framework: scheduler, worker, executor, user interface. How to deal with other service(
+        database, cloud, application API) are implemented by open community or provider.
+        reference to online airflow document for steps, need install provider package
+        create connection with connection id in user interface, install corresponding package
+        s3 = S3ListOperator(task_id='s3_list', bucket='xxx', prefix='xx/xxx', delimiter-'/', aws_conn_id='conn_id')
+
+    Sensor
+        monitor the status change of upstream change, start some task after the status changed. sensor is depend on
+        different provider (inside their package)
+        s3_s = S3KeySensor(task_id='s3_sen', bucket_key='xxx/{{ ds_nodash }}/*.csv', wildcard_match=True, bucket_name=
+            'xxx', aws_conn_id='conn_id', timeout=18*60, poke_interval=30, dag=dag)
+
+    DAG dependencies
+        dependencies between tasks in a DAG can be defined through upstream and downstream. Dependencies between DAGs
+        are defined with either trigger (TriggerDagRunOperator) or waiting (ExternalTaskSensor)
+        trigger_next = TriggerDagRunOperator(trigger_dag_id='abc', task_id='t0', execution_date="{{ds}}", wait_for_
+            completion=False)   # at dag pre_dag, task task_id 't0', trigger next dag with id 'abc'
+        pre_dag >> trigger_next
+
+    Dynamic DAGs
+        # python no need to declare a new object( a = new Object() )
+        t0, t1 = PythonOperator(...), PythonOperator(...)
+        options = ['branch_a', 'branch_b']
+        for option in options:
+            t = PythonOperator(task_id=option)
+            t0 >> t >> t1
+
+    Logging
+        need put logging into remote directory (local logging will be gone if using container, or not sure which worker
+            on which server).
+        in airflow.cfg  [logging] session:
+            remote_logging=True
+            remote_log_conn_id = aws_s3   # connection id created in user interface of airflow
+            remote_base_log_folder=s3://harry/airflow/logs/
+
+    Airflow CLI and API
+        airflow -h              # help document for available command
+        airflow info            # show available provider, path info, system info
+        airflow cheat-sheet     # common command and description
+
+            airflow dags list
+            airflow dags unpause dag_id
+            airflow dags trigger dag_id
+            airflow dags list-runs
+            airflow  tasks run dag_id task_id "2021-09-01 11:55:00"  # execution date
+
+        airflow.cfg: change from deny_all to          auth_backend = airflow.api.auth.backend.basic_auth
+            # core section is more important
+            # allow web api
+
+        metadata database
+            tables: user, role, permisiion, dag, dag_code, connection, dag_run, job, log, serialized_dag, sla_miss,
+                sensor_instance, task_instance, xcom
+            sometime modify in metatable easier than UI
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
