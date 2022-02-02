@@ -11,34 +11,74 @@
 
 
 
-    I graduated with my master degree in Computer and Information Science in 2019. I chose that field of study because
-        I’ve believe that computer science is one of the most useful subject in the future and I love to surf on
-        the latest technology trend. After graduation, I joined Capital one as a software engineer in a feature
-        development team, we've accomplished onboarding several big retail company(walmart, neiman marcus) for their
-        PLCC(Private Label Store Credit Card) and cobrand credit card, invloving add new feature file, different rules
-        in designated repository and integrate with other existing component in the authentication decisioning framework.
+    I graduated with my master degree in Computer and Information Science in 2019. After graduation, I joined Capital
+        one as a software engineer in a feature development team, we've accomplished onboarding several big retail
+        company(walmart, neiman marcus) for their PLCC(Private Label Store Credit Card) and cobrand credit card。
         We also owned a referral decision database based on AWS dynamoDB, and corresponding api for querying.
         Recently we had a story with migrate to new managing pipeline, which heavily involves devop tools like jenkins
         docker and kubernetes
         On side project, I have worked on various web development, machine learning, crawling framework associate with
         various SQL, NoSQL database. I also have some practice on PySpark for processing large data.
+        That's pretty much about myself
 
-
-
+I chose that field of study because
+        I’ve believe that computer science is one of the most useful subject in the future and I love to surf on
+        the latest technology trend.
+invloving add new feature file, different rules  in designated repository and integrate with other existing
+        component in the authentication decisioning framework.
 
 
     questions to ask
-    how can I ready myself to be the most successful @ BP
+    how can I ready myself to be the most successful
     what do the daily team cadences(routine) look like?
     what kind of project does BP have currently for the data team?
-    what 's the company's culture focusing on?
-    Is there room for career growth as contractor?
+    Is there room for career growth?
     Is this role more about developing new stuff, discovering insights or maintaining the current owned product?
         what percentage time used on those
-    what do you like most about the company?
+
     what are the biggest problems you are solving for today, and what is their impact on BP’s business
 
+    What are the biggest challenges of this job?
+    What does a typical day look like?
+    What are the most immediate projects that need to be addressed?
 
+    What’s your favorite part about working here?
+    How does the organization support your professional development and career growth?
+    How would you describe a typical day in this position?
+
+    What is the company's management style?
+    How many teams are there in the IT department and how does team cooperate with each other?
+    What are the company's plans for growth and development?
+    Is the work environment here more collaborative or more independent?
+
+    What’s the company and team culture like?
+    What are the next steps in the interview process?
+    Is there anything else I can provide you with that would be helpful?
+
+    data management platform
+    advertisement(publish, messaging)/marketing and customer info for analyzing
+    Powered by CORE ID,® the most accurate and stable identity management platform representing 200+ million people,
+
+    Strategic thinking. Creative vision. Collaborative spirit. Eagerness to grow and succeed.
+     Technology/Skills to Target
+    Spark, Scala, Python
+    Hadoop, Hive, Spark, and related technologies
+    Python,
+    Airflow, Kubernetes, Docker
+    data-driven solutions at scale
+
+    why choose us
+    I found many interesting posts from company on linkedin show casing the company's work and related clients. In tech
+        aspect, Epsilon is utilizing many latest technology to deliver it's product. And I'd love to utilize those
+        technology to achieve great result. And Epsilon value individual's opinion and have a flexible culture.
+        This role suit my skill set and fit well in my ideal career growth path.
+
+    handle stress
+    stay positive, use stress as a motivator, focus on what I have control. make time for relaxation. stay focused on
+        the subject and overcome difficulties one at a time. manage time according to importance and urgency matrix.
+
+
+    Elastic Search
     Tableau/ Power BI
     Axioma Optimizer, Blackrock-Aladdin and Incorta
     MLFlow, Kubeflow

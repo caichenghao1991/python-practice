@@ -191,47 +191,9 @@
             # allow web api
 
         metadata database
-            tables: user, role, permisiion, dag, dag_code, connection, dag_run, job, log, serialized_dag, sla_miss,
+            tables: user, role, permission, dag, dag_code, connection, dag_run, job, log, serialized_dag, sla_miss,
                 sensor_instance, task_instance, xcom
             sometime modify in metatable easier than UI
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

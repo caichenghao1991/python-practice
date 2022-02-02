@@ -309,7 +309,7 @@
             Kubernetes default don't provide data persistence, data is gone after pod life cycle ends.
             When try to achieve data persistence, storage must be available on all nodes, since not certain pod will be
             restart on which node. Storage must not depend on pod life cycle. Storage need to survive even cluster
-            crushes. local volume depends on node and won't survive crash. So fo Database persistence use remote storage
+            crashes. local volume depends on node and won't survive crash. So for persistence use remote storage
 
             Persistent Volume: pre-configured directory (session file, configure file), it's a cluster resource to store
                 data, created via yaml. It needs actual physical storage (local disk, nfs(Network File Sharing) server
@@ -329,8 +329,8 @@
             Storage Class: provisions persistent volume dynamically, created by yaml config file. each storage has own
                 provisioner (internal provisioner with prefix kubernetes.io). Need to specify in persistent volume claim
                 config file under spec: add storageClassName: value (same as storage class config meta name)
-                When pod claim storahe via persistent volume claim,  persistent volume claim will request storage from
-                storage class, storage class provision and create the persistent volume that meets the pod claim.
+                When pod claim storage via persistent volume claim,  persistent volume claim will request storage from
+                storage class, storage class provision and create the persistent volume that meets the pod's claim.
 
         Deployment: blue print for pods, another layer of abstraction over pods. User specify number of replica in
             deployment. Deployment can only replicate application, not database(has state(changed data))
@@ -440,7 +440,7 @@
         kind: Deployment        # create deployment
         metadata:
             name: myapp
-            labels:             # create alias
+            labels:
                 web: nginx
         spec:
             replicas: 3
@@ -752,10 +752,6 @@
 
             kubeadm init
             kubeadm join master ip:port
-
-
-
-
 
 
 '''
