@@ -21,6 +21,7 @@
         various SQL, NoSQL database. I also have some practice on PySpark for processing large data.
         That's pretty much about myself
 
+
 I chose that field of study because
         I’ve believe that computer science is one of the most useful subject in the future and I love to surf on
         the latest technology trend.
