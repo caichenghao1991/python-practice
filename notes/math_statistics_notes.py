@@ -84,11 +84,68 @@
             normal distribution (apply to n>30, can replace σ^2 with sample variance s^2)
 
         Confidence interval:
+            given z score/percentile range, find value interval
+            sample mean +/- (sample standard deviation/n) * Z score     p +/- Z[1-α/2] (sqrt(p(1-p)/n)
+                p: sample mean, n: sample count     here Z follow normal distribution assuming n>30
+
+        T distribution: (sample size < 30)
+            has one parameter: degree of freedom(df=N-1), compare to standard distribution(mean, std)
+            distribution curve similar to normal distribution with higher std
+            approximate normal as df increase. confidence interval: mean +/- df_score * (sample standard deviation/n)
+                df_score value refer to t-distribution table (with α and df)
+
+        Skewed distribution:
+            right skewed: tail on the right side,
+            mode: value corresponding to pdf highest value (value with highest possibility to appear)
+            lower bound(ex. >0) or upper bound can cause skewed distribution, since normal distribution don't have bound
+            can still use Central limit theorem for sample mean under normal distribution but with higher sample count
+            greater than 100
+            can use log transformation to transform to normal distribution
+            if interest in median instead of mean, use non-parametric method(no using μ, σ): bootstrap, jackknife
+
+            bootstrap: repeat m times: for sample with size N, randomly take N samples with replacement and get
+                its median. Finally sort m medians and get its percentile
+
+        Covariance and correlation:
+            relation between two random variables
+            covariance: cov(X,Y) = E[(X-E[X])(Y-E[Y])]
+            correlation: cor(X,Y) = cov(X,Y) / (σ_x*σ_y)       cor ∈ [-1,1]    cor(X,Y) = cor(Y,X)
+                corr=1/-1: X,Y aligned perfectly, 0: independent
+                geometric interpretation: cosine value of (angle between vector X and Y)
+            sample covariance: cov(X,Y) = (1/(n-1))*(Σ (x_i-x_m)(y_i-y_m))            x_m: sample x mean
+            sample correlation: cor(X,Y) = cov(X,Y) / (s_x*s_y)                      s_x: sample x std
 
 
 
 
+    R
+        Vector: boolean, int, numeric, character
+            var1 <- c(True, F, False, T)      # 12L  (int)    2.5   "some string"
+            var2 = c(1L, 2L, NA)     # = or <-  for assigning, no L default numeric,   NA equivalent to null
+            is.na(var2)                # False, False, True   check missing value
+            length(var2)  typeof(var2)    is.integer(var2)     is.numeric(var2)
+            c(1L, c(2,3,4))   # still a vector
 
+        List: can have different number of element(s) with different type in each index(starting at 1) of list (each
+                element inside is a list as well)
+            x = list(1:3, "a", c(True,False))
+            x[1]    # 1 2 3   return list element at list x index 1
+            x[[1]]  # return elements inside list element at list x index 1
+            unlist(x)   # change list to a vector will automatic convert data type
+
+        Matrix: more than 1D, same datatype
+            a = matrix(1:6, ncol=3, nrow=2)
+                or a = c(1:6)  dim(a) = a(2,3)
+            rownames(a) = c('A','B')   # specify row indexes name and column indexes name
+            colnames(a) = c(1,2,3)
+            length(a)   nrow(a)  ncol(a)
+
+        Dataframe: can have different datatype for different column
+            df = data.frame(x=1:3, y=c('a','b','c'))  # column index 'x', 'y', row index 1,2,3
+            will convert character to Factor in dataframe(not preferred, generate unexpected result)
+            df = data.frame(x=1:3, y=c('a','b','c'), stringAsFactors=False)     # prevent convert to factor
+            is.data.frame(df)    # check whether datatype is dataframe
+            as.data.frame(a)     # convert matrix to dataframe
 
 
 
