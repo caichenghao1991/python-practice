@@ -79,6 +79,41 @@ invloving add new feature file, different rules  in designated repository and in
         the subject and overcome difficulties one at a time. manage time according to importance and urgency matrix.
 
 
+    I am not comfortable to share my previous salary
+    To me salary is important, But I care more about team, company culture and how much I can contribute. Do you have
+        a range for this role that you can share.
+    could we go over the compensation structure and the perks and benefits? Then we can take it from there.
+    You know every company has different compensation structure, I know I'm not comparing apples to apples. If you
+    don't mind just sharing the number with me first. it would be super productive for me, I would greatly appeciate it
+
+    about salary raise
+    salary raise, what i want to be mindful of is inflation, and you know living costs are just keep going up. So if
+    I don't take this into consideration now, the longer I stay with company. essentially the less my take-home pay is
+    going to be, and I don't want to be in a position where salary is a thing for me to have to leave the company, so
+    I hope you understand where I/m coming from
+
+    do this via email
+
+    I think that is a good start(he gave salary range)
+
+    Can you share more information for available bonus, allowance, vocation, salary raise
+    Green card H1B
+    don't give range give actual number
+    talk with hiring manager if very low offer
+    would it be appropriate to discuss...
+    I understand your concern
+    salary, bonus, holidays, relocation allowance, house rent allowance, benefit
+    think about offer
+    minimum+10%   don't speak for a while   thanks you so much I really appreciate you making me this offer and showing
+    interest in me. I want to make this work, but I have a couple of questions that I'd like to talk to you about if
+    that's okay. I see the annual salary is xxx, based on my research on the market, and my past experience, I was
+    actually expecting a salary more than  xxx.
+     Yes I do understand what you mean (budge issue)
+    Based on all my success on my previous organization that I expect to bring to your organization, my education
+    background, and my tech stack, I was just hoping for a salary more than that number I share with you
+    Do you guys have a practice of a sign-on bonus(5-40k), because that could sort of help bridge the gap in my head
+    trade salary with bonus/ vacation
+
     Elastic Search
     Tableau/ Power BI
     Axioma Optimizer, Blackrock-Aladdin and Incorta

@@ -11,6 +11,10 @@
 8. reduce the possibilities without eliminating the correct answer
 
 talk about brute force, time complexity, and verify edge case
+sometime need think two sub problem together since there is some inner correlation, instead of consider one sub problem
+    a time
+sometime for each index need track both min and max case, if two index comparison, need track of permutation of new
+    index added case
 
 careful list:
     copy paste, double check pasted item while missing any updates

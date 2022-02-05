@@ -75,9 +75,15 @@
             quantile(75%)
             Z score: area outside  [-z, z] is α (alpha), Z_[α/2] = -1.96 for α=0.05
 
+        Law of large number: x1, x2,..., xn are independent, identically-distributed(IID) random variables, Xi has
+            finite mean μ, sample mean Xn =1/n * (Σ[i=1~n] (Xi)) converge to the true mean μ as n increase. unbiased
+            will provide distribution and expectation, while law of large number give fix number(μ)
 
+        Central limit theorem: x1, x2,..., xn are independent, identically-distributed(IID) random variables, Xi has
+            finite mean μ and variance σ^2, sample mean Xn = 1/n * (Σ[i=1~n] (Xi)) ~ N(μ,σ^2/n)   sample mean follow
+            normal distribution (apply to n>30, can replace σ^2 with sample variance s^2)
 
-
+        Confidence interval:
 
 
 
