@@ -11,8 +11,21 @@ class Review:
     """"""
     """
     Python
-        written by C language
-    function paradigm and oop
+        written by C language, object-oriented programming language, not procedural programming language. support
+        both function programming and object-oriented programming (paradigm).
+    function programming: concept(for functions to be stateless and rely only on the given inputs to produce an output, 
+        avoids changing states and mutable data)
+    object-oriented programming: concept of objects which contain data structures in the fields known as attributes and 
+        codes in the form of procedures, also known as methods, main feature(abstraction, inheritance, polymorphism, and 
+        encapsulation).
+        difference: encapsulates functionality using classes vs pure functions. State is stored in the properties
+            of the class vs avoid shared states and mutable data. Imperative vs declarative. Use loops vs recursion for 
+            iteration. Not support vs support parallel programming. need follow order vs no order for execution.
+            Has vs no access specifier. Easy vs not easy to add/ hide data. Focused on data [function]
+    object-oriented vs procedural: program is divided into objects [functions]. follow top-down [bottom-up] approach.
+    there are [no] access specifiers(private, public, protected). add new data and function is [not] easy. can [not] 
+    hide data, so more [less] secure. overloading is [not] possible. Data [function] is more important. 
+    
     Pycharm 
         read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
     
