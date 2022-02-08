@@ -266,6 +266,7 @@ class Review:
     del dict1  # delete the dictionary structure as well
     dict can convert to list tuple set but only keep keys           
     d_order = dict(sorted(d.items(),key=lambda x:x[1],reverse=True))   # sort dict values descending
+    A = sorted(A, key=functools.cmp_to_key(compare))     def compare(a, b):  return 1 if a<b else return -1
     
     --Set
     Unordered collection of unique item, no order, use hash   use hash O(1) operations
@@ -542,7 +543,7 @@ class Review:
     generator is an iterator, list is iterable, but not iterator
     user:  iter(Iterable)     ex: it=iter([1,2,3]); next(it)   to change iterable list into iterator
     isinstance(var, Iterable)   # return bool   check whether variable data type is iterable or child class of iterable 
-    
+     
     --OOP object oriented programming
     class name upper camel case, default extend from parent: object    class CellPhone:  class ClassName(object):
     multiple inheritance     class CellPhone(Commuter, Electronic):  
