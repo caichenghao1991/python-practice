@@ -620,7 +620,7 @@
         # same as select name, avg(score) as score_avg from hogwarts_table group by name
         # name and take score average    $group: {'_id': null, 'total':{$sum:'$score'}}   # null means aggregate all
     db.hogwarts_table.aggregate([{$group: {'student': "$name", 'friend': {$push: 'Ronald'}}}])
-    db.hogwarts_table.aggregate([{{$group: {_id: null, count: {$sum: 1}}},$match: {'score': { $gt: 70, $lte: 90}}}])
+    db.hogwarts_table.aggregate([{{$group: {_id: null, count: {$sum: 1}}},{$match: {'score': { $gt: 70, $lte: 90}}}])
         # return count of documents with 70<score<90, $sum:1, 1 means add 1 to sum for each match
 
 

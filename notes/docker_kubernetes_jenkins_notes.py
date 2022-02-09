@@ -261,7 +261,7 @@
         Pod is the smallest executable unit(single/multiple container, ex. web service server, database server), usually
             one main application per pod, each pod gets its own IP address. It is a layer of abstraction over container.
             Pod IP address from Node's IP range
-        Service: each pod in replica set share a same service(a component, byt not process) with fix IP, port, even the
+        Service: each pod in replica set share a same service(a component, not process) with fix IP, port, even the
             container died won't change the service IP associate with this pod, will reassign a replica on different
             node with same service IP instead of assigning a new IP each time container failed. And pods communicate to
             each other via service. All the replicas of application share a service with same service IP. Service also
@@ -441,7 +441,7 @@
         metadata:
             name: myapp
             labels:
-                web: nginx
+                app: nginx
         spec:
             replicas: 3
             selector:
@@ -682,7 +682,6 @@
         Persistent Volume Claim     # claim persistent volume
         kind: PersistentVolumeClaim
         apiVersion: v1
-        kind: Pod
         metadata:
             name: pvc-name
         spec:

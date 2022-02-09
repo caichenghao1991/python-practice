@@ -2,7 +2,7 @@
 
 
     numpy  (numeric python)
-        numpy smaller and faster than list
+        numpy smaller and faster than list, have matrix operation
         print(np.__version__)
         # create np array (data in array have same data type, will convert automatically,
             #convertion priority: str > float > int)
