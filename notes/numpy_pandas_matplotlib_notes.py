@@ -51,7 +51,7 @@
             # add endpoint=False, not include 3,  # retstep return a tuple with list and step size
         print(np.logspace(0,2,3))   # [  1.  10. 100.]   # start 10^0, end 10^2, total items 3
         print(np.identity(2))   print(np.eye(2))  # identity matrix [[1. 0.][0. 1.]]
-        np.eye(2, k=1)  # daigpnal shift up 1 position
+        np.eye(2, k=1)  # diagonal shift up 1 position
 
         # aggregate functions
         print(np.min(a), np.min(a, axis=1), np.sum(a, axis=0)) or a.sum(axis=0)   # 0 [0 0] [4 3 0]

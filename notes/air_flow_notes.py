@@ -1,7 +1,7 @@
 '''
     Airflow: open source platform to build and run workflows(a sequence of tasks, started on a scheduler or triggered by
         an event, for ETL, big data processing pipeline, machine learning, etc.) enabling scheduling (based on metadata
-        (in metadata base) and DAG) and monitoring. User can define a dependent task set (DAG, directedacyclic graph),
+        (in metadata base) and DAG) and monitoring. User can define a dependent task set (DAG, directed acyclic graph),
         execute order depend on dependencies. Airflow also provide command line tool and web UI for easy scheduling,
         able to monitor real time running status. Airflow has scheduler, webserver(Gunicorn framework), metadata
         database (default SQLite, support mysql, postgres, save DAG, task definition, run history, user, privilege),

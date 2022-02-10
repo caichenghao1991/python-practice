@@ -122,7 +122,7 @@
             reverse proxies (ie a failover) further increases complexity.
         NGINX and HAProxy can support both layer 7 reverse proxying and load balancing.
 
-    Separating out the web layer from the application layerallows you to scale and configure both layers independently.
+    Separating out the web layer from the application layer allows you to scale and configure both layers independently.
     Microservices: a suite of independently deployable, small, modular services. Each service runs a unique process and
         communicates through a well-defined, lightweight mechanism to serve a business goal.
         Service Discovery: Systems such as Consul, Etcd, and Zookeeper can help services find each other by keeping
