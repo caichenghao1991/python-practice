@@ -60,6 +60,7 @@
                 X = μ + σZ ~ N(μ,σ^2)  distribution x axis is value of x, y axis is P(X=x)
             standard normal distribution: μ=0, σ=1    P(X=x) = 1/(sqrt(2π)) * e^(-0.5 * x^2)
                 [-σ,σ] cover 68%, [-2σ,2σ] cover 95%, [-3σ,3σ] cover 99.7%
+            p value: sum of area on both tail under probability density function for |z score|>threshold (2 then p=0.05)
 
         Chi-squared distribution (X^2) with k degrees of freedom is the distribution of a sum of the squares of k
             independent standard normal random variables.  distribution x axis is value of x, y axis is P(X=x)
@@ -74,7 +75,7 @@
         Percentile: sort data, if n% smaller than the data, then it's n% percentile. median(50%), 1st quantile(25%), 3rd
             quantile(75%)
             Z score: area outside  [-z, z] is α (alpha), Z_[α/2] = -1.96 for α=0.05
-
+                z = (x-μ)/s    s: sample standard deviation
         Law of large number: x1, x2,..., xn are independent, identically-distributed(IID) random variables, Xi has
             finite mean μ, sample mean Xn =1/n * (Σ[i=1~n] (Xi)) converge to the true mean μ as n increase. unbiased
             will provide distribution and expectation, while law of large number give fix number(μ)
@@ -116,6 +117,74 @@
             sample correlation: cor(X,Y) = cov(X,Y) / (s_x*s_y)                      s_x: sample x std
 
 
+    causal inference
+        process of drawing a conclusion about a causal connection drawn from experiment. while statistical inference is
+        drawn from observation.
+        correlation(相关) is not causation. GDP is a common factor (correlated with both chocolate eating and Nobel
+            prizes)
+        randomized experiment:
+            pick randomly to 2 group so distribution of GDP is similar, remove correlation between
+            X1(eat chocolate) and Y(nobel prize) due to a different cause X2(GDP) (confounder) (remove X2->X1, X2->Y)
+            manually change X1 distribution of 1 group if both group X1 distribution are similar, to track any Y changes
+            caused by the X1 change for 1 group
+        A/B test: (2 population(group))
+            define causal relationship to be explored X -> Y. define metric Y. define randomized experiments (A/B test)
+            two groups of comparable users(control group and experiment group). collect data and conduct hypothesis
+            testing (compare metrics using two sample t test). draw conclusion.
+        hypothesis testing:
+            use sample of data to test an assumption regarding a (multiple) population parameter(mean, variance,
+            proportion). Two opposing hypotheses about a population: null hypotheses(H0, sample observations result
+            purely from chance), Alternative hypothesis(H1/Ha, sample observation influenced by some non-random cause)
+            reject or not reject null hypothesis. according to CLT, convert to normal distribution, compare p value or
+            z score with critical value (threshold) if absolute value of z too large or p value to small then reject.
+            still have type I error α
+            Alternative hypothesis: can have two tailed (H1: μ != μ0) or one tailed (right tail: μ > μ0 or left tail:
+                μ < μ0). unless well supported by theory, use two tailed alternative hypothesis. probability density
+                function is an estimation
+            type I error α: possibility of false reject H0 while H0 is correct , same as p value
+            type II error β: possibility of false not reject null hypothesis while it is incorrect (H1 is correct).
+            power = P(reject H0|H1): possibility of reject null hypothesis while it is incorrect.
+        reduce type I, II error: make 2 hypothesis probability distribution far away or add more sample.
+        feasibility test(sample size calculation): make β sufficient small, or power sufficient large(>0.8), how much
+            sample size is required
+
+        one sample test:
+            one populations, null hypothesis group parameter equal to some value, alternative hypothesis one side or two
+            side(not equal to that value)
+        two sample test:
+            two populations, compare their means. Paired test (dependent group, essentially one sample test), Unpaired
+            test(independent group), compare two group means or other parameter
+
+        z test: if population variance σ^2 is known, and sample size n>30. z score > threshold, reject hypothesis
+        t-test: if population variance σ^2 is unknown, or sample size n<30. under some df, t score > threshold, reject
+            hypothesis. as df increase, t score get smaller and converge to z score
+
+        two sample t-test
+            X1 random sample from N(μ1,σ1^2), X2 random sample from N(μ2,σ2^2)  H0: μ1=μ2,  H1: μ1!=μ2
+            Welch t test, preferred if σ1^2 != σ2^2
+                t = (avg(x1) - avg(x2))/sqrt(var(avg(x1) - avg(x2)))
+                t = (avg(x1) - avg(x2))/sqrt(s1^2/n1 + s2^2/n2) if X1 and X2 independent
+                df = (n1-1)(n2-1)/((n2-1)C^2+(1-C)^2(n1-1))   where C=(s1^2/n1)/(s1^2/n1 + s2^2/n2)
+            Student t test: if σ1^2 = σ2^2, X1 and X2 independent, follow normal distribution(usually weak skewed works)
+                    or transform to normal(log, inverse, sqrt)
+                s_p^2 = ((n1-1)s1^2 + (n2-1)s2^2)/(n1+n2-2)     df = n1+n2-2
+                t =  (avg(x1) - avg(x2))/(s_p*sqrt(1/n1+1/n2))
+
+        Chi square distribution(sum of k standard normal random variables)
+            x^2(k) = Σ [k] Z_i^2   k-1 degree if freedom
+            H0: σ1^2 = σ0^2   H1: σ1^2 = σ0^2
+            x^2 = (n-1)S^2 / σ0^2    x^2 > threshold, reject null hypothesis
+            one sample: population variance, compare categorical variable with known distribution
+                x^2 = Σ [all categorical vals] (observed - expected)^2 / expected
+            two sample: compare two population variance(hypothesis σ1^2/σ2^2=k), test two categorical variables has
+                different distribution, chi-squared independence test
+
+    Open ended question:
+        ask clarifying questions(what is known and unknown), understand context(which metric change, how about other
+        metrics, how much is decreased(significant), how much sample), understand goal(verify what is the cause and
+        reasoning), how to achieve the goal(randomized experiments(A/B test for verify cause), check other metrics,
+        slice dice users into group(find impact by exploring), etc) brainstorm, listen to interviewer's feedback(face
+        expression, or ask feedback(hint)), understand what he is looking for
 
 
     R
@@ -147,8 +216,8 @@
             is.data.frame(df)    # check whether datatype is dataframe
             as.data.frame(a)     # convert matrix to dataframe
 
-
-
+    train = read.csv('iris.csv', stringsAsFactors=False)
+    length(unique(train$id))   # get unique id count
 
 
 

@@ -322,7 +322,7 @@
             Persistent Volume Claim: application need to claim the persistent volume, created via yaml configure. only
                 persistent volume satisfied the claim will be used for application. In the pod configure file need add
                 volumes section under spec. Pods request volume through persistent volume claim, trying to find a
-                persistent volume that satisfy the claim. and pod and it's claim must be in the same name space. After
+                persistent volume that satisfy the claim. pod and it's claim must be in the same name space. After
                 find a persistent volume, volume is mounted into the Pod and then mounted into one/ multiple container.
                 After container died, new container will have access and able to see the same data on the volume.
                 One pod can claim multiple persistent volume.
@@ -332,7 +332,7 @@
                 When pod claim storage via persistent volume claim,  persistent volume claim will request storage from
                 storage class, storage class provision and create the persistent volume that meets the pod's claim.
 
-        Deployment: blue print for pods, another layer of abstraction over pods. User specify number of replica in
+        Deployment: blueprint for pods, another layer of abstraction over pods. User specify number of replica in
             deployment. Deployment can only replicate application, not database(has state(changed data))
             deployment manage all the replica set (replica of pod). user only need manage deployment, any thing below is
             handled by kubernetes

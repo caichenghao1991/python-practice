@@ -80,7 +80,7 @@
     alter table t_student change/modify column stu_address stu_address varchar(511)
 
     alter table t_student add constraint fk_student_sch_id       --sch_id is primary key of school
-        foreign key(school_id) references t_school(sch_id)
+        foreign key (school_id) references t_school(sch_id)
         # need update/drop t_student before update/drop t_school after foreign key created
         #or use cascade during foreign key creation, not recommended
         # foreign keys limitation: performance, not available for distributed clusters deployment
@@ -619,7 +619,7 @@
     db.hogwarts_table.aggregate([{$group : {'_id': "$name", 'score_avg' : {$avg : '$score'}}}])   # group by
         # same as select name, avg(score) as score_avg from hogwarts_table group by name
         # name and take score average    $group: {'_id': null, 'total':{$sum:'$score'}}   # null means aggregate all
-    db.hogwarts_table.aggregate([{$group: {'student': "$name", 'friend': {$push: 'Ronald'}}}])
+    db.hogwarts_table.aggregate([{$group: {'_id': "$name", 'friend': {$push: 'Ronald'}}}])
     db.hogwarts_table.aggregate([{{$group: {_id: null, count: {$sum: 1}}},{$match: {'score': { $gt: 70, $lte: 90}}}])
         # return count of documents with 70<score<90, $sum:1, 1 means add 1 to sum for each match
 
