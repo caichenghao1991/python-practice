@@ -550,7 +550,8 @@ class Review:
     import inspect     print(inspect.getmro(CellPhone))    or print(CellPhone.__mro__)   # get inheritance order
         # Method Resolution Order
     # inheritance order CellPhone->Commuter->Electronic->object   python1 3: bfs    python1 2: dfs preorder
-    class CellPhone(Commuter):    # non specific parent class extend from object, here extend Commuter class
+    class CellPhone(Commuter, Electronic):    # non specific parent class extend from object, here extend Commuter class
+                                  # can inherit from multiple classes
                                   # child class have all parent class attributes, need to override if necessary
                                   # extension eliminate duplicate code  
                                   # child will override parent same name, # parameter method, but once override with

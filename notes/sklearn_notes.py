@@ -32,7 +32,7 @@
         LogisticRegression()  # bad for too many features
             # prediction very stable, generally good result
             lr = LogisticRegression(max_iter=1000)
-                # C  # penalty coeficient default 1.0, positive float, smaller stronger regularization
+                # C  # penalty coefficient default 1.0, positive float, smaller stronger regularization
                 # solver='lbgfs' default
                 # liblinear  for small data set   L1/L2 loss
                 # lbgfs, sag, newton-cg for large multiclass dataset    L2 loss

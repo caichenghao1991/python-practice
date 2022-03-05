@@ -36,8 +36,8 @@ def insertion_sort(array):
     """
         O(n^2) time complexity, best case O(n), O(1) space complexity
         from left to right increasing the left sorted size by one, consider
-        the item beside the sorted part, from right to left, if number greater than
-        than this, shift to the right
+        the item i beside the sorted part, pointer from right to left, if number greater than
+        than i, shift to the right one step, finally place i at pointer location
         good for almost sorted small data
     """
     for i in range(1, len(array)):
@@ -172,39 +172,32 @@ def counting_sort(array, rang):
     return output
 
 
-def radix_sort(array):
+
+
+
+
+
+def radix_sort(s):
     """
         O(nk) time complexity, O(n+k) space complexity
         use counting sort in each digit of numbers from least significant to
         most significant and sort is stable (inside counting sort start from
         right of the array which is the biggest at right most)
+
     """
-    max_val = max(array)
-    exp = 1
-    while max_val / exp > 0:
-        counting_sort2(array, exp)
-        exp *= 10
-
-
-def counting_sort2(array, exp):
-    output = [0 for _ in range(len(array))]
-    count = [0] * 10
-
-    for i in range(len(array)):
-        curr_dig = array[i] / exp
-        count[int(curr_dig) % 10] += 1
-
-    for i in range(1, 10):
-        count[i] += count[i-1]
-
-    for i in range(len(array) - 1, -1, -1):
-        # must from right to left to keep order
-        curr_dig = array[i] / exp
-        output[count[int(curr_dig) % 10] - 1] = arr[i]
-        count[int(curr_dig) % 10] -= 1
-
-    for i in range(len(array)):
-        array[i] = output[i]
+    i = 0  # 记录当前正在排拿一位，最低位为1
+    max_num = max(s)  # 最大值
+    j = len(str(max_num))  # 记录最大值的位数
+    while i < j:
+        bucket_list = [[] for _ in range(10)]  # 初始化桶数组
+        for x in s:
+            bucket_list[int(x / (10 ** i)) % 10].append(x)  # 找到位置放入桶数组
+        print(bucket_list)
+        s.clear()
+        for x in bucket_list:  # 放回原序列
+            for y in x:
+                s.append(y)
+        i += 1
 
 
 def min_heapify(pos, array):
