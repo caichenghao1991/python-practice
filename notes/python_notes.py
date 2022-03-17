@@ -133,6 +133,8 @@ class Review:
     --Binary and nary 
     bin(149)  # 0b10010101 string  binary     oct(149)  #0o225  8     hex(149) # 0x95 16     int() # back to decimal
     -7 in binary: 7 in binary ob0000 0111,    reverse ~  ob1111 1000,  then +1  ob1111 1001     ~n+1 is -7 
+    negative number first bit 1 (sign bit), -1 is has 1 for all bits, ob1111 1111
+    times 4 is << 2, divide 4 is >>  2
     binary(negative) to decimal: ob1111 1001,   -1  ob1111 1000, then reverse ^ ob0000 0111  is 7
     print(~7+1)  # -7          n << 3    # 7 * 2^3               n >> 2   # 7 // 4
     print(~7 + 1)  # -7           print(7 << 3)  # 7 * 2^3         print(7 >> 2)  # 7 // 4
@@ -551,7 +553,6 @@ class Review:
         # Method Resolution Order
     # inheritance order CellPhone->Commuter->Electronic->object   python1 3: bfs    python1 2: dfs preorder
     class CellPhone(Commuter, Electronic):    # non specific parent class extend from object, here extend Commuter class
-                                  # can inherit from multiple classes
                                   # child class have all parent class attributes, need to override if necessary
                                   # extension eliminate duplicate code  
                                   # child will override parent same name, # parameter method, but once override with
@@ -692,7 +693,7 @@ class Review:
     random.random()  # Return the next random float in the range [0.0, 1.0)
     random.randrange(start,end,step)  # random choose a number from [start, end) with step default 1 
     random.randint(start,end)  # random integer [start, end] 
-    random.choice([1,2,3,4,5])   # random choose from a sequence
+    random.choice([1,2,3,4,5])   # random choose an item from a sequence
         random.choice('12345')   
     random.sample([1,2,3,4,5], 3)   # random pick 3 from list return as list
     random.shuffle(li)   # shuffle the sequence in random order for an object inplace
@@ -771,9 +772,9 @@ class Review:
         print(n)
     
     p = Process(target=task1, name='job 1', args=(1,))   # child process, args can be tuple or list, name optional
-    p.start()                             # start and run process
+    p.start()                             # create a new process, can only start once, must under __name__=="__main__":
     print(p.name)  # job 1
-    p.run()                               # run process
+    p.run()                               # run function in main process
     p.join()                              # main process not stop until child process finished
     p.terminate()                         # stop process
     

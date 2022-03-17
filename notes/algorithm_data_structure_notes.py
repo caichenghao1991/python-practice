@@ -488,6 +488,8 @@ array
     sort array might help   .sort() is in place    sorted() is not
     be careful with index of array +1, -1   index in range(len(arr))  [0,len(arr))
     rotate array by k step use reverse array
+    in place manipulation can (extend array, then) start from end to beginning to avoid override origin array since
+        there won't be overlap if working backward
 
 String
     convert string to list for operations to save memory for recreate string for every modification, finally convert
@@ -635,7 +637,7 @@ Queue & Stack
 
 
 HashSet, HashMap:
-    set and dict
+    set and dict: when appearance time not matter use set, otherwise use dict
     if more value after hash function than bucket number, use remainder   (hash_val % bucket_count)
     can use list to replace dict/set if the bucket size is fixed, list faster than hash(dict, set) since no need hash
         function, but too many buckets cost lots memory. usually use list for 26 character
