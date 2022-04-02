@@ -268,6 +268,7 @@
     ssh -T git@github.com
     git clone ssh://git@github.com/<user>/<repository name>.git
 
+
     create script
         #!/bin/bash    #!/usr/bin/env python
 '''
