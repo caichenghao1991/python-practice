@@ -102,14 +102,18 @@
     Ctrl+d                   # end input
     Ctrl+c                   # stop running process
     Ctrl+w                   # delete part of command
-    Ctrl+a                   # move cursor to beginning
-    Ctrl+e                   # move cursor to end
+    Ctrl+a                   # move cursor to current command beginning
+    Ctrl+e                   # move cursor to current command end
 
     tab   # command and path auto fill
 
-    if condition
+    read -p "Enter your marks: " marks
+    if [ $marks -ge 80 ]
     then
-        xxx
+        echo "Very Good"
+    elif [ $marks -ge 50 ]
+    then
+        echo "Good"
     else
         xxx
     fi
@@ -175,7 +179,7 @@
     Ctrl+f / Ctrl+b           # move cursor up down one page
     0 / $ / w                 # move cursor to front/end of line/ next word
 
-    map <F2> gg9999dd         # map key to function in command mode (create shortcut)
+    map <F2> gg9999dd         # map key to function in command mode (create shortcut)q
     ignoremap _main if __name__ == '__main__':    # custom shortcut in coding
 
     q                      # create macro (record repeatable action)

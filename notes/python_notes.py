@@ -582,8 +582,8 @@ class Review:
         @staticmethod
         def create(name):         # static method, no self/cls, can only use / update class variable and class method 
             Person.model='Xiaomi' # used for define actions taken before instance created
-        def __call__(self,para):  # needed when run the class instance like method: ph=CellPhone('XiaoMi')  ph(1)
-            print(para)           # 1
+        def __call__(self,para):  # needed when run the class instance like method: ph=CellPhone('XiaoMi')  ph(1)  
+            print(para)           # 1, need initialize object first, then instance(val) to run call method
         def __del__(self):        # usually don't need to write, use parent's object.__del__. executed when there is no       
                                   # reference to a class object or at the end of execution 
         def __str__(self):        # return string, used for print(ph) debugging with specific info  without __str__,  
