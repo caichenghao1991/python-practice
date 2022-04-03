@@ -605,7 +605,7 @@
                 # here using l2 loss, with lambda=0.001
 
         or use gradient tape to make more flexible:
-            for setp, (x,y) in enumerate(train_dataset):
+            for step, (x,y) in enumerate(train_dataset):
                 with tf.GradientTape()  as tape:
                     loss = tf.reduce_mean(tf.losses.categotical_crossentropy(y_onehot, out, from_logits=True))
                     loss_regularization = []

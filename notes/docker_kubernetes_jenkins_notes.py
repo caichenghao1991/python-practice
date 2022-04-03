@@ -261,11 +261,12 @@
         Pod is the smallest executable unit(single/multiple container, ex. web service server, database server), usually
             one main application per pod, each pod gets its own IP address. It is a layer of abstraction over container.
             Pod IP address from Node's IP range
-        Service: each pod in replica set share a same service(a component, not process) with fix IP, port, even the
-            container died won't change the service IP associate with this pod, will reassign a replica on different
-            node with same service IP instead of assigning a new IP each time container failed. And pods communicate to
-            each other via service. All the replicas of application share a service with same service IP. Service also
-            act as a load balancer. user can call a single IP (service) instead of calling different individual pod ip.
+        Service: A service is responsible for enabling network access to a set of pods. each pod in replica set share a
+            same service(a component, not process) with fix IP, port, even the container died won't change the service
+            IP associate with this pod, will reassign a replica on different node with same service IP instead of
+            assigning a new IP each time container failed. And pods communicate to each other via service. All the
+            replicas of application share a service with same service IP. Service also act as a load balancer.
+            user can call a single IP (service) instead of calling different individual pod ip.
             service can connect with other cluster component or outside cluster, like browser (through ingress),
             database. service connect to pods via label of pod in same replica set and service selector (match all
             key-value pair). When request come, service will randomly send to one (prefer least load) pod in the replica
@@ -332,10 +333,10 @@
                 When pod claim storage via persistent volume claim,  persistent volume claim will request storage from
                 storage class, storage class provision and create the persistent volume that meets the pod's claim.
 
-        Deployment: blueprint for pods, another layer of abstraction over pods. User specify number of replica in
-            deployment. Deployment can only replicate application, not database(has state(changed data))
-            deployment manage all the replica set (replica of pod). user only need manage deployment, any thing below is
-            handled by kubernetes
+        Deployment: A deployment is responsible for keeping a set of pods running. blueprint for pods, another layer of
+            abstraction over pods. User specify number of replica in deployment. Deployment can only replicate
+            application, not database(has state(changed data)) deployment manage all the replica set (replica of pod).
+            user only need manage deployment, any thing below is handled by kubernetes
         Stateful set: used to replicate database for pods. make sure synchronized data across replica. stateful set is
             harder than deployments, so it's common to host database outside kubernetes cluster.
             stateful applications: databases, or applications that stores data to keep track of state via storage.

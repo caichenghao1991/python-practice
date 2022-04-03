@@ -1,6 +1,4 @@
 '''
-
-
     numpy  (numeric python)
         numpy smaller and faster than list, have matrix operation
         print(np.__version__)
