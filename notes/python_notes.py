@@ -601,7 +601,7 @@ class Review:
         def pin(self,pin):
             self.__pin = pin
                      
-    ph = CellPhone()   # use class to initialize object
+    ph = CellPhone()   # use class to initialize object   or ph = CellPhone     or ph = CellPhone(10)  with init value
     ph.brand='xiaomi'  # can add extra instance variable (feature) to instance after creation
     ph.model='xiaomi'  # change in value of variable with the same name won't change the variable value inside class 
     CellPhone.model = 'huawei'  # this will change the variable value defined inside the class
