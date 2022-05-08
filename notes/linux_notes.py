@@ -3,8 +3,8 @@
     Termius  ssh tool   visit public ip address
 
     $ who [ -a |  -b -d -i -l -m -p -q -r -s -t -u  -w -A -H -T -X ] [ File  ]  # all login at this time
-    $ who am { i | I }     # only current login
-    o: Name [State] Line Time [Activity] [Pid] [Exit] (Hostname)
+    $ whoami                 # only current login
+        o: Name [State] Line Time [Activity] [Pid] [Exit] (Hostname)
     The who command displays information about all users currently on the local system.
     $ w                      # show detailed version with cpu usage, idle time...
     $ last                   # show recent login record
@@ -15,8 +15,10 @@
     $ su username            # switch user to username
     $ date   $ cal           # check date and calender
     $ write user [ttyname]   # send message to user, command used for connection,after connected type message ctrl+c end
+                             # write ccai pts/1  "pts/1 is ttyname get from command 'who'" then type message,
+                             # ctrl+z to exit typing message
     $ wall [ message ]       # send message to all (mesg set to yes)
-    $ mesg [ny]              # whether receive message
+    $ mesg [ny]              # whether receive message   mesg y    to allow message shown in terminal
     $ clear                  # clear console output
     $ man / info / --help    # show help documentation
     $ history                # show command history   -c clear history

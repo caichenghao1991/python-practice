@@ -80,14 +80,17 @@
             ENTRYPOINT ["<executeable>","<param1>","<param2>",...]: similar to CMD, but provide fix param won't be
                 changed by docker run param. docker run can add --entrypoint to change command to run during runtime
                 only last ENTRYPOINT will be executed
+                ENTRYPOINT <shell command>
                 ENTRYPOINT ["nginx"]    ENTRYPOINT [ "curl", "-s", "http://ip.cn" ]
             CMD python3               # command to execute to run other program, when docker container is running
                                       # param can be override by docker run
                 CMD <shell command>
                 CMD ["<executable file or command >","<param1>","<param2>",...]   # recommended way
-                CMD ["<param1>","<param2>",...]  # provide ENTRYPOINT program default param
+                CMD ["<param1>","<param2>",...]  # provide default param to ENTRYPOINT
                     # only last CMD will be executed, previous one inside same docker file will be ignored
                     CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]   CMD ["/usr/bin/wc","--help"]
+                    # docker run -it -p 8080:8000 <docker_image> ls -l    command with param (ls -l) will override
+                        cmd command, need entrypoint ahead of cmd in this case to avoid must execute command overridden
             ONBUILD <command>         # command won't be executed for building this image, only run command when some
                                       # other image have 'from thisImageName' (use this image as base image)
         ex.
