@@ -5,7 +5,7 @@
         messages are replicated in multiple brokers. It is scalable by adding more brokers, consumers, and producers at
         any time.
 
-    each kafka server can have multiple topics, each topic can have many partitions. producers sends message to
+    each kafka server can have multiple topics, each topic can have many partitions. producers send message to
         different partition. consumers inside consumer groups consume the messages in the topic.
 
     zookeeper is a distributed, open source configuration, synchronization service for managing configuration (which
@@ -109,7 +109,7 @@
 
 
     replication in kafka
-        kafka is fault tolerant (continue operating without interruption with one or more its component fail)
+        kafka is fault-tolerant (continue operating without interruption with one or more its component fail)
         each partition is replicated across multiple server, only one partition at a time within duplication become
         leader, others are followers. leader handles all read and write request for that partition, and follower
         passively replicate the partition of leader. zookeeper will know which is leader and which is follower. If
