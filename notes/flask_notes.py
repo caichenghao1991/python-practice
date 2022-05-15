@@ -112,7 +112,7 @@
     set response header (content type, default text/html)
     from flask import make_response, jsonify, Response, Blueprint
     emp.py
-    bp = Blueprint('emp', __name__)  # use blue print to split the work into different class (employer)
+    bp = Blueprint('emp', __name__)  # use blueprint to split the work into different class (employer)
         # inside main app class:
     @bp.route('/find/<int:id>', methods=['GET', 'POST'])  # <int:id>
     def employee(id):
