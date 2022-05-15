@@ -48,6 +48,7 @@
     $ diff                   # show difference between files
     $ chmod xxx  file.txt    # 4 read, 2 write, 1 execute, add together value for owner, same group, other group user
                                     # 777 all access
+                             # chmod +x file.exe    # add execute to all user
     $ cp                     # copy file/directory   cp a.txt folder/  copy a.txt to folder directory
                              # cp a.txt folder/b.txt   copy and rename      cp -r folder /   copy directory
     $ mv                     # move file/directory    rename file if under same directory
