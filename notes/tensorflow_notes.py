@@ -163,7 +163,7 @@
         b = tf.transpose(a)   # shape (3,28,20,4)
         c = tf.transpose(a,[0,3,1,2])   # shape (4,3,20,28)
 
-        b = tf.expend_dims(a, axis=3)   # shape (4,20,28,1,3)
+        b = tf.expand_dims(a, axis=3)   # shape (4,20,28,1,3)
         c = tf.squeeze(tf.zeros([1,2,1,1,3]))     # shape (2,3)
         c = tf.squeeze(tf.zeros([1,2,1,3]), axis=0)     # shape (2,1,3), only able to squeeze dimension size = 1
 
