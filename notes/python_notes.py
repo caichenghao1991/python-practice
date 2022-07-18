@@ -568,6 +568,7 @@ class Review:
             # super(CellPhone, self)  # instance variable can be other class instance object  (has relationship)
                                       # need call parent's init method, need same number parameter
                                       # super(CellPhone, self) same as super(), but add self instance type check
+                                      # Super(Electronic, self) call grandparent method
         model=''    # class variable, shared among all instance
         __pin=''    # private variable, can't access/ modified outside class with CellPhone.__pin
                     # variable was rename to _CellPhone__pin   still able to access ph._CellPhone__pin, not recommended
