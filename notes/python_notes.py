@@ -30,7 +30,8 @@ class Review:
         read documentation: click on function, View -> Quick Documentation  (Ctrl+Q)
     
     virtualenv venv   # create env folder for project dependency
-        # or python -m venv venv   # create virtual env after python 3.5
+        # or python -m venv venv   # create virtual env after python 3.5   -m: module
+        
         # add environment path to the path variable
     which pip   # shows which environment is installing
     python env/bin/pip install urllib   # force declare which pip
@@ -450,7 +451,7 @@ class Review:
             print('file does not exist')
         
     with open('data.json') as f:
-        dic = json.load(f)   # load string or bytes into dict
+        dic = json.load(f)   # load string or bytes into dict for json file
         print(dic['age'])
     
     create json object 
