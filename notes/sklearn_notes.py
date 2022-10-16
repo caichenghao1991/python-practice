@@ -149,7 +149,7 @@
         save model using pickle or joblib
             # using pickle
             pickle.dump(clf, open("random_forest.pkl", "wb"))
-            loaded_model = pickle.load("random_forest.pkl", "rb"))
+            loaded_model = pickle.load(open("random_forest.pkl", "rb"))
             loaded_model.score(X_test, y_test)
 
             #using joblib, less compatible, faster with numpy estimator

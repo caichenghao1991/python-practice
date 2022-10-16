@@ -515,6 +515,7 @@ class Review:
                 print(n)              
                 yield n   # pause the function until next call of function      
                     # temp = yield n   # receive input parameter from outside (send function param)
+                    n = temp if temp
                 print(temp)  # temp = 3
                 n += 1   
         [return 'can't generate more']   # return message when loop end with exception
@@ -523,7 +524,7 @@ class Review:
         # raise exception when while end, use try, catch block
         sending input parameter
         r0 = g.send(None)   # r0=0    # first time call must send None or next(g)
-        r1 = g.send(3)   # r0=1   temp=3    temp=3 at  temp = yield n
+        r1 = g.send(3)   # temp=3, n=3
         
         Coroutines: sub thread, one thread can have multiple Coroutines running concurrently
         def task1(n):
