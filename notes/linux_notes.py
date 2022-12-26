@@ -14,7 +14,7 @@
     $ userdel cai            # delete user
     $ su username            # switch user to username
     $ date   $ cal           # check date and calender
-    $ write user [ttyname]   # send message to user, command used for connection,after connected type message ctrl+c end
+    $ write username [ttyname]   # send message to user, command used for connection,after connected type message ctrl+c to end
                              # write ccai pts/1  "pts/1 is ttyname get from command 'who'" then type message,
                              # ctrl+z to exit typing message
     $ wall [ message ]       # send message to all (mesg set to yes)
