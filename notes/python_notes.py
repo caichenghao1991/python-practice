@@ -516,8 +516,8 @@ class Review:
                 yield n   # pause the function until next call of function      
                     # temp = yield n   # receive input parameter from outside (send function param)
                     n = temp if temp
-                print(temp)  # temp = 3
-                n += 1   
+                print(temp)  # temp = 3           # yield act as a stopper, can still have code after yield, 
+                n += 1                             # which will be executed next run, resume where it left
         [return 'can't generate more']   # return message when loop end with exception
         g = func()    # retrieve generator    g=func(para_value)
         g.__next__()   next(g)    # to retrieve next value after yield (n)
@@ -601,7 +601,7 @@ class Review:
         def pin(self):            # must first have getter then setter, instance now can use ph.pin to get and set
              return self.__pin
         @pin.setter            
-        def pin(self,pin):
+        def pin(self,pin):        # function name and attribute name can't be the same, cause infinite loop
             self.__pin = pin
                      
     ph = CellPhone()   # use class to initialize object   or ph = CellPhone     or ph = CellPhone(10)  with init value
