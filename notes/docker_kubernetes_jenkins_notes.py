@@ -91,6 +91,8 @@
                     CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]   CMD ["/usr/bin/wc","--help"]
                     # docker run -it -p 8080:8000 <docker_image> ls -l    command with param (ls -l) will override
                         cmd command, need entrypoint ahead of cmd in this case to avoid must execute command overridden
+                CMD设置的指令在镜像运行时自动运行，无法追加指令，只能把指令全部覆盖
+                ENTRYPOINT设置的指令在镜像运行时与CMD一样，可以在新建镜像时设置的指令后追加新的指令，也可以使用 --entrypoint 覆盖指令。
             ONBUILD <command>         # command won't be executed for building this image, only run command when some
                                       # other image have 'from thisImageName' (use this image as base image)
         ex.
