@@ -114,19 +114,19 @@ class Solution:
 if __name__ == '__main__':
     node = Solution.build_linked_list([1, 2, 3, 4, 5])
     Solution.print_linked_list(node)
-    n = Solution.reverseList(node)
-    Solution.print_linked_list(n)
+    successor = Solution.reverseList(node)
+    Solution.print_linked_list(successor)
 
     node = Solution.build_linked_list([1, 2, 3, 4, 5])
-    n = Solution.reverseBetween(node, 2, 4)
-    Solution.print_linked_list(n)
+    successor = Solution.reverseBetween(node, 2, 4)
+    Solution.print_linked_list(successor)
 
     c = Node(3, None, None, None)
     a, b = Node(1, None, None, None), Node(2, None, None, c)
     a.next = b
     b.prev = a
-    n = Solution.flatten(a)
-    Solution.print_linked_list(n)
+    successor = Solution.flatten(a)
+    Solution.print_linked_list(successor)
 
     a, b, c = ListNode(1), ListNode(2), ListNode(3)
     a.next, b.next, c.next = b, c, b
