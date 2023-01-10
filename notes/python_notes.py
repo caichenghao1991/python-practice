@@ -578,6 +578,7 @@ class Review:
                                   # need first initialize instance, then can use instance method
         def close_phone(self, name):   # method with input parameter
             self.startphone()     # inside method, use other non-class method must use self
+            return brand, model   # return multiple values are put into a tuple  use index to access each item
         @classmethod   #decorator  class method usually used for define actions taken before instance created
         def destroy(cls):         # class, don't depend on instance. every instance have the same class method
             cls.__pin = '1'       # don't need initialize instance to use class method, but ph.destroy work as well
