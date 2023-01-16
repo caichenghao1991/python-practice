@@ -199,8 +199,8 @@ class Review:
     list1.count(1)  # 1  number of appearance of value
     Add   mutate list
     list1 = list1 * 2  # [1, '2', True, 1, '2', True]     # list1 *= 2
-    list1 + [100]    # [1, '2', True, 100]  # not mutate original list
-    list1.append(100)  # [1, '2', True, 100]   
+    list1 + [100]    # [1, '2', True, 100]  # not mutate original list, return new list
+    list1.append(100)  # [1, '2', True, 100]   append in place, none return type
     list1.extend([100, 200])  # [1, '2', True, 100, 200]   # iterable input parameter
     list1.insert(-1, False)   # [1, '2', True, False]  # insert item at index, shift one to the right after index 
     Update
