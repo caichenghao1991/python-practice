@@ -402,6 +402,7 @@ class Review:
     func1(3, lambda x: x+2)  
     x = lambda a : a + 10;    print(x(5))   
     list1 = [('sam',35),('tom',19), ('tony',20)] 
+    list1.sort(key=lambda x:(x[0],-x[1])   # first sort by name, then age large to small
     print(max(list1, key=lambda x: x[1]))   # ('sam',35)   key is a function x is each tuple in list1                              
     max, min, sorted all have key function
     print(list(filter(lambda x:x[1]>19, list1)))  # [('sam', 35), ('tony', 20)] filter out data not match condition
