@@ -228,6 +228,30 @@
             mean_squared_error(y_test, y_pred)  # avg squared difference
 
 
+        Pipeline
+            numerical_transformer = SimpleImputer(strategy='constant')
+            # Preprocessing for categorical data
+            categorical_transformer = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('onehot', OneHotEncoder(handle_unknown='ignore'))
+            ])
+
+            # Bundle preprocessing for numerical and categorical data
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ('num', numerical_transformer, numerical_cols),
+                    ('cat', categorical_transformer, categorical_cols)
+                ])
+
+            model = RandomForestClassifier(n_estimators=100, random_state=0)
+            # Bundle preprocessing and modeling code in a pipeline
+            my_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                                          ('model', model)
+                                         ])
+            my_pipeline.fit(X_train, y_train)
+            preds = my_pipeline.predict(X_valid)
+            score = accuracy_score(y_valid, preds)
+
         Linear difference
             x and y are arrays of values used to approximate some function f: y = f(x).
             This class returns a function whose call method uses interpolation to find the value of new points.

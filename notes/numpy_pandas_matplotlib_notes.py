@@ -154,7 +154,7 @@
             brand = pd.Series(["BMW", "Toyota", "Honda"])    #takes in list, data=["BMW", "Toyota", "Honda"]
             color = pd.Series(["Red", "Blue", "White"], index=[0,3,9])  # assign custom index
             color = pd.Series(np.array(["Red", "Blue", "White"]), index=list('abc'))  # assign custom index
-            color = pd.Series({"a":"Red", 'b':"Blue", 'c':"White"})
+            color = pd.Series({"a":"Red", 'b':"Blue", 'c':"White"}, name="series-name")
 
             # hierarchical index
             color = pd.Series(["Red", "Blue", "White"], index=[['Light','Light','Dark'],[0,3,9]])
@@ -185,7 +185,7 @@
             pd.isnull(color)  # return index and boolean of null check for np.NaN
                 pd.notnull(color)   color.isnull()   color.notnull()
 
-            color.unique()   # remove duplicate value
+            color.unique()   # remove duplicate value, return numpy array
             color.plot()   # kind='bar',  'hist' (bins=10, density=True), 'kde'  #kernel density estimate(install scipy)
                 plt.show()  #needed for pycharm to show figure
                 # same as dataframe, check below
@@ -209,7 +209,8 @@
                 columns=['Harry','Ronald'])   # data: 2D list/np.array, index:list, column:list
             df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)},
                 index=['Magic Defense','Magic Spell'])   # dictionary: key:column name, value:list;  index:list
-            df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)})
+            df = pd.DataFrame({'Harry': np.random.randint(0, 100, size=2), 'Ronald': np.random.randint(0, 100, size=2)},
+                    name='dataframe-name',index_col=0)    # use first column as index
             df.index = ['Magic Defense','Magic Spell']  # assign later
 
             # access column/columns via column index
@@ -226,7 +227,7 @@
             df.loc['Magic Defense':'Magic Spell']   # ['Magic Defense','Magic Spell']  inclusive
             df2.iloc[0:1]  # rows [0, 1)
             df.loc[df.Gender=='male', 'name']  get name column with data.gender=male
-
+                    df.Gender=='male'    return index column and one column of True for male/ False for female
 
             # add/remove column
             df['Hermione'] = [99,98]     # pd.Series([99,98])
@@ -317,9 +318,12 @@
                 df[~df.duplicated()]  # rows not duplicated,  keep='last' check from bottom to top
                 # subset=['Harry','Ronald']  # check duplicate value in subset columns
             df = df.drop_duplicates()    # remove duplicated rows
+            df.nunique()                 # return Series of unique counts for each column
+            df['Harry'].nunique()        # return unique counts column Harry value
             df = df.add_prefix('new_')   # add prefix for each column name   # add_surfix()
             .sort_values(by=["saledate"], inplace=True, ascending=True)    # only sort column, return sorted rows base
                     # on one or multiple column values
+            .sort_index()                # sort rows by index
             df = df.astype(dtype=np.int16)  or df['Harry'] = df['Harry'].astype(int)  # change datatype
                 pd.to_numeric(df['Harry'])  # change column to numeric
 
@@ -361,9 +365,10 @@
 
             df.query('Harry=="98" & Ronald<90')   # return dataframe, string use "", Harry column value is "98" and
                                                     # Ronald column value<90
+                    ('Harry=="98" | Ronald<90')
             df["Harry"]  >= 60   # return one column of index and one column of boolean of compare result
             df[df["Harry"] >= 60]   # df[index+boolean column] return rows with boolean=True
-
+            df.loc[df['Harry'.isin([60,61])]     # return rows with harry column value 60 or 61
             df.rename({'Harry':'Harry Potter','Ronald':'Ron'}, axis=1)  # change column index
                 # df.rename(columns={'Harry':'Harry Potter','Ronald':'Ron'})   # level=None default
                 # df.rename(index={'Magic Defence':'Defence'})  # rename row index
@@ -386,6 +391,7 @@
             .groupby(by='Make')  # .groupby(by='Make').groups   # {'Honda':Index([0,3,8]),'Toyota':Index([1,2,6])}
                 .groupby(["Make"]).mean()  #return mean value for each column for each make as row index
                 .groupby(["Make"])[['Price']].mean()  # only show price column for each make
+                .groupby(['Make','Country']].price.agg([min,max]) # group by make & country, get min,max of price
 
             .plot()  # default line chart (find data trend)
                 plt.figure(figsize=(12, 9))   # change figure size
