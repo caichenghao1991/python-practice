@@ -121,6 +121,7 @@
         ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
         # as alias    %: 0 or more any character   _: 1 character     <>: not equal
+        with t as (select * from consumer) select * from t      # make an alias for a subquery 
         is null    is not null   (can't use column=null)       order by asc default   desc
         CASE WHEN weight > 250 THEN 'over 250' WHEN weight > 200 AND weight <= 250 THEN '201-250'
             ELSE '175 or under' END AS weight_group        # case search function
@@ -194,6 +195,9 @@
     explain select stu_name from t_student where e_id =101   <>  not equal
     # show type (constant, all, range, searching type)  rows (how many lines to search)
         key (key related to search)
+
+    SELECT EXTRACT(YEAR FROM OrderDate) AS OrderYear, EXTRACT(MONTH FROM OrderDate)
+    EXTRACT(DAY FROM OrderDate) AS OrderDay FROM Orders WHERE OrderId=1
 
     # convert name course score to      name course name avg score
     SELECT name AS name_, MAX(CASE course WHEN "magic defense" THEN score ELSE 0 END) AS 'magic defense',

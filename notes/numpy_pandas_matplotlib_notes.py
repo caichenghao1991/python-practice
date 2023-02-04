@@ -366,9 +366,10 @@
             df.query('Harry=="98" & Ronald<90')   # return dataframe, string use "", Harry column value is "98" and
                                                     # Ronald column value<90
                     ('Harry=="98" | Ronald<90')
+            df['Harry'].isin([60,61])    # return boolean series for all rows whether harry column has value 60 or 61
             df["Harry"]  >= 60   # return one column of index and one column of boolean of compare result
             df[df["Harry"] >= 60]   # df[index+boolean column] return rows with boolean=True
-            df.loc[df['Harry'.isin([60,61])]     # return rows with harry column value 60 or 61
+
             df.rename({'Harry':'Harry Potter','Ronald':'Ron'}, axis=1)  # change column index
                 # df.rename(columns={'Harry':'Harry Potter','Ronald':'Ron'})   # level=None default
                 # df.rename(index={'Magic Defence':'Defence'})  # rename row index
