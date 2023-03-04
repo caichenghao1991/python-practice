@@ -192,6 +192,7 @@
             precision = true pos /  (true pos+ false pos)
             recall = true pos / (true pos + false neg)    # more important if imbalanced data
             f1 score = 2*precision*recall / (precision+recall) = TP / (TP + 0.5*(FP+FN))
+            weighted f measure = (1+b^2)*precision*recall / b^2(precision+recall)
             support: number of samples each metrics is calculated on
             accuracy: accuracy of model (# correct predictions / total predictions)
         Evaluation regression
