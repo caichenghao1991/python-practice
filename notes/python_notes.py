@@ -515,7 +515,8 @@ class Review:
             while True:    while n < para: 
                 print(n)              
                 yield n   # pause the function until next call of function      
-                    # temp = yield n   # receive input parameter from outside (send function param)
+                    # temp = yield n   # receive input parameter from outside (send function param, will set n=3, then 
+                                                                                temp is set to yield 3 which is 3)
                     n = temp if temp
                 print(temp)  # temp = 3           # yield act as a stopper, can still have code after yield, 
                 n += 1                             # which will be executed next run, resume where it left
