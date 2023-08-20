@@ -567,7 +567,7 @@ class Review:
             self.price = price        # use (self, **kwargs for overload)
             self.brand = 'Huawei'     # default instance variable value
             self.case = Case()        # instance variable can be different for different CellPhone object, first search 
-            super().__init__(name)    # instance whether variable is defined, then search in class 
+            super().__init__(name)    # -=[Zxinstance whether variable is defined, then search in class 
             # super(CellPhone, self)  # instance variable can be other class instance object  (has relationship)
                                       # need call parent's init method, need same number parameter
                                       # super(CellPhone, self) same as super(), but add self instance type check
