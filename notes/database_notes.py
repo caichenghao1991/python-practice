@@ -121,6 +121,7 @@
         ilike: ignore case,  between both side inclusive
         order by stu_birth desc, stu_id;
         # as alias    %: 0 or more any character   _: 1 character     <>: not equal
+        with t as (select * from consumer) select * from t      # make an alias for a subquery 
         is null    is not null   (can't use column=null)       order by asc default   desc
         CASE WHEN weight > 250 THEN 'over 250' WHEN weight > 200 AND weight <= 250 THEN '201-250'
             ELSE '175 or under' END AS weight_group        # case search function
@@ -173,8 +174,10 @@
     select * from t_student stu join t_courses c on stu.course = c.id  # default inner join
         # join t_courses c where stu.course = c.id
     a inner join b on a.xid=b.xid inner join c on b.yid=c.yid where a.xid>10
+
+    JOINs horizontally combine results from different tables
     inner join: include data only match a.xid=b.xid constraint
-    left/right/full outer join: include left table data even it don't match the on a.xid=b.xid constraint
+    left/right/full outer join: include left/right/both table data even it don't match the on a.xid=b.xid constraint
 
     self join:  select distinct a.* from t_student a inner join t_student b on a.id=b.id where a.age>b.age
         # on a.id in (subquery)      # usually use to compare value in same table, subquery table need has alias
@@ -184,7 +187,9 @@
     ifnull(avg_score,0): return avg_score, if null return 0.
     limit 5: paging first 5 items       limit 5 offset 10  (or limit 10,5)  # skip 10 items get 5 items
 
-
+    UNION vertically combine results from different tables, the data types of both columns must be the same,
+        but the column names can be different.
+    UNION ALL / UNION DISTINCT to include/drop duplicate values
     select * from a union select * from b     # append b to a with same number of columns with same data type and
                                               # remove duplicated row, not necessary same column name
         # union all     # keep duplicated value
@@ -194,6 +199,9 @@
     explain select stu_name from t_student where e_id =101   <>  not equal
     # show type (constant, all, range, searching type)  rows (how many lines to search)
         key (key related to search)
+
+    SELECT EXTRACT(YEAR FROM OrderDate) AS OrderYear, EXTRACT(MONTH FROM OrderDate)
+    EXTRACT(DAY FROM OrderDate) AS OrderDay FROM Orders WHERE OrderId=1
 
     # convert name course score to      name course name avg score
     SELECT name AS name_, MAX(CASE course WHEN "magic defense" THEN score ELSE 0 END) AS 'magic defense',
@@ -300,6 +308,7 @@
 
     Important notes
     # recommend use lower case for table and database name
+    # only select column needed, use with clause to filter the join tables first, instead of first join then filter
     # data search result case-sensitive or not depends on collate rules during database creation
         # utf8_general_ci not case-sensitive,  utf8_bin  is case-sensitive
     # database object name better use prefix to distinguish: table, views, index, function, procedure, trigger
@@ -748,4 +757,8 @@
 
     client = pymongo.MongoClient("mongodb://localhost:27017/")
     res = client.hogwarts.hogwarts_table.create_index({'name': 1}, unique=True)
+
+
+BigQuery
+    nested and repeated data (unnest): https://www.kaggle.com/code/alexisbcook/nested-and-repeated-data
 """

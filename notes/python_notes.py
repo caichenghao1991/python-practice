@@ -199,8 +199,8 @@ class Review:
     list1.count(1)  # 1  number of appearance of value
     Add   mutate list
     list1 = list1 * 2  # [1, '2', True, 1, '2', True]     # list1 *= 2
-    list1 + [100]    # [1, '2', True, 100]  # not mutate original list
-    list1.append(100)  # [1, '2', True, 100]   
+    list1 + [100]    # [1, '2', True, 100]  # not mutate original list, return new list
+    list1.append(100)  # [1, '2', True, 100]   append in place, none return type
     list1.extend([100, 200])  # [1, '2', True, 100, 200]   # iterable input parameter
     list1.insert(-1, False)   # [1, '2', True, False]  # insert item at index, shift one to the right after index 
     Update
@@ -402,6 +402,7 @@ class Review:
     func1(3, lambda x: x+2)  
     x = lambda a : a + 10;    print(x(5))   
     list1 = [('sam',35),('tom',19), ('tony',20)] 
+    list1.sort(key=lambda x:(x[0],-x[1])   # first sort by name, then age large to small
     print(max(list1, key=lambda x: x[1]))   # ('sam',35)   key is a function x is each tuple in list1                              
     max, min, sorted all have key function
     print(list(filter(lambda x:x[1]>19, list1)))  # [('sam', 35), ('tony', 20)] filter out data not match condition
@@ -514,10 +515,11 @@ class Review:
             while True:    while n < para: 
                 print(n)              
                 yield n   # pause the function until next call of function      
-                    # temp = yield n   # receive input parameter from outside (send function param)
+                    # temp = yield n   # receive input parameter from outside (send function param, will set n=3, then 
+                                                                                temp is set to yield 3 which is 3)
                     n = temp if temp
-                print(temp)  # temp = 3
-                n += 1   
+                print(temp)  # temp = 3           # yield act as a stopper, can still have code after yield, 
+                n += 1                             # which will be executed next run, resume where it left
         [return 'can't generate more']   # return message when loop end with exception
         g = func()    # retrieve generator    g=func(para_value)
         g.__next__()   next(g)    # to retrieve next value after yield (n)
@@ -578,6 +580,7 @@ class Review:
                                   # need first initialize instance, then can use instance method
         def close_phone(self, name):   # method with input parameter
             self.startphone()     # inside method, use other non-class method must use self
+            return brand, model   # return multiple values are put into a tuple  use index to access each item
         @classmethod   #decorator  class method usually used for define actions taken before instance created
         def destroy(cls):         # class, don't depend on instance. every instance have the same class method
             cls.__pin = '1'       # don't need initialize instance to use class method, but ph.destroy work as well
@@ -601,7 +604,7 @@ class Review:
         def pin(self):            # must first have getter then setter, instance now can use ph.pin to get and set
              return self.__pin
         @pin.setter            
-        def pin(self,pin):
+        def pin(self,pin):        # function name and attribute name can't be the same, cause infinite loop
             self.__pin = pin
                      
     ph = CellPhone()   # use class to initialize object   or ph = CellPhone     or ph = CellPhone(10)  with init value

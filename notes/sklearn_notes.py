@@ -192,6 +192,7 @@
             precision = true pos /  (true pos+ false pos)
             recall = true pos / (true pos + false neg)    # more important if imbalanced data
             f1 score = 2*precision*recall / (precision+recall) = TP / (TP + 0.5*(FP+FN))
+            weighted f measure = (1+b^2)*precision*recall / b^2(precision+recall)
             support: number of samples each metrics is calculated on
             accuracy: accuracy of model (# correct predictions / total predictions)
         Evaluation regression
@@ -227,6 +228,30 @@
             mean_absolute_error(y_test, y_pred)  # avg difference
             mean_squared_error(y_test, y_pred)  # avg squared difference
 
+
+        Pipeline
+            numerical_transformer = SimpleImputer(strategy='constant')
+            # Preprocessing for categorical data
+            categorical_transformer = Pipeline(steps=[
+                ('imputer', SimpleImputer(strategy='most_frequent')),
+                ('onehot', OneHotEncoder(handle_unknown='ignore'))
+            ])
+
+            # Bundle preprocessing for numerical and categorical data
+            preprocessor = ColumnTransformer(
+                transformers=[
+                    ('num', numerical_transformer, numerical_cols),
+                    ('cat', categorical_transformer, categorical_cols)
+                ])
+
+            model = RandomForestClassifier(n_estimators=100, random_state=0)
+            # Bundle preprocessing and modeling code in a pipeline
+            my_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
+                                          ('model', model)
+                                         ])
+            my_pipeline.fit(X_train, y_train)
+            preds = my_pipeline.predict(X_valid)
+            score = accuracy_score(y_valid, preds)
 
         Linear difference
             x and y are arrays of values used to approximate some function f: y = f(x).
