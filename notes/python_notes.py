@@ -874,7 +874,7 @@ class Review:
     from greenlet import greenlet
     import gevent 
     yield:                           greenlet:                                gevent:  
-    def task1(n):                                                             # monkey.patch_all() ahead of tasks
+    def task1/2(n):                                                           # monkey.patch_all() ahead of tasks
         for i in range(n):                                                    # monkey will change the native time module 
             print(n)
             yeild                    # gb.switch(n_val)                       # no need for gevent
