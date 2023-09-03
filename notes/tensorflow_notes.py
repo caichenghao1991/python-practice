@@ -2,7 +2,6 @@
     google colab similar to jupyter notebook
     Scikit-learn
         mainly for machine learning, not for deep learning, don't support GPU
-    Caffe
         first deep learning framework, no auto-grad
     Keras
         wrapper, no implementation
