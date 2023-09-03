@@ -64,7 +64,7 @@
             EXPOSE <port1> [<port2>]   # specify exposed port   docker run -P will random choose one EXPOSE port
             LABEL <key>=<value> <key>=<value> <key>=<value> ...  # add meta data to image
             ENV <key1>=<value1> <key2>=<value2>...    # setting environment variable
-                # ENV NODE_VERSION 7.2.0
+                # ENV NODE_VERSION=7.2.0
             ARG <key1>=<value1> <key2>=<value2>...    # environment variable only valid during building phase
             VOLUME <path>             # default anonymous path, save data to local pc path
             WORKDIR /usr/src          # change work directory
@@ -82,6 +82,7 @@
                 only last ENTRYPOINT will be executed
                 ENTRYPOINT <shell command>
                 ENTRYPOINT ["nginx"]    ENTRYPOINT [ "curl", "-s", "http://ip.cn" ]
+                add command after docker run image printenv , this only add printenv to last entrypoint argument
             CMD python3               # command to execute to run other program, when docker container is running
                                       # param can be override by docker run
                 CMD <shell command>
