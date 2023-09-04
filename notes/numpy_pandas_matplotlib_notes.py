@@ -84,7 +84,7 @@
         x, y = np.linspace(0, 10,101), np.linspace(0,10,101)
 
         X, Y = np.meshgrid(x,y)  # X:[[0,.1,.2,...,10],[[0,.1,.2,...,10]]...]  Y:[[0,0,...,0],[[.1,.1,...,.1]]...]
-        XY = np.c_[X.ravel(), Y.ravel()]
+        XY = np.c_[X.ravel(), Y.ravel()]    # Stack 1-D arrays as columns into a 2-D array.
             # X.ravel(): return 1d array  [0,.1,.2,...,10,0,.1,.2,...10]
             # XY: [[0,0],[.1,0],[.2,0],...[.9,10],[10,10]]
             # np.c_ join together X,Y with result rows as both
@@ -318,8 +318,8 @@
                 df[~df.duplicated()]  # rows not duplicated,  keep='last' check from bottom to top
                 # subset=['Harry','Ronald']  # check duplicate value in subset columns
             df = df.drop_duplicates()    # remove duplicated rows
-            df.nunique()                 # return Series of unique counts for each column
-            df['Harry'].nunique()        # return unique counts column Harry value
+            df.unique()                 # return Series of unique counts for each column
+            df['Harry'].unique()        # return unique counts column Harry value
             df = df.add_prefix('new_')   # add prefix for each column name   # add_surfix()
             .sort_values(by=["saledate"], inplace=True, ascending=True)    # only sort column, return sorted rows base
                     # on one or multiple column values
