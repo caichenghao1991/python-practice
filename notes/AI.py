@@ -511,6 +511,7 @@ ssl 883 error 解决方法:
                 x_reg = sc.fit_transform(x)     x 可以是列表，ndarray，DataFrame 等
                 或[-1,1]之间，通过这个变换使数据特征的均值变为0，标准差变为1
 '''
+
 import sklearn
 from sklearn.neighbors import KNeighborsClassifier
 knn = KNeighborsClassifier(n_neighbors=6)
