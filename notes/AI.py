@@ -1,6 +1,7 @@
 '''
 数据库 http://archive.ics.uci.edu/ml/
 Microsoft Azure Machine Learning studio: 实验左侧所有操作功能，中间流程图连接各个操作，右侧具体当前操作参数
+kaggle， 天池  机器学习比赛
 ssl 883 error 解决方法:
     import ssl; ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -15,7 +16,7 @@ ssl 883 error 解决方法:
             2012年后是深度学习期
         c. 人工智能、机器学习和深度学习
             机器学习是人工智能的一个实现途径
-            深度学习是机器学习的一个方法发展而来
+            深度学习是机器学习的一个方法（人工神经网络）发展而来
         d. 人工智能主要分支
             计算机视觉
             自然语言处理：语音识别，语义识别（文本挖掘/分类，机器翻译）
@@ -35,6 +36,7 @@ ssl 883 error 解决方法:
             特征工程
             机器学习（模型训练）
             模型评估 （效果不好，则重新执行以上步骤）
+            应用
         c. ***** 获取到的数据集介绍
             i. 专用名词
                 一行数据称为样本 (instance)
@@ -50,13 +52,15 @@ ssl 883 error 解决方法:
                 测试集 -- （最终）模型评估
         d. 数据基本处理
             对数据缺少值，去异常值等处理
+            pandas 数据清洗，处理
         e. 特征工程
             i. 定义：使用专业背景知识和技巧处理数据，使得特征能在机器学习算法上发挥更好的作用的过程
             数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限而已。
             ii. 包含内容：
-                特征提取： 将数据转化为可用于机器学习的数字特征
+                特征提取（特征值化）： 将数据转（字典，文本，离散类别字符串，图像）化为可用于机器学习的数字特征
                 特征预处理： 通过转换函数将特征数据转换成更加适合算法模型的特征数据过程
                 特征降维： 降低随机变量（特征）个数，简化模型的过程
+            sklearn 特征工程
         f. 机器学习
             选择合适的算法对模型进行训练
         g. 模型评估
@@ -127,9 +131,9 @@ ssl 883 error 解决方法:
         source env/bin/activate
         deactivate
         pip install matplotlib, numpy, pandas, tables, jupyter
-    2.2 ** Jupyter Notebook 使用
+    2.2 ** Jupyter Notebook (Julia Python R)
         a. 简介
-            开源的科学计算平台，类别ipython，可以运行代码，做笔记，画图表。文件后缀 .ipynb
+            开源的科学计算平台，类别ipython，可以运行代码，做笔记，画图表。文件后缀 .ipynb， 具有画图，数据展示方面的优势，
         b. 安装运行
             pip install jupyter
             pip install jupyter_contrib_extensions  安装插件（可选）
@@ -164,7 +168,7 @@ ssl 883 error 解决方法:
             - ： 列表缩进
                 -: 二级列表缩进 （tab)
 
-    2.3 Matplotlib
+    2.3 Matplotlib (Matrix plot library)
         a. 用途
             绘制 2D (3D) 图表，实现数据可视化，更易于数据分析
         b. *** 绘图流程
@@ -193,7 +197,7 @@ ssl 883 error 解决方法:
             plt.scatter(x, y)
             plt.bar(x, width=0.5, align='center')
             plt.bar(x, y)    # x，y 必须为数字
-            plt.hist(x, bins=None)
+            plt.hist(x, bins=None, range=None)    range 元组，表示 bins 的下界和上界
             plt.pie(x, labels=, colors=, autopct='%.2f%%')    # autopct 占比显示指定 .2f
             # 辅助显示层需要在图像层之后
             x_ticks, y_ticks = ["11点{}分".format(i) for i in x], range(40)
@@ -223,7 +227,7 @@ ssl 883 error 解决方法:
             sns.lmplot(data=df, x='col1', y='col2', hue='col3',fit_reg=False)
                 hue 指定目标值对应列名，根据目标值给点涂成不同颜色， fit_reg 是否进行线性拟合， 代替 plt.scatter，其余 plt.xlabel等不变
 
-    2.5 Numpy
+    2.5 Numpy (numerical Python)
         a. 定义
             numpy 是一个开源的用于快速处理多维数组的库
             存储对象是 ndarry， 使用 np.array([], dtype=np.int16) 多维数组创建
@@ -232,7 +236,7 @@ ssl 883 error 解决方法:
         b. 优势 （速度快，有很多数组运算的 api）
             python 原生数组为了满足存不同类型数据，需通过数组存储的内存地址一个个查询对应的数据，而 numpy 直接将同一数据类型的数组
                 （不同类型会从 int -> float -> string）存在连续的地址中
-            numpy 支持并行化（向量化）运算
+            numpy ndarry 支持并行化（向量化）运算
             numpy 和 python 同为 C 语言编写， 但是没有 Python 的全局解释器锁（GIL）限制
 
         c. ** N 维数组 ndarry
@@ -248,7 +252,7 @@ ssl 883 error 解决方法:
                     np.ones_like(a)       zeros_like()
                     np.full([3,5],0)
                 从现有数组中生成
-                    b = np.array(a) # 深拷贝, 改 a 值不变
+                    b = np.array(a), np.copy(a)  # 深拷贝, 改 a 值不变
                     c = np.asarray(a)   # 浅拷贝，改 a 值会变, 改数组形状不变
                 生成固定范围数组
                     np.arange(10)      默认start=0, step=1, 数组不包含 stop
@@ -319,18 +323,20 @@ ssl 883 error 解决方法:
                 通过待定系数法或初等变化求逆（矩阵右侧添加单位矩阵，通过矩阵变化将左侧元矩阵变化为单位矩阵，此时右侧的原单位矩阵为原矩阵的逆）
             矩阵的转置（行列互换）
 
-    2.6 pandas
+    2.6 pandas (panel data analysis)
         a. 定义
             开源的数据挖掘库，用于数据探索。以 numpy 为基础（高性能），基于 matplotlib（画图），有独特的数据结构
         b. 优势
             便捷的数据处理能力，读取文件，封装了 matplotlib,numpy
         c.Series
+            带索引的一维数组
+            s = pd.Series([1,2,3], index=list('ABC'), dtype=np.int32)
             s.unique()
             自定义运算
                 s.apply(lambda x:2*x)      Series can't use max() for lambda
                 s.transform(lambda x:x.max()-x)
                 s.map(lambda x:2*x)
-        d. DataFrame
+        d. DataFrame (Series 的容器)
             具有行索引 index=0, 列索引 index=1, 的二维数组。每列每行都是 Series, 单个值是numpy 数据（numpy.int64,...）
             i. 创建
                 df = pd.DataFrame(data, index=[] columns=pd.date_range(start='2017-01-01', periods=data.shape[0], freq='B'))
@@ -362,6 +368,10 @@ ssl 883 error 解决方法:
                     df.columns.get_indexer([col_name1'])   获取 col_index1 对应的数字下标
                 赋值
                     使用索引获取单元格，直接赋值
+                多级索引
+                    df.set_index(["year","month"], inplace=True))
+                    df.index.names    返回索引列名
+                    df.index.levels   返回每个索引列所有的独特值排序后的列表
             iv. 新建、删除行列
                 df = pd.DataFrame([[1,2],[3,4]], columns=['a','b'])
                 新建列赋
@@ -406,6 +416,12 @@ ssl 883 error 解决方法:
                     def inspect(x):
                         print(type(x))
                     df.apply(inspect)
+        e. Panel (DataFrame 的容器，已经过时，使用 MultiIndex 的 DataFrame 代替)
+            Panel 是一个 3 维的 DataFrame， 索引为 3 个 axis， 分别是 items, major_axis, minor_axis
+            p=pd.Panel(np.arange(24).reshape(4,3,2), items=list('ABCD'), major_axis=range(4), minor_axis=range(2))
+            p['A']   返回 items DataFrame
+            p.major_xs(2)   返回 major_axis=2 的 DataFrame
+            p.minor_xs(1)   返回 minor_axis=1 的 DataFrame
         e. 画图 （支持 Series）
             import matplotlib.pyplot as plt
             df.plot()    kind='line' 折线图默认， 'bar', 'barh', 'hist', 'pie', 'scatter', 'box', 'kde', 'area'
@@ -441,7 +457,8 @@ ssl 883 error 解决方法:
                 # on 为公共列，默认inner, df1,df2中公共列值相同的行才保留。left_on 表示左侧列表需要保留的列，left_index 表示以左侧
                 DataFrame的索引列为连接键
         j. 交叉表与透视表 （crosstab 支持 Series, pivot_table 不支持）
-            df['day'] = pd.to_datetime(data.index).weekday
+            df['day'] = pd.to_datetime(data.index).weekday     # 指定时间单位为秒
+            pd.DatetimeIndex(pd.to_datetime(data.index,unit='s')).month
             pd.crosstab(df['day'],df['col'])    交叉表，以第一项 day 为索引，显示 col 在原表中出现次数， 寻找之间关系
                 pd.crosstab(df['day'],df['col'],values=df['col2'],aggfunc=np.sum()) 显示 col 在原表中 col2 所有值的和
             pd.pivot_table(df,index=['col1','col2'],values=['col3'])  改变 DataFrame 或 Series 并变形原表到以index 为新行索引，
@@ -456,6 +473,8 @@ ssl 883 error 解决方法:
     3 机器学习算法
         近似误差：对现有训练集的训练误差，在训练集上的表现。
         估计误差：对现有测试集的测试误差，关注测试集，体现模型对未知数据的表现。
+        sklearn 估计器，机器学习的父类，实例化 estimator， 调用 fit(x,y), predict(x), score(x,y) 方法
+
         3.1 scikit-learn
         文档多，且规范。包含的算法多，实现容易。但是不支持神经网络和深度学习。
         包含分类，回归，聚类，降维，模型选择和预处理。
@@ -466,16 +485,133 @@ ssl 883 error 解决方法:
             target_names(ndarray 目标值所有可能取值), DESCR(字符串数据描述)   使用 d.data 或 d["data"] 获取
         from sklearn.model_selection import train_test_split
         x_train, x_test, y_train, y_test = train_test_split(d.data, d.target, test_size=0.2, random_state=None)
+        trans = StandardScaler()
+        x_tra = trans.fit_transform(x_train)
+        x_tes = trans.transform(x_test)
             将数据集分为训练集和测试集, 测试集占 20%， 传入数据集类型为 list, numpy ndarry 和 pandas.DataFrame
-        estimator.fit(x,y)  训练数据 x 必须 2 维， 标签值 y 必须 1 维。 训练
-        estimator.predict(x)       预测
-        estimator.score(x,y)       评估
+        estimator = KNeighborsClassifier(n_neighbors=5)
+        estimator.fit(x_tra,y_train)  训练数据 x 必须 2 维， 标签值 y 必须 1 维。 训练
+        estimator.predict(x_tes)       预测
+        estimator.score(x_tes,y_test)       评估
 
-        3.2 K-近邻（KNN）算法
+        3.2 特征工程
+            sklearn 转换器，特征工程的父类，实例化 Transformer， 调用 fit(x), transform(x), fit_transform(x) 方法
+            a. 特征提取
+                将任意数据（如文本或图像转）换为可用于机器学习的数字特征
+                i. 字典特征提取 （将字典转换为特征向量，将字符串类别特征列进行转译，默认 one-hot 编译）
+                    from sklearn.feature_extraction import DictVectorizer
+                    d = [{'city': 'Shanghai', 'temperature': 30}, {'city': 'Shenzhen', 'temperature': 32},
+                        {'city': 'Beijing', 'temperature': 25}]
+                    obj = DictVectorizer(sparse=True)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                    m = obj.fit_transform(d)      d 为字典或者包含字典的迭代器，返回sparse矩阵
+                        使用字典中所有离散特征（独特字符串）作为新的特征列名，并统计在所有字典中的出现次数，其他特征值不做变化，再转为稀疏矩阵
+                        稀疏矩阵 sparse = True 时, m 的值为    (0, 1)	1.0     第 0 个字典包含特征列名列表中第 1 个词， 对应的出现次数为1
+                                                            (0, 3)	30.0
+                                                            (1, 2)	1.0
+                                                            (1, 3)	32.0
+                                                            (2, 0)	1.0
+                        非稀疏矩阵 sparse = False 时, m 的值为    array([[ 0.,  1.,  0., 30.],
+                                                                    [ 0.,  0.,  1., 32.],
+                                                                    [ 1.,  0.,  0., 25.]])
+                        或者使用 m.toarray() 方法获得非稀疏矩阵
+                    x2 = obj.inverse_transform(m)
+                    obj.get_feature_names_out()  获取特征列名 ['city=Beijing', 'city=Shanghai', 'city=Shenzhen','temperature']
+                ii. 文本特征提取（使用单词作为特征）
+                    方法1： CountVectorizer 统计每个样本特征词的出现次数
+                        from sklearn.feature_extraction.text import CountVectorizer
+                        d = ["Some sentences 1",  "I like some some."]
+                        import jieba      中文使用 jieba 分词（添加空格）
+                        d2 = ["我爱北京天安门", "我去过北京。"]
+                        l = list(jieba.cut("我爱北京天安门"))      ['我', '爱', '北京', '天安门']
+                        d = [ " ".join(list(jieba.cut(s))) for s in d2]     ['我 爱 北京 天安门', '我 去过 北京 。']
+                        trans = CountVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                            默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
+                        m = trans.fit_transform(d)      d 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
+                        统计每个字符串出现特征词次数，再转为稀疏矩阵
+                             m 的值为    (0, 2)	1    第 0 句含有特征词列表第 2 个单词，出现 1 词
+                                        (0, 1)	1
+                                        (1, 2)	2
+                                        (1, 0)	1
+                            m.toarray() 的值为   [[0, 1, 1],
+                                                [1, 0, 2]]
+
+                        x2 = obj.inverse_transform(m)
+                        obj.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
+
+                    方法2：TfidfVectorizer 找到只在这篇文章中出现概率高的（重要的）特征词
+                        tf (term frequency) 词频，表示一个词在当前文档中出现的概率（出现次数 / 文章字数）
+                        idf (inverse document frequency) 逆向文档频率，是一个词语普遍重要性的度量，log(总文件数 / 包含该词语的文件数)
+                        from sklearn.feature_extraction.text import TfidfVectorizer
+                        trans = TfidfVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                            默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
+                        m = trans.fit_transform(d)      d 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
+                        统计每个字符串出现特征词次数，再转为稀疏矩阵
+                             m 的值为    (0, 2)	1
+                                        (0, 1)	0.8148024746671689   第 0 句中，特征词列表第 1 个单词的重要程度为 0.81
+                                        (0, 2)	0.5797386715376657
+                                        (1, 0)	0.5749618667993135
+                                        (1, 2)	0.8181802073667197
+                            m.toarray() 的值为   [[0.,     0.81480247, 0.57973867],
+                                                [0.57973867,   0.        , 0.81818021]])
+                        x2 = trans.inverse_transform(m)
+                        trans.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
+
+            b. 特征预处理
+                通过一些转换函数将特征数据转换成更适合算法模型的特征数据的过程。常见的有数据的无量纲化（归一化，标准化），将数据转为同一规格，解决
+                    特征单位，大小或方差比其他特征大很多，容易影响（支配）目标结果的问题。
+                归一化（鲁棒性差，容易受到异常值影响）
+                    通过对原始数据进行变换把数据映射到[0,1]  x' = (x- min(x)) / (max(x) - min(x))  x" = x'*(hx-lx)+lx
+                        hx, lx: 为转换后的最大值最小值，默认为 1,0
+                    trans = sklearn.preprocessing.MinMaxScaler(feature_range=(0,1)
+                    x_reg = trans.fit_transform(x)     x 可以是列表，ndarray，DataFrame 等，注意不要包括目标列
+                        对于测试集应该使用 sc.transform(x)， 否则导致对测试集的学习（数据泄露）
+                标准化 (鲁棒性好，不受异常值影响)
+                    通过对原始数据进行变换把数据映射到均值为 0， 标准差为 1 的范围内。 x' = (x - avg(x)) / std(x)
+                    trans = sklearn.preprocessing.StandardScaler()
+                    x_reg = trans.fit_transform(x)    x 为二维数组
+
+            c. 特征降维
+                在限定条件下，对于二维数组降低随机变量（特征）个数，得到一组“不相关”主变量的过程。相关特征（correlated feature）会造成冗余，
+                    降低算法性能。
+                    i. 特征选择：从所有特征（包含冗余或相关特征）中选择一个子集（主要特征）作为模型的训练数据。
+                        Filter（过滤式）：寻找特征本身特点，特征与特征和目标之间的关联
+                            方差选择法： 方差小的特征，可以认为是不重要的特征
+                                trans = sklearn.feature_selection.VarianceThreshold(threshold=0.0)  删除所有方差低的特征
+                                x_remain = trans.fit_transform(x)    x 为二维数组
+                            相关系数法：特征与特征之间的相关程度。
+                            皮尔森相关系数（Pearson Correlation Coefficient）： 衡量两个变量之间线性相关程度
+                                r = [n * sum(xy) - sum(x) * sum(y)] / [sqrt(n * sum(x^2) - sum(x)^2) * sqrt(n * sum(y^2) - sum(y)^2)]
+                                    两个变量 x, y， 样本个数 n， r ∈ [-1,1]  r>0 正相关， r<0 负相关， r=0 无关, |r| 越大，相关性越强
+                                from scipy.stats import pearsonr
+                                r, p = pearsonr(x, y)   r 相关系数， p-value 值  x，y 为两列值
+                                对于特征相关性高的特征，可以通过以下方法降维：
+                                    选择其中一个特征，删除其他
+                                    对于这些进行特征加权求和
+                                    主成分分析
+                        Embedded（嵌入式）： 算法自动选择特征
+                            决策树：信息熵，信息增益
+                            正则化： L1， L2
+                            深度学习：卷积
+
+                    ii. 主成分分析（PCA）：
+                        通过线性变换将原始的（可能存在相关性的）高维特征数据转换为新的低维无相关性的特征数据的过程。在损失少量信息的情况下实现数
+                        据压缩（降维）
+                        from sklearn.decomposition import PCA
+                        trans = PCA(n_components=0.95)        n_components 小数保留百分之多少信息，整数为减少到多少特征
+                        x_remain = trans.fit_transform(x)     x 为二维数组
+
+
+        3.3 K-近邻（KNN）算法
             如果一个样本在特征空间中的k个最相似(即特征空间中最邻近，通常使用欧式距离)的样本中的大多数属于某一个类别，则该样本也属于这个类别。
+            使用前必须对数据使用数据的无量纲化，适用于小数据场景（几千~几万）。
+            简单有效，（没有构建模型）训练时间短，适合样本数多，共性多的数据。预测计算量大，时间长（惰性学习），预测解释性不强，不擅长不均衡的样本
+            （需要重新采样，或者对距离使用权值），必须指定 k 值。
+
             from sklearn.neighbors import KNeighborsClassifier
-            knn = KNeighborsClassifier(n_neighbors=6)        # 默认参考 5 个邻居
-            k 值选择： 选择奇数，过小容易收到异常点影响（过拟合），过大受到样本均衡的问题（欠拟合）。
+            knn = KNeighborsClassifier(n_neighbors=6, algorithm='auto',metric='minkowski',p=2)      # 默认参考 5 个邻居
+                *** k 值选择： 选择奇数，过小容易收到异常点影响（过拟合），过大受到样本均衡的问题（欠拟合）。
+                默认使用闵可夫斯基距离（p=2） 对应的欧式距离
+                algorithm: auto, ball_tree, kd_tree, brute
             各种距离
                 欧式距离（Euclidean Distance，直线距离）: d_12 = sqrt(sum_k((x_1k - x_2k)^2)))
                 曼哈顿距离（Manhattan Distance，只能直行，横行）: d_12 = sum_k(abs(x_1k - x_2k))
@@ -490,38 +626,75 @@ ssl 883 error 解决方法:
                 马式距离（Mahalanobis Distance 通过样本分布计算）: d_12 = sqrt((x-mean(x))^T Cov^{-1} (x-mean(x)))
                     其中 Cov 为协方差矩阵， 马氏距离排除变量之间的相关性干扰，建立在总体样本的基础上，要求总体样本数大于样本的维度。
             对于基本的线性搜索（每个点都计算与其他点的距离），对于 D 个特征的数据集，算法复杂度为 O(DN^2)
-            kd 树, ball tree: 把距离信息保存在二叉排序树中，使得搜索时间复杂度降低到 O(DNlog(N))。基本原理是：如果 A 和 B 距离很远， B
+            kd 树: 把距离信息保存在二叉排序树中，使得搜索时间复杂度降低到 O(DNlog(N))。基本原理是：如果 A 和 B 距离很远， B
                 和 C 距离很近，那么 A 和 C 距离也很远。
-                构造 kd 树，选取中间的节点（所在方差最大的维度两侧节点数相同或差1），递归将数据空间通过此节点切分成两组（下一轮选取维度与这轮
-                不同）对应左子树和右子树，直到叶子节点（空间中无数据点）。查找（判断新数据点位置）类似二分查找，依次和树的当前节点的切分维度的值
-                对比，小则进入左子树，大则进入右子树，直到叶子节点，经过的节点记入栈中。计算从需判断点 g 到该叶子点的距离 r，再以 g 为圆心, r
-                为半径判断圆是否与之前栈节点 a 的切分超平面相交。如果不相交则 a 出栈。如果相交，记录 a 到 g 的距离 r'，如果比 r' < r，则更
-                新 r = r'，a 出栈，同时将 a 另一侧的子树根节点入栈。直到栈中没有节点。
-        e. 特征工程
-            i. 定义：使用专业背景知识和技巧处理数据，使得特征能在机器学习算法上发挥更好的作用的过程
-            数据和特征决定了机器学习的上限，而模型和算法只是逼近这个上限而已。
-            ii. 包含内容：
-                特征提取： 将数据转化为可用于机器学习的数字特征
-                特征预处理： 通过转换函数将特征数据转换成更加适合算法模型的特征数据过程
-                特征降维： 降低随机变量（特征）个数，简化模型的过程
-            归一化
-                通过对原始数据进行变换把数据映射到[0,1]  x' = (x- min(x)) / (max(x) - min(x))  x" = x'*(hx-lx)+lx
-                    hx, lx: 为转换后的最大值最小值，默认为 1,0
-                sc = sklearn.preprocessing.MinMaxScaler()
-                x_reg = sc.fit_transform(x)     x 可以是列表，ndarray，DataFrame 等
-                或[-1,1]之间，通过这个变换使数据特征的均值变为0，标准差变为1
-'''
+                构造 kd 树，选取中间的节点（所在方差最大的维度两侧节点数相同或差1），递归将数据空间通过此节点使用超平面将样本空间切分成两组（下一
+                轮选取维度与这轮不同）对应左子树和右子树，直到叶子节点（空间中无数据点）。查找（判断新数据点位置）类似二分查找，依次和树的当前节点
+                的切分维度的值对比，小则进入左子树，大则进入右子树，直到叶子节点，经过的节点记入栈中。计算从需判断点 g 到该叶子点的距离 r，再以
+                g 为圆心, r 为半径判断圆是否与之前栈节点 a 的切分超平面相交。如果不相交则 a 出栈。如果相交，记录 a 到 g 的距离 r'，如果比
+                r' < r，则更新 r = r'，a 出栈，同时将 a 另一侧的子树根节点入栈。直到栈中没有节点。
+            ball tree: 克服 kd 树特征值高维失效问题（使用超球体）分割样本空间
 
+        3.4 模型选择与调优
+            a.（n 折）交叉验证
+                将训练数据分为训练和验证集，将数据分为 n 份，其中1份作为验证集，其余为训练集。经过 n 轮测试，每轮更换验证集，获得 n 组模型结果
+                取平均作为最终结果。 不能提高模型准确率，但使评估模型更准确可信。
+
+            b. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
+                grid = {‘param_name’: [‘param_value1’， ‘param_value2’]}
+                est = sklearn.model_selection.GridSearchCV(estimator, param_grid=None, cv=None, n_jobs=1)
+                    param_grid 估计器参数字典， cv 几折交叉验证,   n_jobs -1 使用全部多核 cpu
+                est.fit(x,y)
+                est.score(x,y)
+                est.best_params_： 最好的参数
+                est.best_score_： 最好的结果
+                best_score_：最好结果
+                best_estimator_： 最好参数的模型
+                cv_results_： 每次交叉验证的验证集好训练集准确率
+
+        3.5 线性回归
+            a. 常见导数
+                (常数)’ = 0
+                (x^a)’ = ax^(a-1)
+                (a^x)’ = a^x ln(a)
+                (log_a(x))’ = 1/(x ln(a))
+                (sin(x))’ = cos(x)
+                (cos(x))’ = -sin(x)
+                (u(x)+v(x))’ = u’(x)+v’(x)
+                (u(x)*v(x))’ = (u’(x)v(x)-u(x)v’(x))/ (v(x))^2
+                (g(h(x)))’ = g’(h)h’(x)
+            b. 定义
+                利用回归方程（函数）对一个或多个自变量（特征值）和因变量（目标值）之间关系进行建模的一种分析方式。主要有两种模型：线性关系和非线性关系
+                （高次方）    公式： h(w) = w_1 * x_1 + w_2 * x_2 + … + b = w^T * x = xw    w = [[b],[w1],[w2]], x = [[1],[x1],[x2]]
+                estimator = sklearn.linear_model.LinearRegression()
+                estimator.coef_     返回系数 w
+            c. 线性回归的损失和优化
+                损失函数 J(θ)=sum_i(h(x_i)-y_i)^2 = (y-Xw)^2
+                优化算法：正规方程，梯度下降
+                正规方程: 直接求得最优值
+                w = (X^T X)^(-1) * X^T * y
+                    2(Xw-y)*X = 0 ==> 2(Xw-y)*(X X^T)=0 ==> 2(Xw-y)*(X X^T)(X X^T)^-1 = 0 ==> Xw = y
+                     ==>   X^T Xw = X^T y  (X^T* X 方阵确保可逆)  ==> (X^T X)^(-1)  X^T Xw = X^T X)^(-1) * X^T * y
+                     ==> w = (X^T X)^(-1) * X^T * y
+
+'''
+import jieba
 import sklearn
 from sklearn.neighbors import KNeighborsClassifier
 knn = KNeighborsClassifier(n_neighbors=6)
 import pandas as pd
+import matplotlib.pyplot as plt
+plt.hist()
 df = pd.DataFrame([[1,2],[3,4]], columns=['a','b'])
 s =pd.Series([1])
 s.des
 import seaborn as sns
-sklearn.model_selection.train_test_split
-sc = sklearn.preprocessing.MinMaxScaler()
-x_reg = sc.fit_transform(x)
+from sklearn.feature_extraction.text import CountVectorizer
+sc = CountVectorizer
+x_reg = sc.t
 import matplotlib.pyplot as plt
 pd.crosstab()
+v = sklearn.feature_extraction.DictVectorizer(sparse=True)
+v.fit_transform
+
+x=jieba.cut("我爱北京天安门")
