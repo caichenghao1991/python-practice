@@ -235,7 +235,7 @@
             df = df.drop("Hermione")   # drop column Hermione, or use inplace=True
 
             #add row
-            df = df.append(pd.DataFrame({'Harry':88, 'Ronald':60, 'Hermione':97}, index=['Magic Creature']))
+            df = df._append(pd.DataFrame({'Harry':88, 'Ronald':60, 'Hermione':97}, index=['Magic Creature']))
                 # verify_integrity=True   #raise error if has duplicate index after apend
                 # ignore_index=True    # reassign index      sort=True
             df.loc['Magic Creature'] = pd.Series({'Harry': 88, 'Ronald': 60, 'Hermione': 97})
