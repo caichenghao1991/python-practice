@@ -432,7 +432,7 @@ ssl 883 error 解决方法:
             df = pd.read_hdf('data.h5', key='col1')    速度快，压缩节约空间，支持 hadoop，推荐
             df = pd.read_json('data.json', orient='record', typ='frame',lines=False)      typ： frame 或 series
                 orient: json格式, split,records,index,columns(默认),values     lines: 按照每行读取（默认False）
-            html, clipboard, excel, parquet, pickle, sql, gbq
+            html, clipboard, excel, parquet, pickle, sql, gbq, dict
         g. **** 缺失值处理 （支持 Series）
             np.NaN    缺失值是 float 类型
             pd.isnull(df)    # 返回 True False DataFrame
@@ -470,12 +470,12 @@ ssl 883 error 解决方法:
             df.groupby('col1').agg({'col1': ['sum', 'mean'], 'col2': 'min'})    同时返回多组聚合结果
             agg(sum), agg(['sum', 'mean'])
 
-    3 机器学习算法
-        近似误差：对现有训练集的训练误差，在训练集上的表现。
-        估计误差：对现有测试集的测试误差，关注测试集，体现模型对未知数据的表现。
-        sklearn 估计器，机器学习的父类，实例化 estimator， 调用 fit(x,y), predict(x), score(x,y) 方法
+3 机器学习算法
+    近似误差：对现有训练集的训练误差，在训练集上的表现。
+    估计误差：对现有测试集的测试误差，关注测试集，体现模型对未知数据的表现。
+    sklearn 估计器，机器学习的父类，实例化 estimator， 调用 fit(x,y), predict(x), score(x,y) 方法
 
-        3.1 scikit-learn
+    3.1 scikit-learn
         文档多，且规范。包含的算法多，实现容易。但是不支持神经网络和深度学习。
         包含分类，回归，聚类，降维，模型选择和预处理。
         d = sklearn.datasets.load_*()     ex. load_iris 获取库中本地小规模数据集
@@ -484,6 +484,7 @@ ssl 883 error 解决方法:
             返回数据 Bunch 类似字典，data(特征数组 二维 numpy ndarray)，target(标签数组 一维 ndarray)，feature_names(特征名 list)，
             target_names(ndarray 目标值所有可能取值), DESCR(字符串数据描述)   使用 d.data 或 d["data"] 获取
         from sklearn.model_selection import train_test_split
+        from sklearn.externals import joblib
         x_train, x_test, y_train, y_test = train_test_split(d.data, d.target, test_size=0.2, random_state=None)
         trans = StandardScaler()
         x_tra = trans.fit_transform(x_train)
@@ -493,191 +494,333 @@ ssl 883 error 解决方法:
         estimator.fit(x_tra,y_train)  训练数据 x 必须 2 维， 标签值 y 必须 1 维。 训练
         estimator.predict(x_tes)       预测
         estimator.score(x_tes,y_test)       评估
+        joblib.dump(estimator,'test.pkl')     保存模型
+        estimator = joblib.load('test.pkl')    加载模型
 
-        3.2 特征工程
-            sklearn 转换器，特征工程的父类，实例化 Transformer， 调用 fit(x), transform(x), fit_transform(x) 方法
-            a. 特征提取
-                将任意数据（如文本或图像转）换为可用于机器学习的数字特征
-                i. 字典特征提取 （将字典转换为特征向量，将字符串类别特征列进行转译，默认 one-hot 编译）
-                    from sklearn.feature_extraction import DictVectorizer
-                    d = [{'city': 'Shanghai', 'temperature': 30}, {'city': 'Shenzhen', 'temperature': 32},
-                        {'city': 'Beijing', 'temperature': 25}]
-                    obj = DictVectorizer(sparse=True)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
-                    m = obj.fit_transform(d)      d 为字典或者包含字典的迭代器，返回sparse矩阵
-                        使用字典中所有离散特征（独特字符串）作为新的特征列名，并统计在所有字典中的出现次数，其他特征值不做变化，再转为稀疏矩阵
-                        稀疏矩阵 sparse = True 时, m 的值为    (0, 1)	1.0     第 0 个字典包含特征列名列表中第 1 个词， 对应的出现次数为1
-                                                            (0, 3)	30.0
-                                                            (1, 2)	1.0
-                                                            (1, 3)	32.0
-                                                            (2, 0)	1.0
-                        非稀疏矩阵 sparse = False 时, m 的值为    array([[ 0.,  1.,  0., 30.],
-                                                                    [ 0.,  0.,  1., 32.],
-                                                                    [ 1.,  0.,  0., 25.]])
-                        或者使用 m.toarray() 方法获得非稀疏矩阵
+    3.2 特征工程
+        sklearn 转换器，特征工程的父类，实例化 Transformer， 调用 fit(x), transform(x), fit_transform(x) 方法
+        a. 特征提取
+            将任意数据（如文本或图像转）换为可用于机器学习的数字特征
+            i. 字典特征提取 （将字典转换为特征向量，将字符串类别特征列进行转译，默认 one-hot 编译）
+                from sklearn.feature_extraction import DictVectorizer
+                d = [{'city': 'Shanghai', 'temperature': 30}, {'city': 'Shenzhen', 'temperature': 32},
+                    {'city': 'Beijing', 'temperature': 25}]
+                obj = DictVectorizer(sparse=True)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                m = obj.fit_transform(d)      d 为字典或者包含字典的迭代器，返回sparse矩阵
+                    使用字典中所有离散特征（独特字符串）作为新的特征列名，并统计在所有字典中的出现次数，其他特征值不做变化，再转为稀疏矩阵
+                    稀疏矩阵 sparse = True 时, m 的值为    (0, 1)	1.0     第 0 个字典包含特征列名列表中第 1 个词， 对应的出现次数为1
+                                                        (0, 3)	30.0
+                                                        (1, 2)	1.0
+                                                        (1, 3)	32.0
+                                                        (2, 0)	1.0
+                    非稀疏矩阵 sparse = False 时, m 的值为    array([[ 0.,  1.,  0., 30.],
+                                                                [ 0.,  0.,  1., 32.],
+                                                                [ 1.,  0.,  0., 25.]])
+                    或者使用 m.toarray() 方法获得非稀疏矩阵
+                x2 = obj.inverse_transform(m)
+                obj.get_feature_names_out()  获取特征列名 ['city=Beijing', 'city=Shanghai', 'city=Shenzhen','temperature']
+            ii. 文本特征提取（使用单词作为特征）
+                方法1： CountVectorizer 统计每个样本特征词的出现次数
+                    from sklearn.feature_extraction.text import CountVectorizer
+                    d = ["Some sentences 1",  "I like some some."]
+                    import jieba      中文使用 jieba 分词（添加空格）
+                    d2 = ["我爱北京天安门", "我去过北京。"]
+                    l = list(jieba.cut("我爱北京天安门"))      ['我', '爱', '北京', '天安门']
+                    d = [ " ".join(list(jieba.cut(s))) for s in d2]     ['我 爱 北京 天安门', '我 去过 北京 。']
+                    trans = CountVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                        默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
+                    m = trans.fit_transform(d)      d 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
+                    统计每个字符串出现特征词次数，再转为稀疏矩阵
+                         m 的值为    (0, 2)	1    第 0 句含有特征词列表第 2 个单词，出现 1 词
+                                    (0, 1)	1
+                                    (1, 2)	2
+                                    (1, 0)	1
+                        m.toarray() 的值为   [[0, 1, 1],
+                                            [1, 0, 2]]
+
                     x2 = obj.inverse_transform(m)
-                    obj.get_feature_names_out()  获取特征列名 ['city=Beijing', 'city=Shanghai', 'city=Shenzhen','temperature']
-                ii. 文本特征提取（使用单词作为特征）
-                    方法1： CountVectorizer 统计每个样本特征词的出现次数
-                        from sklearn.feature_extraction.text import CountVectorizer
-                        d = ["Some sentences 1",  "I like some some."]
-                        import jieba      中文使用 jieba 分词（添加空格）
-                        d2 = ["我爱北京天安门", "我去过北京。"]
-                        l = list(jieba.cut("我爱北京天安门"))      ['我', '爱', '北京', '天安门']
-                        d = [ " ".join(list(jieba.cut(s))) for s in d2]     ['我 爱 北京 天安门', '我 去过 北京 。']
-                        trans = CountVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
-                            默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
-                        m = trans.fit_transform(d)      d 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
-                        统计每个字符串出现特征词次数，再转为稀疏矩阵
-                             m 的值为    (0, 2)	1    第 0 句含有特征词列表第 2 个单词，出现 1 词
-                                        (0, 1)	1
-                                        (1, 2)	2
-                                        (1, 0)	1
-                            m.toarray() 的值为   [[0, 1, 1],
-                                                [1, 0, 2]]
+                    obj.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
 
-                        x2 = obj.inverse_transform(m)
-                        obj.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
+                方法2：TfidfVectorizer 找到只在这篇文章中出现概率高的（重要的）特征词
+                    tf (term frequency) 词频，表示一个词在当前文档中出现的概率（出现次数 / 文章字数）
+                    idf (inverse document frequency) 逆向文档频率，是一个词语普遍重要性的度量，log(总文件数 / 包含该词语的文件数)
+                    from sklearn.feature_extraction.text import TfidfVectorizer
+                    trans = TfidfVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
+                        默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
+                    m = trans.fit_transform(d)      d(x_train) 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
+                    统计每个字符串出现特征词次数，再转为稀疏矩阵
+                         m 的值为    (0, 2)	1
+                                    (0, 1)	0.8148024746671689   第 0 句中，特征词列表第 1 个单词的重要程度为 0.81
+                                    (0, 2)	0.5797386715376657
+                                    (1, 0)	0.5749618667993135
+                                    (1, 2)	0.8181802073667197
+                        m.toarray() 的值为   [[0.,     0.81480247, 0.57973867],
+                                            [0.57973867,   0.        , 0.81818021]])
+                    x2 = trans.inverse_transform(m)
+                    trans.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
 
-                    方法2：TfidfVectorizer 找到只在这篇文章中出现概率高的（重要的）特征词
-                        tf (term frequency) 词频，表示一个词在当前文档中出现的概率（出现次数 / 文章字数）
-                        idf (inverse document frequency) 逆向文档频率，是一个词语普遍重要性的度量，log(总文件数 / 包含该词语的文件数)
-                        from sklearn.feature_extraction.text import TfidfVectorizer
-                        trans = TfidfVectorizer(stop_words=None)    默认返回稀疏矩阵，非 0 项坐标 和对应值， 减少内存消耗
-                            默认使用空格作来分割特征词， stop_words=['if','to'] 将 if, to 不作为特征词
-                        m = trans.fit_transform(d)      d 为文本或包含文本字符串的可迭代对象，返回sparse矩阵
-                        统计每个字符串出现特征词次数，再转为稀疏矩阵
-                             m 的值为    (0, 2)	1
-                                        (0, 1)	0.8148024746671689   第 0 句中，特征词列表第 1 个单词的重要程度为 0.81
-                                        (0, 2)	0.5797386715376657
-                                        (1, 0)	0.5749618667993135
-                                        (1, 2)	0.8181802073667197
-                            m.toarray() 的值为   [[0.,     0.81480247, 0.57973867],
-                                                [0.57973867,   0.        , 0.81818021]])
-                        x2 = trans.inverse_transform(m)
-                        trans.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
+        b. 特征预处理
+            通过一些转换函数将特征数据转换成更适合算法模型的特征数据的过程。常见的有数据的无量纲化（归一化，标准化），将数据转为同一规格，解决
+                特征单位，大小或方差比其他特征大很多，容易影响（支配）目标结果的问题。
+            归一化（鲁棒性差，容易受到异常值影响）
+                通过对原始数据进行变换把数据映射到[0,1]  x' = (x- min(x)) / (max(x) - min(x))  x" = x'*(hx-lx)+lx
+                    hx, lx: 为转换后的最大值最小值，默认为 1,0
+                trans = sklearn.preprocessing.MinMaxScaler(feature_range=(0,1)
+                x_reg = trans.fit_transform(x)     x 可以是列表，ndarray，DataFrame 等，注意不要包括目标列
+                    对于测试集应该使用 sc.transform(x)， 否则导致对测试集的学习（数据泄露）
+            标准化 (鲁棒性好，不受异常值影响)
+                通过对原始数据进行变换把数据映射到均值为 0， 标准差为 1 的范围内。 x' = (x - avg(x)) / std(x)
+                trans = sklearn.preprocessing.StandardScaler()
+                x_reg = trans.fit_transform(x)    x 为二维数组
 
-            b. 特征预处理
-                通过一些转换函数将特征数据转换成更适合算法模型的特征数据的过程。常见的有数据的无量纲化（归一化，标准化），将数据转为同一规格，解决
-                    特征单位，大小或方差比其他特征大很多，容易影响（支配）目标结果的问题。
-                归一化（鲁棒性差，容易受到异常值影响）
-                    通过对原始数据进行变换把数据映射到[0,1]  x' = (x- min(x)) / (max(x) - min(x))  x" = x'*(hx-lx)+lx
-                        hx, lx: 为转换后的最大值最小值，默认为 1,0
-                    trans = sklearn.preprocessing.MinMaxScaler(feature_range=(0,1)
-                    x_reg = trans.fit_transform(x)     x 可以是列表，ndarray，DataFrame 等，注意不要包括目标列
-                        对于测试集应该使用 sc.transform(x)， 否则导致对测试集的学习（数据泄露）
-                标准化 (鲁棒性好，不受异常值影响)
-                    通过对原始数据进行变换把数据映射到均值为 0， 标准差为 1 的范围内。 x' = (x - avg(x)) / std(x)
-                    trans = sklearn.preprocessing.StandardScaler()
-                    x_reg = trans.fit_transform(x)    x 为二维数组
+        c. 特征降维
+            在限定条件下，对于二维数组降低随机变量（特征）个数，得到一组“不相关”主变量的过程。相关特征（correlated feature）会造成冗余，
+                降低算法性能。
+                i. 特征选择：从所有特征（包含冗余或相关特征）中选择一个子集（主要特征）作为模型的训练数据。
+                    Filter（过滤式）：寻找特征本身特点，特征与特征和目标之间的关联
+                        方差选择法： 方差小的特征，可以认为是不重要的特征
+                            trans = sklearn.feature_selection.VarianceThreshold(threshold=0.0)  删除所有方差低的特征
+                            x_remain = trans.fit_transform(x)    x 为二维数组
+                        相关系数法：特征与特征之间的相关程度。
+                        皮尔森相关系数（Pearson Correlation Coefficient）： 衡量两个变量之间线性相关程度
+                            r = [n * sum(xy) - sum(x) * sum(y)] / [sqrt(n * sum(x^2) - sum(x)^2) * sqrt(n * sum(y^2) - sum(y)^2)]
+                                两个变量 x, y， 样本个数 n， r ∈ [-1,1]  r>0 正相关， r<0 负相关， r=0 无关, |r| 越大，相关性越强
+                            from scipy.stats import pearsonr
+                            r, p = pearsonr(x, y)   r 相关系数， p-value 值  x，y 为两列值
+                            对于特征相关性高的特征，可以通过以下方法降维：
+                                选择其中一个特征，删除其他
+                                对于这些进行特征加权求和
+                                主成分分析
+                    Embedded（嵌入式）： 算法自动选择特征
+                        决策树：信息熵，信息增益
+                        正则化： L1， L2
+                        深度学习：卷积
 
-            c. 特征降维
-                在限定条件下，对于二维数组降低随机变量（特征）个数，得到一组“不相关”主变量的过程。相关特征（correlated feature）会造成冗余，
-                    降低算法性能。
-                    i. 特征选择：从所有特征（包含冗余或相关特征）中选择一个子集（主要特征）作为模型的训练数据。
-                        Filter（过滤式）：寻找特征本身特点，特征与特征和目标之间的关联
-                            方差选择法： 方差小的特征，可以认为是不重要的特征
-                                trans = sklearn.feature_selection.VarianceThreshold(threshold=0.0)  删除所有方差低的特征
-                                x_remain = trans.fit_transform(x)    x 为二维数组
-                            相关系数法：特征与特征之间的相关程度。
-                            皮尔森相关系数（Pearson Correlation Coefficient）： 衡量两个变量之间线性相关程度
-                                r = [n * sum(xy) - sum(x) * sum(y)] / [sqrt(n * sum(x^2) - sum(x)^2) * sqrt(n * sum(y^2) - sum(y)^2)]
-                                    两个变量 x, y， 样本个数 n， r ∈ [-1,1]  r>0 正相关， r<0 负相关， r=0 无关, |r| 越大，相关性越强
-                                from scipy.stats import pearsonr
-                                r, p = pearsonr(x, y)   r 相关系数， p-value 值  x，y 为两列值
-                                对于特征相关性高的特征，可以通过以下方法降维：
-                                    选择其中一个特征，删除其他
-                                    对于这些进行特征加权求和
-                                    主成分分析
-                        Embedded（嵌入式）： 算法自动选择特征
-                            决策树：信息熵，信息增益
-                            正则化： L1， L2
-                            深度学习：卷积
-
-                    ii. 主成分分析（PCA）：
-                        通过线性变换将原始的（可能存在相关性的）高维特征数据转换为新的低维无相关性的特征数据的过程。在损失少量信息的情况下实现数
-                        据压缩（降维）
-                        from sklearn.decomposition import PCA
-                        trans = PCA(n_components=0.95)        n_components 小数保留百分之多少信息，整数为减少到多少特征
-                        x_remain = trans.fit_transform(x)     x 为二维数组
+                ii. 主成分分析（PCA）：
+                    通过线性变换将原始的（可能存在相关性的）高维特征数据转换为新的低维无相关性的特征数据的过程。在损失少量信息的情况下实现数
+                    据压缩（降维）
+                    from sklearn.decomposition import PCA
+                    trans = PCA(n_components=0.95)        n_components 小数保留百分之多少信息，整数为减少到多少特征
+                    x_remain = trans.fit_transform(x)     x 为二维数组
 
 
-        3.3 K-近邻（KNN）算法
-            如果一个样本在特征空间中的k个最相似(即特征空间中最邻近，通常使用欧式距离)的样本中的大多数属于某一个类别，则该样本也属于这个类别。
-            使用前必须对数据使用数据的无量纲化，适用于小数据场景（几千~几万）。
-            简单有效，（没有构建模型）训练时间短，适合样本数多，共性多的数据。预测计算量大，时间长（惰性学习），预测解释性不强，不擅长不均衡的样本
-            （需要重新采样，或者对距离使用权值），必须指定 k 值。
+    3.3 K-近邻（KNN）算法  （根据邻居判断类别）
+        如果一个样本在特征空间中的k个最相似(即特征空间中最邻近，通常使用欧式距离)的样本中的大多数属于某一个类别，则该样本也属于这个类别。
+        使用前必须对数据使用数据的无量纲化，适用于小数据场景（几千~几万）。
+        简单有效，（没有构建模型）训练时间短，适合样本数多，共性多的数据。预测计算量大，时间长（惰性学习），预测解释性不强，不擅长不均衡的样本
+        （需要重新采样，或者对距离使用权值），必须指定 k 值。
 
-            from sklearn.neighbors import KNeighborsClassifier
-            knn = KNeighborsClassifier(n_neighbors=6, algorithm='auto',metric='minkowski',p=2)      # 默认参考 5 个邻居
-                *** k 值选择： 选择奇数，过小容易收到异常点影响（过拟合），过大受到样本均衡的问题（欠拟合）。
-                默认使用闵可夫斯基距离（p=2） 对应的欧式距离
-                algorithm: auto, ball_tree, kd_tree, brute
-            各种距离
-                欧式距离（Euclidean Distance，直线距离）: d_12 = sqrt(sum_k((x_1k - x_2k)^2)))
-                曼哈顿距离（Manhattan Distance，只能直行，横行）: d_12 = sum_k(abs(x_1k - x_2k))
-                切比雪夫距离（Chebyshev Distance，只能直行，横行，45倍角斜行）: d_12 = max_k(abs(x_1k - x_2k))
-                闵可夫斯基距离（Minkowski Distance，是一组距离的定义）: d_12 =(sum_k(abs(x_1k - x_2k)^p)) ** (1/p)
-                    p=1: 曼哈顿， p=2: 欧式， p -> inf: 切比雪夫
-                    缺点： 将各个分量的量纲（scale）/单位，相同的看待，且未考虑各个分量的分布可能是不同的。
-                    标准式欧式距离（将各个分量标准化）：sqrt(sum_k(((x_1k - x_2k)/s_k)^2)))   s_k 为第 k 维的标准差
-                余弦距离（Cosine Distance，向量夹角余弦）: d_12 = cos(x_1, x_2) = sum_k(x_1k * x_2k) / (sqrt(sum_k(x_1k^2)) * sqrt(sum_k(x_2k^2))
-                汉明距离（Hamming Distance，将一个变为另一个所需要的最小替换步数）: d_12 = sum_k(x_1k != x_2k)
-                杰拉德距离（Jaccard Distance，两个集合的交集在并集中所占比例）: d_12 = (A∪B-A∩B)/(A∪B)
-                马式距离（Mahalanobis Distance 通过样本分布计算）: d_12 = sqrt((x-mean(x))^T Cov^{-1} (x-mean(x)))
-                    其中 Cov 为协方差矩阵， 马氏距离排除变量之间的相关性干扰，建立在总体样本的基础上，要求总体样本数大于样本的维度。
-            对于基本的线性搜索（每个点都计算与其他点的距离），对于 D 个特征的数据集，算法复杂度为 O(DN^2)
-            kd 树: 把距离信息保存在二叉排序树中，使得搜索时间复杂度降低到 O(DNlog(N))。基本原理是：如果 A 和 B 距离很远， B
-                和 C 距离很近，那么 A 和 C 距离也很远。
-                构造 kd 树，选取中间的节点（所在方差最大的维度两侧节点数相同或差1），递归将数据空间通过此节点使用超平面将样本空间切分成两组（下一
-                轮选取维度与这轮不同）对应左子树和右子树，直到叶子节点（空间中无数据点）。查找（判断新数据点位置）类似二分查找，依次和树的当前节点
-                的切分维度的值对比，小则进入左子树，大则进入右子树，直到叶子节点，经过的节点记入栈中。计算从需判断点 g 到该叶子点的距离 r，再以
-                g 为圆心, r 为半径判断圆是否与之前栈节点 a 的切分超平面相交。如果不相交则 a 出栈。如果相交，记录 a 到 g 的距离 r'，如果比
-                r' < r，则更新 r = r'，a 出栈，同时将 a 另一侧的子树根节点入栈。直到栈中没有节点。
-            ball tree: 克服 kd 树特征值高维失效问题（使用超球体）分割样本空间
+        from sklearn.neighbors import KNeighborsClassifier
+        knn = KNeighborsClassifier(n_neighbors=6, algorithm='auto',metric='minkowski',p=2)      # 默认参考 5 个邻居
+            *** k 值选择： 选择奇数，过小容易收到异常点影响（过拟合），过大受到样本均衡的问题（欠拟合）。
+            默认使用闵可夫斯基距离（p=2） 对应的欧式距离
+            algorithm: auto, ball_tree, kd_tree, brute
+        各种距离
+            欧式距离（Euclidean Distance，直线距离）: d_12 = sqrt(sum_k((x_1k - x_2k)^2)))
+            曼哈顿距离（Manhattan Distance，只能直行，横行）: d_12 = sum_k(abs(x_1k - x_2k))
+            切比雪夫距离（Chebyshev Distance，只能直行，横行，45倍角斜行）: d_12 = max_k(abs(x_1k - x_2k))
+            闵可夫斯基距离（Minkowski Distance，是一组距离的定义）: d_12 =(sum_k(abs(x_1k - x_2k)^p)) ** (1/p)
+                p=1: 曼哈顿， p=2: 欧式， p -> inf: 切比雪夫
+                缺点： 将各个分量的量纲（scale）/单位，相同的看待，且未考虑各个分量的分布可能是不同的。
+                标准式欧式距离（将各个分量标准化）：sqrt(sum_k(((x_1k - x_2k)/s_k)^2)))   s_k 为第 k 维的标准差
+            余弦距离（Cosine Distance，向量夹角余弦）: d_12 = cos(x_1, x_2) = sum_k(x_1k * x_2k) / (sqrt(sum_k(x_1k^2)) * sqrt(sum_k(x_2k^2))
+            汉明距离（Hamming Distance，将一个变为另一个所需要的最小替换步数）: d_12 = sum_k(x_1k != x_2k)
+            杰拉德距离（Jaccard Distance，两个集合的交集在并集中所占比例）: d_12 = (A∪B-A∩B)/(A∪B)
+            马式距离（Mahalanobis Distance 通过样本分布计算）: d_12 = sqrt((x-mean(x))^T Cov^{-1} (x-mean(x)))
+                其中 Cov 为协方差矩阵， 马氏距离排除变量之间的相关性干扰，建立在总体样本的基础上，要求总体样本数大于样本的维度。
+        对于基本的线性搜索（每个点都计算与其他点的距离），对于 D 个特征的数据集，算法复杂度为 O(DN^2)
+        kd 树: 把距离信息保存在二叉排序树中，使得搜索时间复杂度降低到 O(DNlog(N))。基本原理是：如果 A 和 B 距离很远， B
+            和 C 距离很近，那么 A 和 C 距离也很远。
+            构造 kd 树，选取中间的节点（所在方差最大的维度两侧节点数相同或差1），递归将数据空间通过此节点使用超平面将样本空间切分成两组（下一
+            轮选取维度与这轮不同）对应左子树和右子树，直到叶子节点（空间中无数据点）。查找（判断新数据点位置）类似二分查找，依次和树的当前节点
+            的切分维度的值对比，小则进入左子树，大则进入右子树，直到叶子节点，经过的节点记入栈中。计算从需判断点 g 到该叶子点的距离 r，再以
+            g 为圆心, r 为半径判断圆是否与之前栈节点 a 的切分超平面相交。如果不相交则 a 出栈。如果相交，记录 a 到 g 的距离 r'，如果比
+            r' < r，则更新 r = r'，a 出栈，同时将 a 另一侧的子树根节点入栈。直到栈中没有节点。
+        ball tree: 克服 kd 树特征值高维失效问题（使用超球体）分割样本空间
 
-        3.4 模型选择与调优
-            a.（n 折）交叉验证
-                将训练数据分为训练和验证集，将数据分为 n 份，其中1份作为验证集，其余为训练集。经过 n 轮测试，每轮更换验证集，获得 n 组模型结果
-                取平均作为最终结果。 不能提高模型准确率，但使评估模型更准确可信。
+    3.4 模型选择与调优
+        a.（n 折）交叉验证
+            将训练数据分为训练和验证集，将数据分为 n 份，其中1份作为验证集，其余为训练集。经过 n 轮测试，每轮更换验证集，获得 n 组模型结果
+            取平均作为最终结果。 不能提高模型准确率，但使评估模型更准确可信。
 
-            b. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
-                grid = {‘param_name’: [‘param_value1’， ‘param_value2’]}
-                est = sklearn.model_selection.GridSearchCV(estimator, param_grid=None, cv=None, n_jobs=1)
-                    param_grid 估计器参数字典， cv 几折交叉验证,   n_jobs -1 使用全部多核 cpu
-                est.fit(x,y)
-                est.score(x,y)
-                est.best_params_： 最好的参数
-                est.best_score_： 最好的结果
-                best_score_：最好结果
-                best_estimator_： 最好参数的模型
-                cv_results_： 每次交叉验证的验证集好训练集准确率
+        b. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
+            grid = {‘param_name’: [‘param_value1’， ‘param_value2’]}
+            est = sklearn.model_selection.GridSearchCV(estimator, param_grid=None, cv=None, n_jobs=1)
+                param_grid 估计器参数字典， cv 几折交叉验证,   n_jobs -1 使用全部多核 cpu
+            est.fit(x,y)
+            est.score(x,y)
+            est.best_params_： 最好的参数
+            est.best_score_： 最好的结果
+            best_score_：最好结果
+            best_estimator_： 最好参数的模型
+            cv_results_： 每次交叉验证的验证集好训练集准确率
 
-        3.5 线性回归
-            a. 常见导数
-                (常数)’ = 0
-                (x^a)’ = ax^(a-1)
-                (a^x)’ = a^x ln(a)
-                (log_a(x))’ = 1/(x ln(a))
-                (sin(x))’ = cos(x)
-                (cos(x))’ = -sin(x)
-                (u(x)+v(x))’ = u’(x)+v’(x)
-                (u(x)*v(x))’ = (u’(x)v(x)-u(x)v’(x))/ (v(x))^2
-                (g(h(x)))’ = g’(h)h’(x)
-            b. 定义
-                利用回归方程（函数）对一个或多个自变量（特征值）和因变量（目标值）之间关系进行建模的一种分析方式。主要有两种模型：线性关系和非线性关系
-                （高次方）    公式： h(w) = w_1 * x_1 + w_2 * x_2 + … + b = w^T * x = xw    w = [[b],[w1],[w2]], x = [[1],[x1],[x2]]
-                estimator = sklearn.linear_model.LinearRegression()
-                estimator.coef_     返回系数 w
-            c. 线性回归的损失和优化
-                损失函数 J(θ)=sum_i(h(x_i)-y_i)^2 = (y-Xw)^2
-                优化算法：正规方程，梯度下降
-                正规方程: 直接求得最优值
+    3.5 朴素贝叶斯算法  （独立条件下的贝叶斯）
+        朴素贝叶斯算法是生成式模型，通过先验概率和条件概率计算后验概率，进而求解最大后验概率对应的类别。
+        基于数学理论，有稳定的分类效率，对缺失值不太敏感，算法较简单，分类准确度高，速度快。但是由于使用特征独立假设，特征有关联时效果不好。 常用于文
+        本分类 （假设单词之间相互独立）
+
+        概率： 一件事发生的可能性， P(X) ∈[0,1]
+        联合概率：多个条件同时成立的概率， P(A,B)
+        条件概率：事件 A 在另外一个事件 B 已经发生条件下的发生概率， P(A|B)
+        相互独立： P(A,B) = P(A) * P(B) <==> 事件 A 与 B 相互独立。
+
+        贝叶斯公式 P(A|B) = P(B|A) * P(A) / P(B)  A: 类别， B： 特征    P(B|A) = B特征在 A 类别出现的次数 / 类别 A中所有特征出现的次数和
+            拉普拉斯平滑系数： 防止概率为 0， P(B|A) = (B特征在 A 类别出现的次数 + α) / (类别 A中所有特征出现的次数和 + α * 特征总数)
+                α 为指定的平滑系数，一般为 1
+        朴素： 假设特征与特征之间相互独立，即 P(A,B) = P(A) * P(B)
+        P(A,B | C) = P(A | C) * P(B | C)
+
+        from sklearn.naive_bayes import MultinomialNB
+        est = MultinomialNB(alpha=1.0)
+        est.fit(x_train, y_train)
+
+    3.6 决策树
+        决策树： 基于树结构进行决策的算法，根据数据特征是否满足节点特征分割条件进行划分，使用信息增益（为分类系统提供更多信息）多的特征来划分上层节
+        点（ID3 决策树），从而减小信息熵，C4.5 使用信息增益比， CART 使用基尼系数。
+        简单的理解，解释性强，树可以可视化。过于复杂的树容易过拟合。
+        信息： （香农定义） 消除随机不定性的东西
+        信息熵： 用于衡量信息量  H(X) = -sum_i{1~n} [P(x_i) * log_2 P(x_i)]  单位比特，最小为0    i 为类别
+        信息增益： 特征 A 对训练数据集 D 的信息增益 g(D,A)， 定义为集合 D 的信息熵 H(D) 和特征 A 给定条件下 D 的条件熵 H(D|A) 之差，即
+            g(D,A) = H(D) - H(D|A)  表示得知特征 A 的信息使得不确定性（信息熵）的减少程度
+                H(D) = -sum_i{1~n} [(D_i / D) * log_2 (D_i / D)]   D_i 为属于 i 类别的样本个数，D 为样本总数
+                条件熵 H(D|A) = sum_j{1~m} [(A_j / D) * H(A_j)]          A_j 为特征 A 的值 为 j 的样本个数
+                H(A_j) = -sum_i{1~n} [(d_ij / A_j) * log_2 (d_ij / A_j)]    d_ij 为属于 i 类别特征 A 的值 为 j 的样本个数
+        from sklearn.tree import DecisionTreeClassifier, export_graphciz
+        est = DecisionTreeClassifier(criterion='gini', max_depth=None, random_state=None)    criterion='entropy' 使用信息熵
+        est.fit(x_train, y_train))
+        export_graphciz(est, out_file='tree.dot', feature_names=["occupation","age","income"])
+        在 http://webgraphviz.com 显示导出的树文件
+
+    3.7 随机森林
+        集成学习：通过建立多个模型独立学习和预测，最后结合成组合预测。
+        随机森林： 包含多个决策树的分类器，预测结果为所有决策树输出类别的众数。
+            随机选择特征（抽取个数远小于特征总数，降维），随机选择训练集（bootstrap 随机有放回抽样，同一个数据可以被抽到多次），来产生不同的决策树。
+        具有极好的准确率，处理高维数据不需要降维，能够评估特征重要性。
+        from sklearn.ensemble import RandomForestClassifier
+        est = RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None, bootstrap=True,
+            min_samples_split=2, min_samples_leaf=1,max_features="auto", random_state=None)
+                max_features 可选值: "auto" -> sqrt(n_features) , "sqrt", "log2", None( = n_features)
+        est.fit(x_train, y_train)
+
+    3.8 线性回归  （不能解决（过/欠）拟合问题，需要无量纲化）
+        a. 常见导数
+            (常数)’ = 0
+            (x^a)’ = ax^(a-1)
+            (a^x)’ = a^x ln(a)
+            (log_a(x))’ = 1/(x ln(a))
+            (sin(x))’ = cos(x)
+            (cos(x))’ = -sin(x)
+            (u(x)+v(x))’ = u’(x)+v’(x)
+            (u(x)*v(x))’ = (u’(x)v(x)-u(x)v’(x))/ (v(x))^2
+            (g(h(x)))’ = g’(h)h’(x)
+        b. 定义
+            利用回归方程（函数）对一个或多个自变量（特征值）和因变量（目标值）之间关系进行建模的一种分析方式。
+                公式： h(w) = w_1 * x_1 + w_2 * x_2 + … + b = w^T * x = xw    w = [[b],[w1],[w2]], x = [[1],[x1],[x2]]
+            线性模型： 特征值与目标值之间建立的关系，一个特征值称为单变量回归，多个特征值为多元回归。主要有两种模型：线性关系和非线性关系（高次方
+                y = w_1*x_1 + w_2 * x_2^2）
+        c. 线性回归的损失和优化
+            求解模型权重和偏置（参数），使得模型能预测准确
+            损失（目标 / 成本）函数：衡量真实值和预测值的误差。 J(θ) = sum_i(h(x_i) - y_i)^2 = (y - Xw)^2
+            优化算法：正规方程，梯度下降
+            正规方程: 直接求得最优值 （特征多时速度慢且不一定能得到结果 O(n^3)，只能在线性回归使用，不能解决过拟合问题）
                 w = (X^T X)^(-1) * X^T * y
                     2(Xw-y)*X = 0 ==> 2(Xw-y)*(X X^T)=0 ==> 2(Xw-y)*(X X^T)(X X^T)^-1 = 0 ==> Xw = y
                      ==>   X^T Xw = X^T y  (X^T* X 方阵确保可逆)  ==> (X^T X)^(-1)  X^T Xw = X^T X)^(-1) * X^T * y
                      ==> w = (X^T X)^(-1) * X^T * y
+            梯度下降（Gradient Descent, GD）：计算所有样本值得到梯度。经过多次迭代，改进获得最优值 （计算量大，通用性强）
+                W = W - α dcost/ dw
+            随机梯度下降（Stochastic gradient descent, SGD）： 每次迭代仅考虑一个训练样本（速度快，但有很多超参数，对特征标准化敏感）
+            小批量梯度下降法（mini-batch gradient descent）：使用随机的 m 个训练数据
+            随机平均梯度（Stochastic average gradient, SAG）
+        d. 实现
+            from sklearn.linear_model import LinearRegression
+            est =  LinearRegression(fit_intercept=True)   通过正规方程优化，fit_intercept 是否计算偏置
+            est.fit(x_train, y_train)
+            est.coef_  回归系数         est.intercept_   偏置
 
+            from sklearn.linear_model import SGDRegressor   通过梯度下降优化
+            est = SGDRegressor(loss='squared_loss', fit_intercept=True, penalty='l2',
+                                alpha=0.0001, learning_rate='invscaling', eta0=0.01, max_iter=1000)
+                squared_loss 最小二乘法。    learning_rate: "constant", "optimal", "invscaling"
+                penalty='l2'  添加惩罚项等同于岭回归，只是采用 SGD
+            est.coef_  回归系数         est.intercept_   偏置
+        e. 回归性能评估
+            均方误差（Mean Squared Error, MSE）: MSE = Sum_i{1~m}(y_i - mean(y))^2 / m , 也可作为损失函数，多了平均
+            from sklearn.metrics import mean_squared_error
+            mean_squared_error(y_true, y_pred)
+
+    3.9 拟合
+        欠拟合（）和过拟合（学习了太多针对训练集的特征）
+
+        过拟合：在训练数据能获得更好的拟合，但是测试数据不能很好地拟合。学习了太多针对训练集的特征，模型过于复杂。需要减小高次项特征的影响，使用
+            正则化。
+            L1 正则化：L1 正则化使得一些权重系数直接为 0，删除特征影响（比较粗暴）   损失函数中添加惩罚项 + λ sum_j{1~n) abs(w_j)
+            L2 正则化（更常用）：L2 正则化使得一些权重系数减小接近于0，削弱一些特征的影响。 在损失函数中添加惩罚项 + λ sum_j{1~n) w_j^2
+        欠拟合：在训练数据和测试数据上都不能很好地拟合数据。学习到的特征太少，模型过于简单，区分太粗糙。需要增加数据，特征数量
+
+        Lasso 采用 L1 正则项的线性回归
+        Ridge 岭回归，是采用 L2 正则项的线性回归
+
+    3.10 岭回归 （线性回归改进，需要无量纲化）
+        岭回归：线性回归在建立回归方程时 加上了 L2 正则项的限制，解决过拟合。
+        from sklearn.linear_model import Ridge   通过梯度下降优化
+        est = Ridge(alpha=1.0, fit_intercept=True, solver="auto", normalize=False)
+            alpha （λ） 为正则化力度  0~10     solver 在数据集，特征比较大时选择 SAG， normalize 同 StandardScaler
+        est.coef_  回归系数         est.intercept_   偏置
+
+    3.11 逻辑回归（需要无量纲化）
+        逻辑回归：用于二分类问题，输出 0 或 1。但和回归算法之间有一定的联系。
+        原理
+            逻辑回归的输入就是线性回归的输出，然后通过 sigmoid 函数 （1 / (1+e^(-x))）将其映射到 0~1 之间，采用默认 0.5 为阈值，
+            区分两个类。
+            h(0) = 1 / (1 + e^(-0^T * x))
+        损失与优化
+            对数似然损失： cost(h_0(x),y) =  -log(h_0(x))  if y=1
+                                       = -log(1-h_0(x)) if y=0
+                cost(h_0(x),y) = sum_i{1~m} [-y_i * log(h_0(x)) - (1-y_i) * log(1-h_0(x))]   对于 m 个数据
+            使用梯度下降进行优化
+            from sklearn.linear_model import LogisticRegression
+            est = LogisticRegression(solver='liblinear', penalty='l2', C=1.0)   C 正则化系数， 默认 SAG 优化
+            等同于 SGDClassifier(average=True)  默认随机梯度下降，添加average 使用 SAG
+        分类的评估
+            混淆矩阵： 行索引真实结果正反例， 列索引预测结果正反例。
+            精确率（Precision）：预测结果为正例样本中真实为正例的比例   TP / (TP + FP)
+            召回率（Recall）：真实为正例的样本中预测为正例的比例   TP / (TP + FN)
+            F1-score: 反应了模型的稳健性  F1 = 2TP / (2TP + FN +FP) = 2 Precision * Recall / (Precision + Recall )
+            from sklearn.metrics import classification_report
+            rep = classification_report(y_true, y_pred,labels=None, target_names=None)
+                label: 类别对应的数字， 返回每个类别的精确率和召回率
+            在样本不均衡时，使用 ROC 曲线和 AUC 指标
+                TPR: 所有真实类别为正例的样本中，预测为正例的比例 (同召回率)   TP / (TP + FN)
+                FPR: 所有真实类别为反例的样本中，预测为正例的比例    FP / (FP + TN)
+                ROC 曲线： x 轴 FPR 左到右 0 -> 1, y 轴 TPR 下到上 0 -> 1。 通过变换二分类的阈值（原先默认0.5）获得 ROC 曲线。
+                    随机猜测 为 （0,0）到（1,1）直线 （TPR = FPR），AUC 为 0.5。 完美预测为（0,1）到 （1,1）直线，AUC 为 1， AUC 范围 [0.5,1]
+                    from sklearn.metrics import roc_auc_score
+                    roc_auc_score(y_true, y_pred)    y_true 反例必须为0， 正例为 1。
+
+    3.12 K-Means 算法
+        迭代式算法，简单实用。但是容易收敛到局部最优（可通过多次聚类取最佳值缓解）。
+        步骤：
+            1. 随机设置 k 个特征空间内的点作为初始的聚类中心。
+            2. 对于其他每个点计算到 k 个中心点的距离， 未分类的点选择距离最近的聚类中心点作为标记类别。
+            3. 对于（k 个）聚类中心，计算所有被标记为该类的点的（所有维度）平均值作为新的中心点
+            4. 重复第二步，直到新中心点与原中心点一致（可以加入可容忍误差）。
+        k 值选取： 看需求， 或者网格搜索调节超参数
+            from sklearn.cluster import KMeans
+            estimator = KMeans(n_clusters=3, init='k-means++'， max_iter=300)    中心个数，中心初始方法
+            estimator.fit(X)
+            estimator.cluster_centers_    聚类中心点
+            estimator.labels_     训练后标记类型
+            estimator.predict(new_X)
+        聚类效果评估
+            轮廓系数 (silhouette score)：  期望簇内距离小， 簇间距离大
+                sc_i = (b_i - a_i) / (max(b_i, a_i))     b_i 为到其他簇群的所有样本距离最小值， a_i 为到本身簇的距离平均值。
+                计算所有样本点的轮廓系数平均值。 轮廓系数取值范围 [-1,1] 越大聚类效果越好
+            from sklearn.metrics import silhouette_score
+            silhouette_score(X, estimator.labels_, metric='euclidean')
 '''
+
 import jieba
 import sklearn
 from sklearn.neighbors import KNeighborsClassifier
@@ -696,5 +839,8 @@ import matplotlib.pyplot as plt
 pd.crosstab()
 v = sklearn.feature_extraction.DictVectorizer(sparse=True)
 v.fit_transform
-
+from sklearn.ensemble import RandomForestClassifier
+est = RandomForestClassifier
 x=jieba.cut("我爱北京天安门")
+from sklearn.linear_model import SGDRegressor
+
