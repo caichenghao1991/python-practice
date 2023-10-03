@@ -138,62 +138,6 @@
         a[::2, :, :, :]  # same as a[0] and a[2]   start:end:step  start default 0, end default -1
         a[0,...,1,:]   # ... can be any length of :, must able to infer, can't use 2 ... same time    # shape[28,3]
 
-    gather
-        a = tf.gather(a, axis=0, indices =[1,2])  # default axis=0  return an ordered tensor with selected indices in
-            # axis,shape(2,28,28,3),a[1] and a[2]
-
-        tf.gather_nd(a,[0,1,2])      # gather the item with indices of several dimension, shape (3), get the item with
-                                     # index 0 in 1st dimension, 1 in second dimension, 2 in third dimension
-            tf.gather_nd(a,[[0,1,2]])   # shape (1,3)
-            tf.gather_nd(a,[[0,1,2],[0,1,3]])   # get 2 items as tensors with indices, [a[0,1,2], a[0,1,3]]
-        tf.boolean_mask(a, mask=[True, True, False, False])   # use boolean mask to pick items needed, here is first 2
-                                     # items in first dimension, shape (2,28,28,3), mask array length need same as axis
-                                     # length, default axis = 0
-            tf.boolean_mask(tf.ones([2,3,4]), mask=[[True, True, False],[False,False,True]])  # 2D mask same shape as
-                                     # first 2D of target tensor (2,3)
-            tf.boolean_mask(a, a>0) # return a tensor with items value>0
-
-    dimension change
-        a = tf.ones([4,28,28,3])
-        b = tf.reshape(a, [4,784,3])
-        c = tf.reshape(a, [4,-1,3])   # shape (4,784,3), only allow one -1, automatically calculate size
-
-        a = tf.ones([4,20,28,3])
-        b = tf.transpose(a)   # shape (3,28,20,4)
-        c = tf.transpose(a,[0,3,1,2])   # shape (4,3,20,28)
-
-        b = tf.expand_dims(a, axis=3)   # shape (4,20,28,1,3)
-        c = tf.squeeze(tf.zeros([1,2,1,1,3]))     # shape (2,3)
-        c = tf.squeeze(tf.zeros([1,2,1,3]), axis=0)     # shape (2,1,3), only able to squeeze dimension size = 1
-
-    broadcast
-        default align right side, if small dimension tensor size 1, can be extended to the other tensor size, if both
-            has different size, it's not able to broadcast. broadcast won't change tensor
-        bias shape (1,28,1) can broadcast when add a (4,28,28,3). it will copy to size (4,28,28,3)
-        default small dimension add to large dimension, suitable for all entry
-        a shape(4,1) add b shape(1,3)  result (4,3) with broadcast, while (1,4) and (1,3) can't be added together
-        a = tf.ones([4,20,28,3])
-        print(a + tf.random.normal([28,1])).shape   #    implicit broadcast to shape (4,20,28,3)
-        b = tf.broadcast_to(tf.random.normal([28,1]),[4,20,28,3])   # explicit declare
-
-        b = tg.expand_dims(tf.random.normal([28,1]), axis=0)
-        b = tg.expand_dims(b, axis=0)  # shape (1,1,28,1)
-        b2 = tf.tile(tf.ones((2,3,4)),[3,5,1])   # create tensor with shape (6,15,4), repeat x times in each dimension.
-                                # same functionality as broadcast, but use more memory
-
-
-    concat, stack, split
-        a = tf.ones([4,20,28,3])
-        b = tf.ones([2,20,28,3])
-        c = tf.concat([a,b] axis=0)   # concat a and b on axis 0, result shape [6,20,28,3], need have same shape besides
-                                      # the contacted axis
-        b2 = tf.ones([4,20,28,3])
-        c = tf.stack([a,b2] axis=0)    # create a new axis 0 to wrap around 2 tensors, a and b2 must have same shape
-                                         # shape (2, 4, 20, 28, 3)
-        res = tf.unstack(a, axis=3)     # return a list with 3 tensors with shape (4,28,28)
-        res = tf.split(a, axis=0, num_or_size_splits=2)   # return list of 2 same shape (2,28,28,3) tensors
-        res = tf.split(a, axis=0, num_or_size_splits=[1,3])   # list of tensors with shape (1,28,28,3),(3,28,28,3)
-
     math operations
         +  -  *  /     **  pow  square      sqrt     //  %     tf.exp  tf.math.log (e base)     element-wise
         @  matmul (row i in matrix a times column j in matrix b, get result index [i,j] )     matrix-wise
@@ -235,17 +179,13 @@
             idx = res.indices  # return tensor of indices of those top k elements
             b = res.values     # return tensor of top k on last axis
 
-    pad
-        a = tf.zeros([3,3])
-        b = tf.pad(a,[[1,0],[0,1]], constant_values=1)  # return tensor with padding: pad 1 row at front of axis 0, 0
-                                                        # row after axis 0, 0 and 1 columns front/after axis 1
-                                                        # axis last, default constant_values=0, default mode='CONSTANT'
-
-    tile
-        a = tf.zeros([3,3])
-        b = tf.tile(a,[2,1])   # copy axis 0 two times, axis 1 one time, return tensor shape (6,3)
-        # recommend use tf.broadcast_to   only generate copy during run time, save memory. some function support
-            implicit broadcast, ex. a + b will broadcast automatically
+    where
+        mask = a>0     # return a tensor with same shape as a, if element >0, element become True, otherwise False
+        ind = tf.where(mask)    # return tensor with list of indices of elements > 0
+        res = tf.gather_nd(a, ind)   # return a tensor with items > 0
+            # same as tf.boolean_mask(a, mask)
+        res = tf.where(mask, a, b)   # return a tensor, if mask value is true, get same index value from tensor a,
+                                     # otherwise from b, mask, a, b must have same shape
 
     clipping (limit max/min value)
         tf.maximum(a,2)    # return tensor with items less than 2 change to 2
@@ -261,18 +201,86 @@
                                 # won't change all input tensors direction, gradient norm is better if within [0-20]
                                 # show nan if gradient exploding
 
-    where
-        mask = a>0     # return a tensor with same shape as a, if element >0, element become True, otherwise False
-        ind = tf.where(mask)    # return tensor with list of indices of elements > 0
-        res = tf.gather_nd(a, ind)   # return a tensor with items > 0
-            # same as tf.boolean_mask(a, mask)
-        res = tf.where(mask, a, b)   # return a tensor, if mask value is true, get same index value from tensor a,
-                                     # otherwise from b, mask, a, b must have same shape
+
+
+
+    gather
+        a = tf.gather(a, axis=0, indices =[1,2])  # default axis=0  return an ordered tensor with selected indices in
+            # axis,shape(2,28,28,3),a[1] and a[2]
+
+        tf.gather_nd(a,[0,1,2])      # gather the item with indices of several dimension, shape (3), get the item with
+                                     # index 0 in 1st dimension, 1 in second dimension, 2 in third dimension
+            tf.gather_nd(a,[[0,1,2]])   # shape (1,3)
+            tf.gather_nd(a,[[0,1,2],[0,1,3]])   # get 2 items as tensors with indices, [a[0,1,2], a[0,1,3]]
+        tf.boolean_mask(a, mask=[True, True, False, False])   # use boolean mask to pick items needed, here is first 2
+                                     # items in first dimension, shape (2,28,28,3), mask array length need same as axis
+                                     # length, default axis = 0
+            tf.boolean_mask(tf.ones([2,3,4]), mask=[[True, True, False],[False,False,True]])  # 2D mask same shape as
+                                     # first 2D of target tensor (2,3)
+            tf.boolean_mask(a, a>0) # return a tensor with items value>0
+
+    dimension change
+        a = tf.ones([4,28,28,3])
+        b = tf.reshape(a, [4,784,3])
+        c = tf.reshape(a, [4,-1,3])   # shape (4,784,3), only allow one -1, automatically calculate size
+
+        a = tf.ones([4,20,28,3])
+        b = tf.transpose(a)   # shape (3,28,20,4)
+        c = tf.transpose(a,[0,3,1,2])   # shape (4,3,20,28)
+
+        b = tf.expand_dims(a, axis=3)   # shape (4,20,28,1,3)
+        c = tf.squeeze(tf.zeros([1,2,1,1,3]))     # shape (2,3)
+        c = tf.squeeze(tf.zeros([1,2,1,3]), axis=0)     # shape (2,1,3), only able to squeeze dimension size = 1
+
+
+
+    concat, stack, split
+        a = tf.ones([4,20,28,3])
+        b = tf.ones([2,20,28,3])
+        c = tf.concat([a,b] axis=0)   # concat a and b on axis 0, result shape [6,20,28,3], need have same shape besides
+                                      # the contacted axis
+        b2 = tf.ones([4,20,28,3])
+        c = tf.stack([a,b2] axis=0)    # create a new axis 0 to wrap around 2 tensors, a and b2 must have same shape
+                                         # shape (2, 4, 20, 28, 3)
+        res = tf.unstack(a, axis=3)     # return a list with 3 tensors with shape (4,28,28)
+        res = tf.split(a, axis=0, num_or_size_splits=2)   # return list of 2 same shape (2,28,28,3) tensors
+        res = tf.split(a, axis=0, num_or_size_splits=[1,3])   # list of tensors with shape (1,28,28,3),(3,28,28,3)
+
+
+
+    broadcast
+        default align right side, if small dimension tensor size 1, can be extended to the other tensor size, if both
+            has different size, it's not able to broadcast. broadcast won't change tensor
+        bias shape (1,28,1) can broadcast when add a (4,28,28,3). it will copy to size (4,28,28,3)
+        default small dimension add to large dimension, suitable for all entry
+        a shape(4,1) add b shape(1,3)  result (4,3) with broadcast, while (1,4) and (1,3) can't be added together
+        a = tf.ones([4,20,28,3])
+        print(a + tf.random.normal([28,1])).shape   #    implicit broadcast to shape (4,20,28,3)
+        b = tf.broadcast_to(tf.random.normal([28,1]),[4,20,28,3])   # explicit declare
+
+        b = tg.expand_dims(tf.random.normal([28,1]), axis=0)
+        b = tg.expand_dims(b, axis=0)  # shape (1,1,28,1)
+        b2 = tf.tile(tf.ones((2,3,4)),[3,5,1])   # create tensor with shape (6,15,4), repeat x times in each dimension.
+                                # same functionality as broadcast, but use more memory
+
+
+    pad
+        a = tf.zeros([3,3])
+        b = tf.pad(a,[[1,0],[0,1]], constant_values=1)  # return tensor with padding: pad 1 row at front of axis 0, 0
+                                                        # row after axis 0, 0 and 1 columns front/after axis 1
+                                                        # axis last, default constant_values=0, default mode='CONSTANT'
+
+    tile
+        a = tf.zeros([3,3])
+        b = tf.tile(a,[2,1])   # copy axis 0 two times, axis 1 one time, return tensor shape (6,3)
+        # recommend use tf.broadcast_to   only generate copy during run time, save memory. some function support
+            implicit broadcast, ex. a + b will broadcast automatically
 
     scatter_nd
         res= tf.scatter_nd([[4],[3],[1],[7]], [9,10,11,12], [8])  # first param indices, second value, third shape.
                     # initialize tensor with shape (8) to all zeros, update index 4 value to 9, index 3 value 10,...
         res= tf.scatter_nd([[0],[2]], [[1,1],[1,1]], [3,2])  #update 1st axis index 0, 2 to value 1s [[1,1],[0,0],[1,1]]
+
 
     meshgrid
         x, y = tf.linspace(-2, 2, 5), tf.linspace(-2, 2, 5)

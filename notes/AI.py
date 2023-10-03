@@ -5,6 +5,15 @@ kaggle， 天池  机器学习比赛
 ssl 883 error 解决方法:
     import ssl; ssl._create_default_https_context = ssl._create_unverified_context
 
+
+pytorch：http://121.199.45.168:8020/1/
+自然语言处理入门：http://121.199.45.168:8005/
+文本预处理：http://121.199.45.168:8003/1/#11
+经典序列模型：http://121.199.45.168:8004/1/
+RNN及其变体：http://121.199.45.168:8002/1/
+Transformer：http://121.199.45.168:8001/1/
+迁移学习：http://121.199.45.168:8007/1/
+
 1. 机器学习概述
     1.1 人工智能概述
         a. 人工智能起源
@@ -819,7 +828,1247 @@ ssl 883 error 解决方法:
                 计算所有样本点的轮廓系数平均值。 轮廓系数取值范围 [-1,1] 越大聚类效果越好
             from sklearn.metrics import silhouette_score
             silhouette_score(X, estimator.labels_, metric='euclidean')
+
+    3.13 神经网络
+        不要初始化权重为 0 的矩阵，会导致训练缓慢，最好均匀分布的小数。
+
+4 Pytorch
+    Pytorch 是基于 Numpy 的科学计算包，能够使用 GPU 加速计算，提供灵活，高速的深度学习平台。
+    Tensor (torch.Tensor)张量： 类似于 Numpy 的 ndarry 的数据结构， 区别在于可以利用 GPU 加速运算。
+
+    import torch
+    创建张量
+        x = torch.empty(5,3)    未初始化的矩阵（数据为所占内存中没意义的数据）
+        x = torch.rand(5,3)      随机初始化的矩阵，范围 [0,1) 均匀分布
+        x = torch.zeroes(5,3, dtype=torch.long)     形状写成 (5,3) 也可以
+        x = torch.tensor([2.5, 3.5])
+        x2 = x.new_ones(3,2, dtype=torch.double)    创建与 tensor 相同的设备和数据类型；  _randn
+        x = torch.rand_like(x) 用于创建一个与 tensor 形状相同的 tensor   randn, randint
+        x.shape     x.size()         返回张量形状 torch.Size([3, 2])
+        x.ndim                返回张量维度
+    切片 (同 numpy)
+        x[:, :3]
+        x[1, :]
+
+    x.view(-1,8)   改变张量形状， -1 自动匹配个数
+    x[1,1].item()   返回张量中单个元素的标量值
+
+    torch tensor (除了 CharTensor) 和 numpy ndarry 可以互相转换，共享底层的内存空间，改变其中一个值会同时改变另一个。
+    x.numpy()       张量转换为 numpy ndarry
+    x= torch.from_numpy(np.ones((2,3)))       numpy ndarry 转换为张量
+    y = x + 1              张量加法，需要赋值返回值
+    y = torch.add(x,y)
+    np.add(a,1, out=a)   原地 ndarray 中所有元素加法
+    torch.add(x,y, out=x)   原地张量中所有元素加法
+    x.add_(y)     原地张量中所有元素加法
+
+    移动张量到指定设备，需要在同一设备上执行数据操作
+    if torch.cuda.is_available():        判断 cuda 是否安装，且 GPU 可用
+        device = torch.device('cuda')     使用 GPU
+        x.to(device)                      将张量移动到 GPU
+        x.device                           device(type='cuda')
+        y = torch.ones_like(x, device=device)     在 GPU 上创建张量
+        (x+y).to('cpu', torch.double)      将张量移动到 CPU
+
+    张量求导
+        x2 = torch.ones(2, 2, requires_grad=True)      追踪张量变化用于求导（微分）
+        x2.requires_grad_(True)       原地修改是否需要追踪求导
+        x3 = x2 ** 2
+        x3.requires_grad             True 由需要追踪求导张量推出的张量依然需要追踪求导   返回 Boolean
+        x3.grad_fn    自定义张量返回 None, 否则返回最后的一个数据操作 （ex. <MulBackward0>）
+        x3.grad_fn.next_function[0][0]   返回之前一个方法，可以多次使用
+        x2.mean().backward()          对标量执行反向传播，将梯度计入各个张量的 grad 属性内
+        x2.grad                返回梯度值
+        y = x2.detach()            从计算图中撤出，在未来回溯计算中不会再求导，并返回张量
+        with torch.no_grad():      在代码块中内容终止求导 （建议）
+            x3 = x2 ** 2
+
+
+    定义一个拥有可学习参数的神经网络
+    遍历训练数据集
+    处理输入数据使其流经神经网络
+    计算损失值
+    将网络参数的梯度进行反向传播
+    以一定的规则更新网络的权重
+
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    import torch.optim as optim
+    import torchvision
+    import torchvision.transforms as transforms
+
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+    class Net(nn.Module):     只支持 mini-batch 的输入， 不支持单个样本输入（需要 UNsqueeze(0) 增加维度）
+        def __init__(self):
+            super(Net, self).__init__()
+            self.conv1 = nn.Conv2d(1, 6, 3)
+            self.conv2 = nn.Conv2d(6, 16, 3)
+            self.fc1 = nn.Linear(16 * 6 * 6, 120)
+            self.fc2 = nn.Linear(120, 84)
+            self.pool = nn.MaxPool2d(2, 2)
+        def __init__(self):
+            super(Net, self).__init__()
+            self.conv1 = nn.Conv2d(1, 6, 3)    输入一维，输出六维，卷积核大小 3*3
+            self.conv2 = nn.Conv2d(6, 16, 3)
+            self.fc1 = nn.Linear(16 * 6 * 6, 120)  三层全连接层，此处 6 根据图片尺寸经过卷积操作获得
+            self.fc2 = nn.Linear(120, 84)
+            self.fc3 = nn.Linear(84, 10)     10 为分类数， pytorch 交叉熵损失函数已经包含 softmax 和负对数损失
+
+        def forward(self, x):
+            x = F.max_pool2d(F.relu(self.conv1(x)), (2, 2))  对第一层卷积网络经过relu 激活函数后进行 (2,2)窗口大小的最大池化操作
+            # x = F.max_pool2d(F.relu(self.conv2(x)), 2)
+            x = self.pool(F.relu(self.conv2(x))
+            x = x.view(-1, self.num_flat_features(x))
+            x = F.relu(self.fc1(x))
+            x = F.relu(self.fc2(x))
+            x = self.fc3(x)
+
+        def num_flat_features(self, x):
+            size = x.size()[1:]    不包含第 0 维的 batch_size
+            num_features = 1
+            for s in size:
+                num_features *= s
+            return num_features
+
+
+    batch_size = 4
+    transform = transforms.Compose(            torchvision 数据集为 PIL格式，值域 [0,255], 先转为 Tensor，再变为均值 0.5， 方差 0.5
+        [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=transform)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True, num_workers=2)   制作小批量数据集
+    testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=4, shuffle=False, num_workers=2)
+    classes = trainset.classes     # ['airplane','automobile','bird','cat','deer','dog','frog','horse','ship','truck']
+
+    net = Net()
+    net.to(device)
+    params = list(net.parameters())
+    print(len(params), params[0].size())   params[0] 为第一层卷积层参数
+        # target = torch.randn(1, 10)
+        # target = target.view(1, -1)    改变目标为二维张量，和输出匹配
+        # loss = nn.MSELoss(out, target)
+    criterion = nn.CrossEntropyLoss()
+    print(loss.grad_fn,  loss.grad_fn.next_functions[0][0].next_functions[0][0])
+    optimizer = optim.SGD(net.parameters(), lr=0.01)  优化器， 传入参数为模型所有参数， 学习率
+
+    for epoch in range(2):
+        for i, data in enumerate(trainloader, 0):
+            input, labels = data[0].to(device), data[1].to(device)
+            optimizer.zero_grad()    梯度清零， 否则会累加之前批次的梯度
+            outputs = net(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()          算出参数梯度
+            optimizer.step()        更新参数
+            # print(net.conv1.bias.grad)
+
+            total_loss += loss.item()     获取单个元素的张量的标量值
+            if (i+1) % 1000 == 0:
+                print('[%d, %5d] loss: %.3f' % (epoch + 1, i + 1, total_loss / 1000))
+                total_loss = 0.0
+
+    # 手动梯度下降， 不建议
+    # for f in net.parameters():
+    #     f.data.sub_(0.001 * f.grad.data)
+
+    torch.save(net.state_dict(), './cifar_net.pth')
+    dataiter = iter(testloader)
+    images, labels = dataiter.next()
+    net = Net()
+    net.load_state_dict(torch.load('./cifar_net.pth'))
+
+    correct, total = 0, 0                               整体准确率
+    class_correct, class_total = [0] * 10, [0] * 10     单类准确率
+
+    with torch.no_grad():      测试过程不要追踪求导
+        for data in testloader:
+            images, labels = data
+            outputs = net(images)
+            _, predicted = torch.max(outputs, axis=1)  选取最大的概率对应的类
+            c = predicted.eq(labels).squeeze()     (predicted == labels).squeeze()
+            # print('Predicted: ', ' '.join('%s' % classes[predicted[j]] for j in range(4)))
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+            for i in range(batch_size):
+                label = labels[i]
+                class_correct[label] += c[i].item()
+                class_total[label] += 1
+
+    print('Accuracy of the network on the 10000 test images: %d %%' % (100 * correct / total))
+    for i in range(10):
+        print('Accuracy of %5s : %2d %%' % (classes[i], 100 * class_correct[i] / class_total[i]))
+
+    x.means()
+    x.eq(y).all()       数据结果比较
+    torchvision.utils.make_grid(images)
+
+5. 自然语言处理 （Natural Language Processing, NLP）
+    是关注计算机与人类语言转换的领域，存在基于规则和统计两种方法，前者通过语法分析来处理（现以落伍），后者通过统计来处理。
+
+    5.1 文本预处理
+        a. 文本处理的基本方法
+            i. 分词： 将连续的字序列按照一定的规范重新组合成词序列的过程。词作为语言语义理解的最小单元，是人类理解文本语言的基础， 也是 NLP
+                领域高阶任务的基础。
+
+                流行的中文分词工具 jieba， 支持多种分词模式， 包括： 精确模式， 全模式， 搜索引擎模式， 混合模式。支持繁体分词，用户自定义词典
+                pip install jieba
+                精确模式分词： 试图将句子最精确地切开，适合文本分析
+                全模式： 把句子中所有的可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义
+                搜索引擎模式：在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词
+                import jieba
+                content = "工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作"
+                jieba.cut(content, cut_all=False)     # cut_all 默认 False（代表精确模式）， True (代表全模式)。返回一个生成器对象
+                jieba.cut_for_search(content)        # 搜索引擎模式
+                jieba.lcut(content, cut_all=False)    # 返回切分好的词列表    lcut_for_search
+                    ['工信处','女干事','每月','经过','下属','科室','都','要','亲口','交代','24','口','交换机','等','技术性','器件','的','安装','工作']
+                构造自定义词典， 适合识别专业词汇。每一行分三部分： 词语，词频（可省略）， 词性（可省略）， 空格隔开。例如：
+                    云计算  5 n
+                    李小福 2 nr
+                    easy_install 3 eng
+                    好用 30
+                jieba.load_userdict("./userdict.txt")
+
+
+                中英文分词工具 hanlp，基于 tensorflow 2.0，使用深度学习的技术
+                pip install hanlp
+                import hanlp
+                tokenizer = hanlp.load('CBT6_CONVSEG')
+                l = tokenizer("工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作")
+                tokenizer = hanlp.utils.rules.tokenize_english    # 英语以空格切分
+                l = tokenizer('Mr. Hanks bought a car for 1.5 thousand dollars.')
+
+            ii. 词性标注：
+            iii. 命名实体识别：是指识别文本中具有特定意义的实体，如人名、地名、机构名、时间、专有名词等。
+
+
+        b. 文本张量表示方法
+            文本张量： 将一段文本用张量进行表示，其中一般将词汇表示成向量，称为词向量，再由各个词向量按顺序组成矩阵形成文本表示。能够使语言文本
+                可以作为计算机处理程序的输入，进行之后的解析工作。
+            i. one-hot （独热）编码：每个词表示成具有 n 个元素的向量，仅有一个元素为 1，其余为 0。不同词汇 1 的位置不同，n 为不同词汇总数。
+                操作简单，容易理解。但是割裂了词与词之间的联系（同为歌手的两个人名之间不存在任何联系），且在大语料集下，每个向量长度过大，占用
+                大量内存。
+                from sklearn.externals import joblib
+                from keras.preprocessing.text import Tokenizer
+                vocab = {"周杰伦"，“林俊杰”，“陈奕迅”}
+                t = Tokenizer(num_words=None, char_level=False)
+                t.fit_on_texts(vocab)
+
+                for word in vocab:
+                    zero_list = [0] * len(vocab)
+                    one_index = t.texts_to_sequences([word])[0][0] - 1      texts_to_sequences 返回二维矩阵
+                    zero_list[one_index] = 1
+                    print(word, zero_list)
+                joblib.dump(t,'./tokenizer')
+                t = joblib.load('./tokenizer')
+
+            ii. Word2vec：是一种将词汇表示成向量的无监督训练方法，将构建神经网络模型，将网络参数作为词汇的向量表示，包含 CBOW 和 skipgram
+                两种训练模式。
+                CBOW (continuous bag of words)：给定一段用于训练的文本语料，再选定某段长度（窗口）作为研究对象，使用上下文词汇（已知）预
+                测窗口中的目标词汇（未知，在窗口正中间）。
+                例： 一句话 Hope can set you free. 假设参数窗口大小为 3， 对于第一轮，输入 Hope， set 预测 can. Hope, set 为 5*1
+                    的 one-hot 矩阵，与变化矩阵 W (3*5) 相乘再相加，得到 3*1 的隐藏层（上下文表示矩阵），让后用隐藏层乘以另一个变化矩阵
+                    W1 (5*3)，得到 5*1 的结果矩阵，通过 softmax 与目标词汇 can 的 one-hot 矩阵进行 cross entropy 损失计算，并更新网
+                    络参数完成一次模型迭代。
+                    最后窗口每次向后移动一个单词，更新参数，直到语料遍历完成，得到最终的变化矩阵 W (3*5)，这个变化矩阵与每个词汇的 one-hot
+                    矩阵（5*1）相乘，得到 3*1 的矩阵就是该词汇的 word2vec 张量表示。
+                skipgram：给点一段用于训练的文本语料，再选定某段长度（窗口）作为研究对象，使用（窗口正中间）目标词汇预测上下文词汇。
+                例： 一句话 Hope can set you free. 假设参数窗口大小为 3， 对于第一轮，输入 can， 预测 Hope，set。can (5*1) 的
+                    one-hot 矩阵，与变化矩阵 W (3*5) 相乘，得到 3*1 的隐藏层（上下文表示矩阵），让后用隐藏层分别乘以变化矩阵 W1 (5*3)，
+                    W2 (5*3)，得到两个 5*1 的结果矩阵，与目标词汇 Hope, set 的 one-hot 矩阵进行损失计算，并更新网络参数完成一次模型迭代。
+                    之后与 CBOW 相同。
+
+                wget http://mattmahoney.net/dc/enwik9.zip -P data
+                unzip data/enwik9.zip -d data
+                perl wikifil.pl data/enwik9 > data/fil9    去除 xml 标签对
+                pip install git+https://github.com/facebookresearch/fastText.git
+                import fasttext
+                model = fasttext.train_unsupervised('data/fil9', 'cbow', dim=300, epoch=1, lr=)     训练 word2vec 无监督神经网络
+                vec = model.get_word_vector("the")    获取 the 对应的词向量
+                words = model.get_nearest_neighbors("the")    获取 the 对应的近邻词
+                model.save_model("data/fil9.bin")    保存模型
+                model = fasttext.load_model("data/fil9.bin")    加载模型
+
+                from gensim.models import Word2Vec
+                custom_corpus = [["I", "am", "a", "boy"], ["I", "like", "to", "play", "ball"]]
+                model = Word2Vec(sentences=custom_corpus, vector_size=100, window=5, min_count=1, sg=0)
+                    sentences 文本语料, 二维字符串列表。vector_size 转化后词向量大小。window 窗口大小。min_count 最低出现次数忽略阈值
+                    sg 方法 (0 代表 CBOW, 1 代表 skip-gram).  一步建立词库，和训练
+                    model.build_vocab(common_texts)
+                    model.train([["I","am"]], total_examples=1, epochs=1)  最类似的单词
+                model.save("word2vec.model")
+                loaded_model = Word2Vec.load("word2vec.model")
+                model.wv['ball']   转换单词为词向量
+                model.wv.most_similar('ball', topn=5)
+                model.wv.similarity('ball','boy')   返回两词相似度
+
+            iii. Word Embedding 词嵌入: 将词汇映射到指定维度的空间， 广义包括所有密集词向量的表示方法（包含 word2vec），狭义指神经网络中
+                加入的 embedding 层，对整个网络训练的同时产生的 embedding 矩阵(对应 word2vec 中的矩阵 W)，是训练过程中所有输入词汇的词向
+                量组成的矩阵
+
+                词嵌入可视化
+                import torch
+                from torch.utils.tensorboard import SummaryWriter
+                import fileinput
+                with SummaryWriter() as writer:
+                    embedded = torch.randn(100,50)  100 个词汇， 50 维向量
+                    meta = list(map(lambda x: x.split(' '), fileinput.FileInput("./vocab100.csv")))
+                    writer.add_embedding(embedded, metadata=meta)
+
+                tensorboard --logdir runs --host 0.0.0.0
+
+        c. 文本语料的数据分析： 能够帮助理解数据语料，检查语料可能存在的问题，指导之后模型训练工程中一些超参数的选择。
+            i. 标签数量分布 (确保每类数据个数相近，否则需要进行数据增多或者删减)
+                import seaborn as sns
+                plt.style.use('fivethirtyeight')
+                train_data = pd.read_csv('./data/cn_data/train.tsv', sep='\t')
+                sns.countplot('label', data=train_data)
+                plt.show()
+
+            ii. 句子长度分布
+                模型的输入要求固定尺寸的张量，合理的长度范围对之后进行句子截断补齐（规范长度）起到关键指导作用。
+                train_data['sentence_length'] = list(map(lambda x:len(x), train_data['sentence']))
+                sns.countplot('sentence_length', data=train_data)
+                sns.distplot(train_data['sentence_length'])       histogram
+                sns.stripplot(x='sentence_length', y='label', data=train_data) 散点图用于发现异常点
+
+            iii. 词频统计与关键词词云 （可视化出现的词，高频词字体大，可以对当前语料质量进行评估，对违法语料变迁含义的词汇进行人工审核修正）
+                import jieba
+                from itertools import chain    扁平化列表
+                train_p_vocab = set(chain(*map(lambda x: jieba.lcut(x), train_data[train[data['label']==1]['sentence'])))
+                print(train_p_vocab, len(train_vocab))    获得正样本出现过的不重复的词汇
+
+                import jieba.posseg as pseg
+                from wordcloud import WordCloud
+                adj_word = [g.word for g in pseg.lcut(train_p_vocab) if g.flag == 'a']  所有形容词列表
+                    word 属性为切分的词， flag 为词性
+                wordcloud = WordCloud(font_path='simhei.ttf', max_words=100, background_color='white', max_font_size=80)
+                wordcloud.generate(" ".join(adj_word))
+                plt.figure()
+                plt.imshow(wordcloud, interpolation='bilinear')
+                plt.show()
+
+        d. 文本特征处理： 为语料添加具有普适性的文本特征，增加模型评估指标。以及对语料进行必要的处理，如长度规范。
+            i. 添加 n-gram 特征：给定一段文本序列，其中 n 个相邻的词共同出现的独特排列作为特征，大多使用 bigram，trigram。
+                n = 2
+                set(zip(*[input_list[i:] for i in range(n)])   对列表进行错位复制，使用 zip 组合并去重
+
+            ii. 文本长度规范: 一般模型输入需要等尺寸大小的矩阵，因此需要对文本数值映射后的长度进行规范，根据句子长度分布选择覆盖绝大多数文本的
+                合理长度，对超长文本进行截断，对不足文本进行补齐（一般使用数字 0）
+                from keras.preprocessing.sequence import pad_sequences
+                x_train = pad_sequence(x_train, 100)    100 为文本截断长度（设置为覆盖90%左右的语料的最短长度）
+                    超长的文本张量，取最后的 100 个词，不足 100 的文本在前面补 0。
+
+        e. 数据增强方法
+            i. 回译数据增强法: 一般基于谷歌翻译接口，将文本数据翻译成另一种语言（一般选择小语种），之后再翻译回原语言，获得与原语料同标签的新语
+            料，增加到原数据集中认为是对原数据集的数据增强。
+            操作简便，获得新语料质量高。短文本语料回译可能存在较高重复率，并不能增大样本的特征空间，可进行多次连续翻译（不超过3次，否则失真）
+            from googletrans import Translator
+            corpus = ["难吃死了","味道还不错"]
+            translator = Translator()
+            translations = translator.translate(corpus, dest='ko')  翻译成韩文
+            ko_result = [t.text for t in translations]
+            translations = translator.translate(ko_result, dest='zh-cn')   回译成中文
+            corpus_extended = [t.text for t in translations]
+
+    5.2 经典的序列模型
+        a. HMM (Hidden Markov Model) 隐马尔可夫模型，用来描述一个含有隐含未知参数的马尔可夫过程，其目的是根据有限的观察数据，去
+            推测一个隐藏的、未知的或不可观测的参数。一般以文本数据为输入，以该数据的隐含序列（各个单元中存在具有关联的隐性信息组成的序列，例如原
+            数据（观测）序列的词性序列）为输出。用来解决文本序列标注问题，如分词，词性标注，命名实体识别等。
+            HMM 模型表示为 λ = HMM(A,B,π)， A 为状态转移概率矩阵，B 为观测概率矩阵，π 为初始状态概率向量。训练需要观测序列及其对应的隐含序
+            列，通过极大似然估计或贝叶斯估计得到参数，使由观测序列到对应隐含序列的概率最大。为了简化计算，模型使用了隐含假设：隐含序列中的每个单
+            元的可能性只与上一个单元有关。之后，对于输入观测序列 (x1, x2,...,xn)，根据训练得到的A,B,π，计算对应隐含序列的条件概率分布。最后，
+            使用维特比算法从隐含序列的条件概率分布中找出概率最大的一条序列路径，即为该观测序列对应的隐含序列 (y1, y2,...,yn)。
+
+        b. CRF (Conditional Random Field) 条件随机场，一般以文本序列数据为输入，以该序列对应的隐含序列为输出。用来解决文本序列标注问题，
+            如分词，词性标注，命名实体识别等。
+            CRF 模型表示为 λ = CRF(w1,w2,...,wn)。训练需要观测序列及其对应的隐含序列，使用人工特征工程不断训练得到一组参数，使由观测序列到
+            对应隐含序列的概率最大。训练完后，对于输入序列 (x1, x2,...,xn)，根据训练得到的 w1, w2,... 计算对应隐含序列的条件概率分布。最后，
+            使用维特比算法从隐含序列的条件概率分布中找出概率最大的一条序列路径，即为该观测序列对应的隐含序列 (y1, y2,...,yn)。
+            CRF 没有隐马假设，所以计算较慢。但如果实际不满足假设，HMM 准确率大大降低
+
+        近年来，经典模型被深度学习所替代。
+
+    5.3 循环神经网络 RNN（Recurrent Neural Network）
+        循环神经网络：一般以序列数据为输入，通过网络内部的结构设计捕捉序列之间的关系特征，一般输出也是序列。对于第 i 层，隐藏层的输出为：
+        h_t = σ_h (W_h · x_i + U_h · h_t-1 + b_h)，或者表示为 h_t = σ_h (W_t · [x_i, h_t-1] + b_h), 其中 [x_i, h_t-1] 为输入
+        和隐藏矩阵的拼接。 输出层为 y_i = σ_y (W_y · h_i + b_y)。 其中 W, U, b 为可学习的参数。h_0
+        为初始隐藏层，一般为全零向量。 σ_h 一般为 tanh 函数，σ_y 一般为 softmax 函数。损失函数为序列每步损失之和
+        RNN 结构很好利用序列之间的关系，广泛应用连续的输入序列的问题（语言，语音，文本分类，情感分析，机器翻译等），在很短序列中的效果比 LSTM,
+        GRU 好。内部结构简单，计算较快，参数总量少，在短序列（10 以内）任务上表现好。对于长序列，反向传播存在梯度消失（权重无法更新，训练失败），
+        梯度爆炸（结果溢出 NaN），导致效果差。RNN, LSTM, GRU 不能并行计算，训练慢。
+        RNN 模型的分类：
+            按输入和输出结构： N vs N, N vs 1，1 vs N, N vs M (seq2seq, 第一部分编码器没有输出层，最后第 N步 隐藏层输出一个变量 c，
+                作为第二部分解码器输入层的输入作用在每一步，返回一个长度为 M 的序列)
+            按内部构造： 传统RNN， LSTM， Bi-LSTM，GRU，Bi-GRU
+
+        import torch.nn as nn
+        rnn = nn.RNN(5,6,1)    输入张量尺寸，隐藏层尺寸（神经网络节点个数），隐藏层层数
+        input = torch.randn(1,3,5)    输入序列长度，batch_size, 输入张量尺寸
+        h0 = torch.randn(1,3,6)      隐藏层层数（双向 RNN *2），batch_size，隐藏层尺寸
+        output, hn = rnn(input, h0)   返回最后一层输出层和隐藏层的输出值，调用父类 Module __call__ 方法
+        print(output.shape, input.shape)   (1,3,6),(1,3,6)   两个值相等
+
+    5.4 长短时记忆结构 LSTM (Long Short Term Memory)
+        是传统 RNN 的变体，能够有效捕捉长序列之间的语义关联，缓解梯度消失和梯度爆炸（不能完全解决）。结构更复杂，包括遗忘门，输入门，相关（细胞
+        状态）门，和输出门。 其中 x 为输入矩阵，输出 c 为长期记忆输入矩阵，输出 h 为短期记忆输入矩阵（最后阶段作的 h 作为模型输出值），训练参数
+        为 b 偏执，和 W 参数矩阵。⊙ 表示矩阵元素一对一相乘。
+        f_t = σ(W_f · [h_t-1, x_t] + b_f)  遗忘门输出  σ： sigmoid 函数，与长期记忆相乘，决定了其保留比例
+        i_t = σ(W_i · [h_t-1, x_t] + b_i)   输入门输出，决定了细胞中间状态值的保留比例
+        c'_t = tanh(W_c · [h_t-1, x_t] + b_c)               相关（细胞状态）门（取决于短期记忆）
+        c_t = f_t ⊙ c_t-1 + i_t ⊙ c'_t                     长期记忆，没有和权重相乘导致的长序列梯度消失爆炸问题
+        o_t = σ(W_o · [h_t-1, x_t] + b_o)                 输出门
+        h_t = o_t ⊙ tanh(c_t)                             输出 (新的短期记忆)
+
+        Bi-LSTM： 双向LSTM，不改变内部结构只是将输入序列复制一份，分别做正向和反向计算，最后将两个（对应同一输入序列步数据的）输出拼接在一起作
+            为输出。能捕捉到语言语法中定的前置后置特征，增强语义关联，但复杂度增加一倍。
+
+        import torch.nn as nn
+        lstm = nn.LSTM(5,6,2)    输入张量尺寸，隐藏层尺寸（神经网络节点个数），隐藏层层数
+        input = torch.randn(1,3,5)    输入序列长度，batch_size, 输入张量尺寸
+        h0, c0 = torch.randn(2,3,6), torch.randn(2,3,6)      隐藏层层数（双向 RNN *2），batch_size，隐藏层尺寸
+        output, (hn,cn) = lstm(input, (h0,c0))   返回最后一层输出和 短期,长期记忆输出值
+        print(output.shape, hn.shape,cn.shape)   (1,3,6), (2,3,6), (2,3,6)  output 与 hn[1] 相等
+
+    5.5 GRU（Gated Recurrent Unit）
+        门控循环单元，是传统 RNN 的变体， LSTM 简化版，结构较简单，也能有效捕捉长序列之间的语义关联。结构包括更新门和重置门。其中 x 为输入矩阵,
+        输出 h 为短期记忆输出矩阵
+        z_t = σ(W_z · [h_t-1, x_t] + b_z)               更新门（决定当前时刻的短期记忆是否更新）
+        r_t = σ(W_r · [h_t-1, x_t] + b_r)               重置门（决定长期记忆是否更新）
+        h'_t = tanh(W_h · [r_t ⊙ h_t-1, x_t] + b_h)
+        h_t = (1 - z_t) ⊙ h_t-1 + z_t ⊙ h'_t             输出
+
+        Bi-GRU： 双向 GRU, 原理同 Bi-LSTM
+
+        import torch.nn as nn
+        gru = nn.GRU(5,6,2)    输入张量尺寸，隐藏层尺寸（神经网络节点个数），隐藏层层数
+        input = torch.randn(1,3,5)    输入序列长度，batch_size, 输入张量尺寸
+        h0 = torch.randn(2,3,6)   隐藏层层数（双向 RNN *2），batch_size，隐藏层尺寸
+        output, hn = gru(input, h0)   返回最后一层输出和 短期,长期记忆输出值
+        print(output.shape, hn.shape)   (1,3,6), (2,3,6)  output 与 hn[1] 相等
+
+    5.6 注意力机制
+        注意力机制，是自然语言处理中一种重要的信息处理方式，其核心思想是让模型更加关注输入序列中与当前任务相关的部分。是注意力计算规则应用的深度
+        学习网络的载体。包括全连接层和相关张量处理，使其与应用的网络融为一体。在 NLP 中，大多使用 seq2seq 架构（编码器解码器），注意力机制使
+        解码器每一步输出时都可以查看编码器所有步的输出，并计算权重使编码器某些输出更重要。解决了编码器单个输出无法涵盖序列所有信息的问题。
+        在编码器中，注意力机制解决表征问题，相当于特征提取过程，一般使用自注意力（self-attention）在解码器中，注意力机制能根据模型目标有效的聚
+        焦编码器的输出结果作为输入，提升解码器的效果。改善以往编码器输出是定长张量，无法存储过多信息的。
+        注意力机制解决 seq2seq 序列过长导致学习不到开头内容，但是计算相关性复杂度 O(mn)， m,n 为编码器，解码器序列长度，需要极大算力。
+
+        注意力计算规则： 对于输入 Q(query, 序列), K(key 关键词), V(value), 计算 Q 与 K 的相似度，相似度越高，V 越有可能被选中，结果代表
+            query 在 key 和 value 作用下的注意力表示。当 Q=K=V，时，称作自注意力计算规则。
+        常用规则：（相关性计算）
+            Attention(Q,K,V) = Softmax(Linear([Q,K]))·V      [Q,K] 为两个张量纵轴拼接，最常用
+            Attention(Q,K,V) = Softmax(sum(tanh(Linear([Q,K]))))·V    Q： h   K: s
+            Attention(Q,K,V) = softmax(Q·K^T/sqrt(d_k))·V       d_k 为 k 最后一维的大小
+
+        例如， 模式 a: Q 为解码器隐藏层, K 编码器隐藏层, V 编码器隐藏层 (先调用 RNN,再 Attention )
+             模式 b:  Q 为解码器(embedded)输入, K 解码器器隐藏层, V 编码器隐藏层 (先调用 Attention ,再 RNN)
+        step 1: 源语句 < s > i am fat < e > 输入 Encoder 进行编码，每一步都得到对应输出 encoder outputs（图中浅蓝色长条）；
+        step 2a: 进入解码阶段，首步输入 < s >，得到相应表征 hidden state（图中的黄色长条）；
+        step 2b: 进入解码阶段，首步输入 Embedded 后的 < s >
+        step 3a: 将 hidden state 分别与 encoder outputs 进行内积计算，并通过 softmax 转换为概率形式，这里称为 weights，此概率代表了 hidden state 与各 encoder outputs 间的相关程度；
+        step 3b: 将 < s > 分别与 hidden state 进行内积计算，并通过 softmax 转换为概率形式，这里称为 weights，此概率代表了  < s > 与各 hidden state 间的相关程度；
+        step 4: 将 weights 分别与 encoder outputs 相乘再相加，得到加权相加后的向量表征（图中的绿色长条），称为 weighted context;
+        step 5a: 将 weighted context(如果不是第三种规则，则需要与 hidden state 拼接)，得到词典大小的维度，softmax 预测下一个单词；
+        step 5b: 将 weighted context(如果不是第三种规则，则需要与 < s >  拼接)，全连接映射到 < s > 大小，作为输入传入 RNN， softmax 预测下一个单词；
+        step 6: 将下一个单词输入解码单元，重复 step 2-step 5，直至达到最长长度或者预测出终止符 < e > 。
+
+        当注意力权重矩阵和 V 都是三维张量且第一维代表 batch_size 时，则做 bmm 运算（特殊的张量乘法）
+        a,b = torch.randn(10,3,4), torch.randn(10,4,5)
+        torch.bmm(a,b)     返回形状 (10,3,5)，后两维进行矩阵乘法
+
+        # Attention(Q,K,V) = Softmax(Linear([Q,K]))·V
+        import torch.nn.functional as F
+        class Attn(nn.Module):
+            def __init__(self, query_size, key_size, value_size1,value_size2, output_size):
+                # query_size: query 最后一维大小， key_size： key 最后一维大小,   value_size1: value 倒数第二维大小,
+                # value_size2: value 最后一维大小， output_size: 输出最后一维大小
+                super(Attn, self).__init__()
+                self.query_size = query_size
+                self.key_size = key_size
+                self.value_size1 = value_size1
+                self.value_size2 = value_size2
+                self.output_size = output_size
+
+                self.attn = nn.Linear(self.query_size + self.key_size, self.value_size1)
+                self.attn_combine = nn.Linear(self.query_size + self.value_size2, self.output_size)
+
+            def forward(self, Q, K, V):
+                attn_weights = F.softmax(self.attn(torch.cat((Q[0],K[0]),1), dim=1)  将 Q,K 纵轴拼接，经过线性变化和softmax
+                attn_applied = torch.bmm(attn_weights.unsqueeze(0), V)
+                output = torch.cat((Q[0], attn_applied[0]), 1)     如果是第三种点积，使用自注意力，则不需要与 Q 拼接
+                output = self.attn_combine(output).unsqueeze(0)   经过线性变化，改变尺寸。输出需要三维张量
+                return output, attn_weights
+
+        attn = Attn(32,32,32,64,64)
+        output = attn(torch.randn(1,1,32),torch.randn(1,1,32),torch.randn(1,32,64))    返回 (1,1,64)  (1,32) 矩阵
+
+    5.7 teacher_forcing
+        是一种用于序列生成任务的训练技巧，改变上一步出错的情况，因为训练时我们是已知正确的输出应该是什么，因此可以强制将上一步结果设置成正确的输
+        出，防止使用错误结果作为输入的一部分导致错误累积。能够在训练的时候矫正模型的预测（避免误差进一步放大），加快模型的收敛速度。
+        按一定比列，更新错误预测为标签值。
+
+    5.8 transformer （一种特殊的 注意力机制模型）
+        基于 seq2seq 架构，可以完成 NLP 典型任务（翻译，文本生成），还可以预训练迁移学习需要的模型。
+        BERT 底层基石， Transformer 能够实现 GPU 分布式并行训练模，能很好捕捉长间隔的语义关联。
+        对于翻译任务，文本嵌入层 （Embedding 层）产生的张量（词嵌入张量），其最后一维为词向量。
+
+        a. transformer 架构
+            输入部分包含：原文本嵌入层及其位置编码器（编码器输入），和译文文本嵌入层及其位置编码器（解码器输入）
+            输出部分：解码器后的线性层和 softmax 层，得到输出概率
+            编码器部分： 由 N 个编码器堆叠而成。其中单个编码器对于输入进行以下操作： 第一子层以输入部分作为输入，包含一个多头自注意力层（和规范化层，
+                以及一个残差连接；第二子层以第一子层输出为输入，包含一个前馈全连接层和规范化层，以及一个残差连接。
+            解码器部分： 由 N 个解码器堆叠而成。其中单个解码器对于输入进行以下操作： 第一子层以输入部分作为输入包含一个加入掩码的多头自注意力层和规
+                范化层，以及一个残差连接；第二子层以第一子层输和出编码器输出为输入，包含一个多头注意力层和规范化层，以及一个残差连接；第三子层以第
+                二子层输出为输入，包含一个前馈全连接层和规范化层，以及一个残差连接。
+
+        b. 输入部分实现
+            i. 文本嵌入层将文本中词汇的数字表示转变为高维空间的向量表示，利于捕捉词汇间的关系。输入 word2index 已经数字化的词序列
+                from torch.autograd import Variable
+                class Embeddings(nn.Module):    输入三维 batch_size，序列长度，词对应数字表示
+                    def __init__(self, d_model, vocab):
+                        # d_model 词嵌入维度， vocab 词表大小， padding_idx=0 对于输入序列长度补全默认，对应词嵌入中第 0 维对应全 0 输出
+                        super(Embeddings, self).__init__()
+                        self.lut = nn.Embedding(vocab, d_model)
+                        self.d_model = d_model
+
+                    def forward(self, x):   返回形状 (input.shape[0](batch_size), input.shape[1] 序列长度，词嵌入维度) 的词嵌入的张量
+                        return self.lut(x) * math.sqrt(self.d_model)    嵌入结果经过缩放
+
+                emb = nn.Embeddings(10,1000)
+                emb_res = emb(Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))))     结果形状 (2，4,10)
+
+            ii. 位置编码器： 将词汇位置不同可能产生不同语义的信息加入到词嵌入张量中，作为位置信息。
+                class PositionalEncoding(nn.Module):
+                    def __init__(self, d_model, dropout, max_len=5000):
+                        # d_model: 词嵌入维度, dropout: 置0比率, max_len: 每个句子的最大长度
+                        super(PositionalEncoding, self).__init__()
+                        self.dropout = nn.Dropout(p=dropout)
+                        pe = torch.zeros(max_len, d_model)    # 初始化一个位置编码矩阵 (max_len x d_model)
+                        position = torch.arange(0, max_len).unsqueeze(1)  # 初始化一个形状 max_len x 1 绝对位置矩阵 (词在序列中索引)
+                        div_term = torch.exp(torch.arange(0, d_model, 2) * -(math.log(10000.0) / d_model))
+                            # 位置矩阵赋值为变化矩阵 div_term （形状 1xd_model）与绝对位置相乘（变换形状），来添加位置信息。同时缩小位置
+                            # 矩阵的值方便训练收敛，使用正弦余弦（求导快）确保了在不同位置对应嵌入向量发生变化，可以求梯度。
+                        pe[:, 0::2] = torch.sin(position * div_term)   偶数位置
+                        pe[:, 1::2] = torch.cos(position * div_term)   奇数位置
+                        pe = pe.unsqueeze(0)
+                        self.register_buffer('pe', pe)  # 注册之后可以在模型保存后重加载时和模型结构与参数一同被加载这个固定值.
+
+                    def forward(self, x):
+                        x = x + Variable(self.pe[:, :x.size(1)],requires_grad=False)   # 一个维度裁切到实际句子长度，pe 不需要更新
+                        return self.dropout(x)
+
+                d_model, dropout, max_len = 512, 0.1, 60
+                pe = PositionalEncoding(d_model, dropout, max_len)
+                pe_res = pe(emb_res)
+
+                可视化。每条（正弦/余弦）曲线（范围[-1,1]）代表一个词汇的特征在不同位置的含义，
+                    plt.figure(figsize=(15, 5))
+                    pe = PositionalEncoding(20, 0)
+                    y = pe(Variable(torch.zeros(1, 100, 20)))
+                    plt.plot(np.arange(100), y[0, :, 4:8].data.numpy())  查看特征 4-8
+                    plt.legend(["dim %d"%p for p in [4,5,6,7]])
+
+        c. 编码器部分实现
+            i. 掩码张量
+                张量中一般只有 0 或 1 元素， 代表位置是否被遮掩，作用再其他张量使其一些元素被遮掩。在 Transformer 中作用是遮掩文本嵌入层
+                张量中当前序列步之后的一些未来的信息，此处 1 为遮掩。
+                def subsequent_mask(size):
+                     # size是掩码张量最后两个维度的大小（相同）
+                    attn_shape = (1, size, size)
+                    subsequent_mask = np.triu(np.ones(attn_shape), k=1).astype('uint8')  形成上三角阵数值为 1 矩阵，
+                        # k=1 从主对角线向上平移1个格，开始保留数据，下方清零
+                    return torch.from_numpy(1 - subsequent_mask)   反转为包含主对角线的下三角阵
+                plt.imshow(subsequent_mask(20)[0])
+
+            ii. 注意力机制
+                使用第三种注意力计算规则：Attention(Q,K,V) = softmax(Q·K^T/sqrt(d_k))·V。
+                query 理解为文本， key 理解为关键词， value 理解为文本对应的答案。最初 value 类似 key，训练之后 value 发生变化，更能通
+                过关键词查询文本。默认 key = value, query 不同。当 query = key = value 时为自注意力机制，从文本自身提取关键词，相当于
+                使用特征提取。
+                def attention(query, key, value, mask=None, dropout=None):
+                    # mask 掩码张量, dropout nn.Dropout层的实例化对象
+                    d_k = query.size(-1)   # 最后一维，词嵌入维度
+                    scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)   # key最后维度是词嵌入
+
+                    if mask is not None:
+                        scores = scores.masked_fill(mask == 0, -1e9)    如果 mask 对应位置为 0，则 score 对应位置的值变为 -1e9
+
+                    p_attn = F.softmax(scores, dim = -1)
+
+                    if dropout is not None:
+                        # 将p_attn传入dropout对象中进行'丢弃'处理
+                        p_attn = dropout(p_attn)
+                    return torch.matmul(p_attn, value), p_attn
+
+                query = key = value = pe_res
+                attn, p_attn = attention(query, key, value)   返回注意力张量，注意力表示
+
+            iii. 多头注意力机制
+
+        d. 解码器部分实现
+
+
+        e. 输出部分实现
+
+        f. 模型构建
+
+        g. 模型测试运行
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+    # 词嵌入练习
+    from torchtext.datasets import text_classification
+    import torch.nn as nn
+    import torch.nn.functional as F
+    from torch.utils.data import DataLoader
+    from torch.utils.data.dataset import random_split
+
+    train_dataset, test_dataset = text_classification.DATASETS['AG_NEWS'](root='./data')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    BATCH_SIZE = 16
+    VOCAB_SIZE = len(train_dataset.get_vocab())
+    EMBED_DIM = 32
+    NUM_CLASS = len(train_dataset.get_labels())
+    N_EPOCHS = 20
+
+    train_len = int(len(train_dataset) * 0.8)
+    sub_train_, sub_valid_ = random_split(train_dataset, [train_len, len(train_dataset) - train_len])  随机划分训练，验证集
+
+    class TextSentiment(nn.Module):
+        def __init__(self, vocab_size, embed_dim, num_class):
+            super().__init__()
+            self.embedding = nn.Embedding(vocab_size, embed_dim, sparse=True)   sparse 代表只更新部分权重
+            self.fc = nn.Linear(embed_dim, num_class)
+            self.init_weights()
+
+        def init_weights(self):
+            initrange = 0.5
+            self.embedding.weight.data.uniform_(-initrange, initrange)
+            self.fc.weight.data.uniform_(-initrange, initrange)
+            self.fc.bias.data.zero_()
+
+        def forward(self, text):
+            embedded = self.embedding(text, offsets)  返回 （词汇总数 ,词向量尺寸） 矩阵
+            s = embedded.size(0) // batch_size        # embedded.size(0) 为数据中词汇总数
+            embedded = embedded[:BATCH_SIZE * s]     获取前 BATCH_SIZE * s 行
+            embedded = embedded.transpose(1,0).unsqueeze(0)   返回（1, 词向量尺寸, BATCH_SIZE * s） 矩阵，平均池化需要 3 维输入
+            embedded = F.avg_pool1d(embedded, kernel_size=s)  一维平均池化作用于最后一个维度，返回 （1，词向量尺寸, BATCH_SIZE ）
+            return self.fc(embedded[0].transpose(1,0))    返回 （BATCH_SIZE，词向量维度） 矩阵
+
+    model = TextSentiment(VOCAB_SIZE, EMBED_DIM, NUM_CLASS).to(device)
+    criterion = torch.nn.CrossEntropyLoss().to(device)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.9)    步长学习率衰减优化器
+
+    def generate_batch(batch):    batch: [(sample1, label1), (sample2, label2), ...]
+        label = torch.tensor([entry[1] for entry in batch])
+        text = [entry[0] for entry in batch]
+        text = torch.cat(text)   对 sample 张量进行拼接
+        return text, label    返回张量 [*sample1,*sample2,...], [label1,label2,...]
+
+    def train(train_data):
+        train_loss, train_acc = 0,0
+        data = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True. collate_fn=generate_batch)
+        for i, (text,cls) in enumerate(data):
+            optimizer.zero_grad()
+            output = model(text)
+            loss = criterion(predictions, batch.label)
+            loss.backward()
+            optimizer.step()
+            train_acc += (output.argmax(1) == cls).sum().item()
+        scheduler.step()
+        return train_loss / len(data), train_acc / len(data)
+
+    def valid(valid_data):
+        valid_loss, valid_acc= 0, 0
+        data = DataLoader(valid_data, batch_size=BATCH_SIZE, collate_fn=generate_batch)
+        for text, cls in data:
+            with torch.no_grad():      验证阶段,模型的参数不求梯度
+                output = model(text)    对 text 求 embedding 后张量
+                try:
+                    loss = criterion(output, cls)
+                except:
+                    continue
+                valid_loss += loss.item()
+                valid_acc += (output.argmax(1) == cls).sum().item()
+        return valid_loss / len(valid_data), valid_acc / len(valid_data)
+
+
+    for epoch in range(N_EPOCHS):
+        start_time = time.time()
+        train_loss, train_acc = train(sub_train_)
+        valid_loss, valid_acc = valid(sub_valid_)
+
+        secs = int(time.time() - start_time)
+        mins, secs = secs / 60, secs % 60
+        print('Epoch: %d' % (epoch + 1), " | time in %d minites, %d seconds" % (mins, secs))
+        print(f'\tLoss: {train_loss:.4f}(train)\t|\tAcc: {train_acc * 100:.1f}%(train)')
+        print(f'\tLoss: {valid_loss:.4f}(valid)\t|\tAcc: {valid_acc * 100:.1f}%(valid)')
+
+    print(model.state_dict()['embedding.weight'])  词嵌入（BATCH_SIZE，词向量维度） 矩阵
+    torch.save(model.state_dict(), MODEL_PATH)
+    # model.load_state_dict(torch.load(MODEL_PATH))
+
+
+
+    # RNN, LSTM, GRU  输入人名，预测国家
+    import glob
+    import string
+    import unicodedata
+    from io import open
+
+    all_letters = string.ascii_letters + " .,;'"
+    n_letters = len(all_letters)
+    data_path = "./data/name/"
+
+    def unicodeToAscii(s):    # 去除重音标记
+        return ''.join(c for c in unicodedata.normalize('NFD', s)
+            if unicodedata.category(c) != 'Mn' and c in all_letters)
+
+    def readLines(filename):  # 读取文件，返回字符串列表
+        lines = open(filename, encoding='utf-8').read().strip().split('\n')
+        return [unicodeToAscii(line) for line in lines]
+
+    category_lines, all_categories = {}, []
+    for filename in glob.glob(data_path + '*.txt'):
+        category = os.path.splitext(os.path.basename(filename))[0]
+        all_categories.append(category)
+        lines = readLines(filename)
+        category_lines[category] = lines
+
+    def lineToTensor(line):
+        tensor = torch.zeros(len(line), 1, n_letters)
+        for li, letter in enumerate(line):
+            tensor[li][0][all_letters.find(letter)] = 1
+        return tensor
+
+    class RNN(nn.Module):
+        def __init__(self, input_size, hidden_size, output_size, num_layers=1):
+            # RNN输入最后一维尺寸, RNN的隐层最后一维尺寸, RNN层数
+            super(RNN, self).__init__()
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.rnn = nn.RNN(input_size, hidden_size, num_layers)
+            self.linear = nn.Linear(hidden_size, output_size)
+            self.softmax = nn.LogSoftmax(dim=-1)
+
+        def forward(self, input, hidden):
+            # input 形状是 1 x n_letter, shidden 隐层张量形状 self.num_layers x 1 x self.hidden_size
+            input = input.unsqueeze(0)     #RNN要求输入维度一定是三维张量
+            rr, hn = self.rnn(input, hidden)
+            return self.softmax(self.linear(rr)), hn
+
+
+        def initHidden(self):
+            return torch.zeros(self.num_layers, 1, self.hidden_size)
+
+    class LSTM(nn.Module):
+        def __init__(self, input_size, hidden_size, output_size, num_layers=1):
+            super(LSTM, self).__init__()
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.lstm = nn.LSTM(input_size, hidden_size, num_layers)
+            self.linear = nn.Linear(hidden_size, output_size)
+            self.softmax = nn.LogSoftmax(dim=-1)
+
+
+        def forward(self, input, hidden, c):
+            input = input.unsqueeze(0)
+            rr, (hn, c) = self.lstm(input, (hidden, c))
+            return self.softmax(self.linear(rr)), hn, c
+
+        def initHiddenAndC(self):
+            c = hidden = torch.zeros(self.num_layers, 1, self.hidden_size)
+            return hidden, c
+
+    class GRU(nn.Module):
+        def __init__(self, input_size, hidden_size, output_size, num_layers=1):
+            super(GRU, self).__init__()
+            self.hidden_size = hidden_size
+            self.num_layers = num_layers
+            self.gru = nn.GRU(input_size, hidden_size, num_layers)
+            self.linear = nn.Linear(hidden_size, output_size)
+            self.softmax = nn.LogSoftmax(dim=-1)
+
+        def forward(self, input, hidden):
+            input = input.unsqueeze(0)
+            rr, hn = self.gru(input, hidden)
+            return self.softmax(self.linear(rr)), hn
+
+        def initHidden(self):
+            return torch.zeros(self.num_layers, 1, self.hidden_size)
+
+    def timeSince(since):
+        now = time.time()
+        s = now - since
+        m = math.floor(s / 60)
+        s -= m * 60
+        return '%dm %ds' % (m, s)
+
+    def categoryFromOutput(output):
+        top_v, top_i = output.topk(1)  # 返回值，索引
+        category_i = top_i[0].item()
+        return all_categories[category_i], category_i
+
+    def randomTrainingExample():
+        category = random.choice(all_categories)
+        line = random.choice(category_lines[category])
+        category_tensor = torch.tensor([all_categories.index(category)], dtype=torch.long)
+        line_tensor = lineToTensor(line)
+        return category, line, category_tensor, line_tensor
+
+    def trainRNN(category_tensor, line_tensor):
+        # category_tensor类别标签, line_tensor 名字训练数据
+        hidden = rnn.initHidden()
+        rnn.zero_grad()
+        for i in range(line_tensor.size()[0]):
+            output, hidden = rnn(line_tensor[i], hidden)
+        loss = criterion(output.squeeze(0), category_tensor)
+        loss.backward()
+        for p in rnn.parameters():
+            p.data.add_(-learning_rate, p.grad.data)
+        return output, loss.item()
+
+    def trainLSTM(category_tensor, line_tensor):
+        hidden, c = lstm.initHiddenAndC()
+        lstm.zero_grad()
+        for i in range(line_tensor.size()[0]):
+            output, hidden, c = lstm(line_tensor[i], hidden, c)
+        loss = criterion(output.squeeze(0), category_tensor)
+        loss.backward()
+        for p in lstm.parameters():
+            p.data.add_(-learning_rate, p.grad.data)
+        return output, loss.item()
+
+    def trainGRU(category_tensor, line_tensor):
+        hidden = gru.initHidden()
+        gru.zero_grad()
+        for i in range(line_tensor.size()[0]):
+            output, hidden= gru(line_tensor[i], hidden)
+        loss = criterion(output.squeeze(0), category_tensor)
+        loss.backward()
+        for p in gru.parameters():
+            p.data.add_(-learning_rate, p.grad.data)
+        return output, loss.item()
+
+    def evaluateRNN(line_tensor):
+        hidden = rnn.initHidden()
+        for i in range(line_tensor.size()[0]):
+            output, hidden = rnn(line_tensor[i], hidden)
+        return output.squeeze(0)
+
+    def evaluateRNN(line_tensor):
+        hidden = rnn.initHidden()
+        for i in range(line_tensor.size()[0]):
+            output, hidden = rnn(line_tensor[i], hidden)
+        return output.squeeze(0)
+
+    def evaluateGRU(line_tensor):
+        hidden = gru.initHidden()
+        for i in range(line_tensor.size()[0]):
+            output, hidden = gru(line_tensor[i], hidden)
+        return output.squeeze(0)
+
+    input_size = n_letters
+    n_hidden = 128
+    output_size = n_categories
+    input = lineToTensor('B').squeeze(0)    # 假设一个字母B作为RNN的首次输入
+    hidden = c = torch.zeros(1, 1, n_hidden)
+    rnn = RNN(n_letters, n_hidden, n_categories)
+    lstm = LSTM(n_letters, n_hidden, n_categories)
+    gru = GRU(n_letters, n_hidden, n_categories)
+    rnn_output, next_hidden = rnn(input, hidden)
+    lstm_output, next_hidden, c = lstm(input, hidden, c)
+    gru_output, next_hidden = gru(input, hidden)
+    print(categoryFromOutput(gru_output))
+
+
+    criterion = nn.NLLLoss()
+    learning_rate = 0.005
+    n_iters = 1000
+    print_every = 50
+    plot_every = 10
+
+    def train(train_type_fn):    # train_type_fn 模型训练函数
+        all_losses = []
+        start = time.time()
+        current_loss = 0
+        for iter in range(1, n_iters + 1):
+            category, line, category_tensor, line_tensor = randomTrainingExample()
+            output, loss = train_type_fn(category_tensor, line_tensor)
+            current_loss += loss
+            if iter % print_every == 0:
+                guess, guess_i = categoryFromOutput(output)
+                correct = '✓' if guess == category else '✗ (%s)' % category
+                print('%d %d%% (%s) %.4f %s / %s %s' % (iter, iter / n_iters * 100, timeSince(start), loss, line, guess, correct))
+
+            if iter % plot_every == 0:
+                all_losses.append(current_loss / plot_every)
+                current_loss = 0
+        return all_losses, int(time.time() - start)
+
+    def predict(input_line, evaluate, n_predictions=3):
+        # evaluate 评估函数  n_predictions 最有可能的 top个
+        with torch.no_grad():
+            output = evaluate(lineToTensor(input_line))
+            topv, topi = output.topk(n_predictions, 1, True)
+            predictions = []
+            for i in range(n_predictions):
+                value = topv[0][i].item()
+                category_index = topi[0][i].item()
+                print('(%.2f) %s' % (value, all_categories[category_index]))
+                predictions.append([value, all_categories[category_index]])
+
+    all_losses1, period1 = train(trainRNN)
+    all_losses2, period2 = train(trainLSTM)
+    all_losses3, period3 = train(trainGRU)
+
+    plt.figure(0)
+    plt.plot(all_losses1, label="RNN")
+    plt.plot(all_losses2, color="red", label="LSTM")
+    plt.plot(all_losses3, color="orange", label="GRU")
+    plt.legend(loc='upper left')
+
+    plt.figure(1)
+    x_data=["RNN", "LSTM", "GRU"]
+    y_data = [period1, period2, period3]
+    plt.bar(range(len(x_data)), y_data, tick_label=x_data)
+
+    line_tensor = lineToTensor("Bai")
+    rnn_output = evaluateRNN(line_tensor)
+
+    for evaluate_fn in [evaluateRNN, evaluateLSTM, evaluateGRU]:
+        predict('Dovesky', evaluate_fn)
+        predict('Jackson', evaluate_fn)
+        predict('Satoshi', evaluate_fn)
+
+
+    # seq2seq Attention 英译法
+    from io import open
+    import unicodedata
+    import re
+    import random
+    import torch
+    import torch.nn as nn
+    import torch.nn.functional as F
+    from torch import optim
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    SOS_token = 0    # 起始标志
+    EOS_token = 1     # 结束标志
+
+    class Lang:
+        def __init__(self, name):     # name 语言的名
+            self.name = name
+            self.word2index = {}  # 初始化词汇对应自然数值的字典
+            self.index2word = {0: "SOS", 1: "EOS"}
+            self.n_words = 2
+
+        def addWord(self, word):
+            if word not in self.word2index:
+                self.word2index[word] = self.n_words
+                self.index2word[self.n_words] = word
+                self.n_words += 1
+
+        def addSentence(self, sentence):
+            for word in sentence.split(' '):
+                self.addWord(word)
+
+def unicodeToAscii(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s) if unicodedata.category(c) != 'Mn')
+
+def normalizeString(s):
+    s = unicodeToAscii(s.lower().strip())
+    s = re.sub(r"([.!?])", r" \1", s)      # 在.!?前加一个空格
+    s = re.sub(r"[^a-zA-Z.!?]+", r" ", s)
+    return s
+
+data_path = '../Downloads/data/eng-fra.txt'
+
+def readLangs(lang1, lang2):   # lang1是源语言的名字, 参数lang2是目标语言的名字
+    lines = open(data_path, encoding='utf-8').read().strip().split('\n')
+    pairs = [[normalizeString(s) for s in l.split('\t')] for l in lines]
+    input_lang = Lang(lang1)
+    output_lang = Lang(lang2)
+    return input_lang, output_lang, pairs
+
+
+MAX_LENGTH = 10   # 设置组成句子中单词或标点的最多个数
+eng_prefixes = (   # 选择带有指定前缀的语言特征数据作为训练数据
+    "i am ", "i m ",
+    "he is", "he s ",
+    "she is", "she s ",
+    "you are", "you re ",
+    "we are", "we re ",
+    "they are", "they re "
+)
+
+def filterPair(p):      # p代表输入的语言对
+    return len(p[0].split(' ')) < MAX_LENGTH and p[0].startswith(eng_prefixes) and len(p[1].split(' ')) < MAX_LENGTH
+
+def filterPairs(pairs):
+    return [pair for pair in pairs if filterPair(pair)]
+
+def prepareData(lang1, lang2):
+    input_lang, output_lang, pairs = readLangs(lang1, lang2)
+    pairs = filterPairs(pairs)
+    for pair in pairs:
+        input_lang.addSentence(pair[0])
+        output_lang.addSentence(pair[1])
+    return input_lang, output_lang, pairs
+
+input_lang, output_lang, pairs = prepareData('eng', 'fra')
+
+def tensorFromSentence(lang, sentence):
+    indexes = [lang.word2index[word] for word in sentence.split(' ')]
+    indexes.append(EOS_token)
+    return torch.tensor(indexes, dtype=torch.long, device=device).view(-1, 1)
+
+def tensorsFromPair(pair):
+    input_tensor = tensorFromSentence(input_lang, pair[0])
+    target_tensor = tensorFromSentence(output_lang, pair[1])
+    return (input_tensor, target_tensor)
+
+import time
+import math
+
+def timeSince(since):
+    now = time.time()
+    s = now - since
+    m = math.floor(s / 60)
+    s -= m * 60
+    return '%dm %ds' % (m, s)
+
+class EncoderRNN(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        # input_size 解码器的输入尺寸即源语言的词表大小，hidden_size代表GRU的隐层节点数, 也代表词嵌入维度, 同时又是GRU的输入尺寸
+        super(EncoderRNN, self).__init__()
+        self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(input_size, hidden_size)
+        self.gru = nn.GRU(hidden_size, hidden_size)
+        # self.dropout = nn.Dropout(dropout_p)
+    def forward(self, input, hidden):
+        # input代表源语言的Embedding层输入张量 hidden代表编码器层gru的初始隐层张量
+        output = self.embedding(input).view(1, 1, -1)     #尺寸是[1, embedding]
+        # output  = self.dropout(output)
+        output, hidden = self.gru(output, hidden)
+        return output, hidden
+
+    def initHidden(self):
+        return torch.zeros(1, 1, self.hidden_size, device=device)
+
+class DecoderRNN(nn.Module):
+    def __init__(self, hidden_size, output_size):
+        # hidden_size 解码器中GRU隐层节点数， output_size 解码器输出尺寸, 目标语言的词表大小
+        super(DecoderRNN, self).__init__()
+        self.hidden_size = hidden_size
+        self.embedding = nn.Embedding(output_size, hidden_size)
+        self.gru = nn.GRU(hidden_size, hidden_size)
+        self.out = nn.Linear(hidden_size, output_size)
+        self.softmax = nn.LogSoftmax(dim=1)
+
+
+    def forward(self, input, hidden):
+        # input 目标语言的 Embedding 层输入张量， hidden 解码器 GRU 隐层张量
+        output = self.embedding(input).view(1, 1, -1)
+        output = F.relu(output)
+        output, hidden = self.gru(output, hidden)
+        output = self.softmax(self.out(output[0]))
+        return output, hidden
+
+    def initHidden(self):
+        return torch.zeros(1, 1, self.hidden_size, device=device)
+
+# 模式 a
+class AttnDecoderRNN(nn.Module):
+    def __init__(self, hidden_size, output_size, dropout_p=0.1, max_length=MAX_LENGTH):
+        # hidden_size 解码器中GRU的输入尺寸，隐层节点数   output_size 解码器的输出尺寸, 目标语言的词表大小
+           # dropout_p 置零比率, max_length代表句子的最大长度
+        super(AttnDecoderRNN, self).__init__()
+        self.hidden_size = hidden_size
+        self.output_size = output_size
+        self.dropout_p = dropout_p
+        self.max_length = max_length
+
+        self.embedding = nn.Embedding(self.output_size, self.hidden_size)
+        self.attn = nn.Linear(self.hidden_size * 2, self.max_length)
+        self.attn_combine = nn.Linear(self.hidden_size * 2, self.hidden_size)
+        self.dropout = nn.Dropout(self.dropout_p)
+        self.gru = nn.GRU(self.hidden_size, self.hidden_size)
+
+    def forward(self, input, hidden, encoder_outputs):
+        # 源数据输入张量, 初始的隐层张量, 以及解码器的输出张量
+        embedded = self.embedding(input).view(1, 1, -1)
+        embedded = self.dropout(embedded)
+
+        # 进行attention的权重计算, 哦我们呢使用第一种计算方式：
+        attn_weights = F.softmax(self.attn(torch.cat((hidden[0],encoder_outputs), 1)), dim=1)
+        # 然后进行第一步的后半部分, 将得到的权重矩阵与V做矩阵乘法计算, 当二者都是三维张量且第一维代表为batch条数时, 则做bmm运算
+        context_vector = torch.bmm(attn_weights.unsqueeze(0), encoder_outputs.unsqueeze(0))
+        # 之后进行第二步, 通过取[0]是用来降维, 根据第一步采用的计算方法, 需要将Q与第一步的计算结果再进行拼接
+        output = torch.cat((embedded[0], context_vector[0]), 1)
+        # 最后是第三步, 使用线性层作用在第三步的结果上做一个线性变换并扩展维度，得到输出
+        output = self.attn_combine(output).unsqueeze(0)
+        output = F.relu(output)
+        output, hidden = self.gru(output, hidden)
+        output = F.log_softmax(self.out(output[0]), dim=1)
+        return output, hidden, attn_weights
+
+    def initHidden(self):
+        return torch.zeros(1, 1, self.hidden_size, device=device)
+
+# 模式 b
+class AttnDecoderRNN(nn.Module):
+    def __init__(self, hidden_size, output_size):
+        super(AttnDecoderRNN, self).__init__()
+        self.hidden_size = hidden_size  # 隐层大小
+        self.output_size = output_size  # 输出层大小，实际上为目标语言的词典大小
+        self.embedding = nn.Embedding(
+            self.output_size, self.hidden_size)  # 词向量层
+        self.gru = nn.GRU(self.hidden_size, self.hidden_size)  # GRU 层
+        self.out = nn.Linear(self.hidden_size*2, self.output_size)  # 输出层
+
+    def forward(self, input, hidden, encoder_outputs):
+        embedded = self.embedding(input).view(1, 1, -1)
+        embedded = F.relu(embedded)  # 激活函数 Relu
+        output, hidden = self.gru(embedded, hidden)
+
+        attn_weights = F.softmax(torch.bmm(encoder_outputs.unsqueeze(
+            0), hidden.view(1, self.hidden_size, -1)), dim=1)
+        weighted_context = torch.matmul(
+            attn_weights.squeeze(2), encoder_outputs)
+        output = torch.cat([output.squeeze(0), weighted_context], dim=1)
+        output = F.softmax(self.out(output), dim=1)
+        return output, hidden, attn_weights
+
+
+def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion, max_length=MAX_LENGTH):
+    # input_tensor：源语言输入张量，target_tensor：目标语言输入张量，criterion：损失函数计算方法，max_length：句子的最大长度
+    encoder_hidden = encoder.initHidden()
+    encoder_optimizer.zero_grad()
+    decoder_optimizer.zero_grad()
+    input_length = input_tensor.size(0)
+    target_length = target_tensor.size(0)
+    encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
+    loss = 0
+
+    for ei in range(input_length):
+        encoder_output, encoder_hidden = encoder(input_tensor[ei], encoder_hidden)
+        encoder_outputs[ei] = encoder_output[0, 0]
+
+    decoder_input = torch.tensor([[SOS_token]], device=device)   # 初始化解码器的第一个输入，即起始符
+    decoder_hidden = encoder_hidden
+    use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
+    if use_teacher_forcing:
+        for di in range(target_length):
+            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
+            loss += criterion(decoder_output, target_tensor[di])
+            # 并强制将下一次的解码器输入设置为‘正确的答案’
+            decoder_input = target_tensor[di]
+
+    else:
+        for di in range(target_length):
+            decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
+            topv, topi = decoder_output.topk(1)
+            loss += criterion(decoder_output, target_tensor[di])
+            if topi.squeeze().item() == EOS_token:
+                break
+            decoder_input = topi.squeeze().detach()
+    loss.backward()
+    encoder_optimizer.step()
+    decoder_optimizer.step()
+    return loss.item() / target_length
+
+def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+    # n_iters: 总迭代步数, print_every:打印日志间隔, plot_every:绘制损失曲线间隔
+    start = time.time()
+    plot_losses = []
+    print_loss_total, plot_loss_total = 0, 0
+    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
+    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
+
+    for iter in range(1, n_iters + 1):
+        training_pair = tensorsFromPair(random.choice(pairs))
+        input_tensor = training_pair[0]
+        target_tensor = training_pair[1]
+        loss = train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion)
+        print_loss_total += loss
+        plot_loss_total += loss
+
+        if iter % print_every == 0:
+            print_loss_avg = print_loss_total / print_every
+            print_loss_total = 0
+            print('%s (%d %d%%) %.4f' % (timeSince(start), iter, iter / n_iters * 100, print_loss_avg))
+
+        if iter % plot_every == 0:
+            plot_loss_avg = plot_loss_total / plot_every
+            plot_losses.append(plot_loss_avg)
+            plot_loss_total = 0
+
+    plt.figure()
+    plt.plot(plot_losses)
+    plt.savefig("./s2s_loss.png")
+
+    def evaluate(encoder, decoder, sentence, max_length=MAX_LENGTH):
+        with torch.no_grad():
+            input_tensor = tensorFromSentence(input_lang, sentence)
+            input_length = input_tensor.size()[0]
+            encoder_hidden = encoder.initHidden()
+            encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
+
+            for ei in range(input_length):
+                encoder_output, encoder_hidden = encoder(input_tensor[ei],encoder_hidden)
+                encoder_outputs[ei] += encoder_output[0, 0]
+
+            decoder_input = torch.tensor([[SOS_token]], device=device)
+            decoder_hidden = encoder_hidden
+            decoded_words = []
+            decoder_attentions = torch.zeros(max_length, max_length)
+
+            for di in range(max_length):
+                decoder_output, decoder_hidden, decoder_attention = decoder(decoder_input, decoder_hidden, encoder_outputs)
+                decoder_attentions[di] = decoder_attention.data
+                topv, topi = decoder_output.data.topk(1)
+                if topi.item() == EOS_token:
+                    decoded_words.append('<EOS>')
+                    break
+                else:
+                    decoded_words.append(output_lang.index2word[topi.item()])
+                decoder_input = topi.squeeze().detach()
+            return decoded_words, decoder_attentions[:di + 1]
+
+    def evaluateRandomly(encoder, decoder, n=6):
+        for i in range(n):
+            pair = random.choice(pairs)
+            output_words, attentions = evaluate(encoder, decoder, pair[0])
+            output_sentence = ' '.join(output_words)
+            print(pair, '<', output_sentence)
+
+    hidden_size = 25
+    input_size = 20
+    output_size = 10
+    teacher_forcing_ratio = 0.5
+    hidden_size = 256
+    encoder1 = EncoderRNN(input_lang.n_words, hidden_size).to(device)
+    attn_decoder1 = AttnDecoderRNN(hidden_size, output_lang.n_words, dropout_p=0.1).to(device)
+    n_iters = 75000
+    print_every = 5000
+    trainIters(encoder1, attn_decoder1, n_iters, print_every=print_every)
+    sentence = "we re both teachers ."
+    output_words, attentions = evaluate(encoder1, attn_decoder1, sentence)
+    print(output_words)
+    plt.matshow(attentions.numpy())
+    plt.savefig("./s2s_attn.png")
+
+
+
 '''
+import torch.nn as nn
+nn.Embedding
 
 import jieba
 import sklearn
@@ -843,4 +2092,12 @@ from sklearn.ensemble import RandomForestClassifier
 est = RandomForestClassifier
 x=jieba.cut("我爱北京天安门")
 from sklearn.linear_model import SGDRegressor
+import torchvision.transforms as transforms
 
+import torch
+x = torch.rand(5,3)
+import torchvision
+torchvision.datasets.CIFAR10
+torchvision.utils.make_grid(images)
+import torch.nn as nn
+nn.LSTM
