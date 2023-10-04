@@ -1327,28 +1327,30 @@ Transformer：http://121.199.45.168:8001/1/
             i. 文本嵌入层将文本中词汇的数字表示转变为高维空间的向量表示，利于捕捉词汇间的关系。输入 word2index 已经数字化的词序列
                 from torch.autograd import Variable
                 class Embeddings(nn.Module):    输入三维 batch_size，序列长度，词对应数字表示
-                    def __init__(self, d_model, vocab):
-                        # d_model 词嵌入维度， vocab 词表大小， padding_idx=0 对于输入序列长度补全默认，对应词嵌入中第 0 维对应全 0 输出
+                    def __init__(self, embedding_dim, vocab):
+                        # embedding_dim 词嵌入维度， vocab 词表大小， padding_idx=0 对于输入序列长度补全默认，对应词嵌入中第 0 维对应全 0 输出
                         super(Embeddings, self).__init__()
-                        self.lut = nn.Embedding(vocab, d_model)
-                        self.d_model = d_model
+                        self.lut = nn.Embedding(vocab, embedding_dim)
+                        self.embedding_dim = embedding_dim
 
                     def forward(self, x):   返回形状 (input.shape[0](batch_size), input.shape[1] 序列长度，词嵌入维度) 的词嵌入的张量
-                        return self.lut(x) * math.sqrt(self.d_model)    嵌入结果经过缩放
+                        return self.lut(x) * math.sqrt(self.embedding_dim)    嵌入结果经过缩放
 
-                emb = nn.Embeddings(10,1000)
-                emb_res = emb(Variable(torch.LongTensor([[1,2,4,5],[4,3,2,9]]))))     结果形状 (2，4,10)
+                x = Variable(torch.LongTensor([[100,2,421,508],[491,998,1,121]])
+                embedding_dim, vocab = 512, 1000
+                emb = nn.Embeddings(embedding_dim, vocab)
+                emb_res = emb(x)     形状 (2,4,512)  数据条数 序列长度，词嵌入维度
 
             ii. 位置编码器： 将词汇位置不同可能产生不同语义的信息加入到词嵌入张量中，作为位置信息。
                 class PositionalEncoding(nn.Module):
-                    def __init__(self, d_model, dropout, max_len=5000):
-                        # d_model: 词嵌入维度, dropout: 置0比率, max_len: 每个句子的最大长度
+                    def __init__(self, embedding_dim, dropout, max_len=5000):
+                        # embedding_dim: 词嵌入维度, dropout: 置0比率, max_len: 每个句子的最大长度
                         super(PositionalEncoding, self).__init__()
                         self.dropout = nn.Dropout(p=dropout)
-                        pe = torch.zeros(max_len, d_model)    # 初始化一个位置编码矩阵 (max_len x d_model)
+                        pe = torch.zeros(max_len, embedding_dim)    # 初始化一个位置编码矩阵 (max_len x embedding_dim)
                         position = torch.arange(0, max_len).unsqueeze(1)  # 初始化一个形状 max_len x 1 绝对位置矩阵 (词在序列中索引)
-                        div_term = torch.exp(torch.arange(0, d_model, 2) * -(math.log(10000.0) / d_model))
-                            # 位置矩阵赋值为变化矩阵 div_term （形状 1xd_model）与绝对位置相乘（变换形状），来添加位置信息。同时缩小位置
+                        div_term = torch.exp(torch.arange(0, embedding_dim, 2) * -(math.log(10000.0) / embedding_dim))
+                            # 位置矩阵赋值为变化矩阵 div_term （形状 1xembedding_dim）与绝对位置相乘（变换形状），来添加位置信息。同时缩小位置
                             # 矩阵的值方便训练收敛，使用正弦余弦（求导快）确保了在不同位置对应嵌入向量发生变化，可以求梯度。
                         pe[:, 0::2] = torch.sin(position * div_term)   偶数位置
                         pe[:, 1::2] = torch.cos(position * div_term)   奇数位置
@@ -1359,9 +1361,9 @@ Transformer：http://121.199.45.168:8001/1/
                         x = x + Variable(self.pe[:, :x.size(1)],requires_grad=False)   # 一个维度裁切到实际句子长度，pe 不需要更新
                         return self.dropout(x)
 
-                d_model, dropout, max_len = 512, 0.1, 60
-                pe = PositionalEncoding(d_model, dropout, max_len)
-                pe_res = pe(emb_res)
+                embedding_dim, dropout, max_len = 512, 0.1, 60
+                pe = PositionalEncoding(embedding_dim, dropout, max_len)
+                pe_res = pe(emb_res)            形状 (2,4,512)
 
                 可视化。每条（正弦/余弦）曲线（范围[-1,1]）代表一个词汇的特征在不同位置的含义，
                     plt.figure(figsize=(15, 5))
@@ -1391,31 +1393,345 @@ Transformer：http://121.199.45.168:8001/1/
                     # mask 掩码张量, dropout nn.Dropout层的实例化对象
                     d_k = query.size(-1)   # 最后一维，词嵌入维度
                     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)   # key最后维度是词嵌入
-
                     if mask is not None:
                         scores = scores.masked_fill(mask == 0, -1e9)    如果 mask 对应位置为 0，则 score 对应位置的值变为 -1e9
-
                     p_attn = F.softmax(scores, dim = -1)
-
                     if dropout is not None:
                         # 将p_attn传入dropout对象中进行'丢弃'处理
                         p_attn = dropout(p_attn)
                     return torch.matmul(p_attn, value), p_attn
 
                 query = key = value = pe_res
-                attn, p_attn = attention(query, key, value)   返回注意力张量，注意力表示
+                attn, p_attn = attention(query, key, value)   返回注意力张量，形状(2,4,512)；Q 的注意力表示，形状(2,4,4)
 
             iii. 多头注意力机制
+                使用了一组线性变化层（三个张量方阵）对 K, Q, V 进行不改变尺寸的变化，对变化后的 K, Q, V 使用多个头从词义层面分割输入的张量
+                （最后一维，词嵌入的维度被分割成 (head个数 , 维度/head)，相当于每个头都负责了一部分不同的词嵌入维度对应的数据），将分割后的
+                K, Q, V (多了 1 个 head 个数的维度) 送到注意力机制中）(等价于每个头把自己的一部分 K, Q, V 送如同一个注意力机制)，最后通过
+                线性层变换尺寸（实现对注意力结果拼接)。多头注意力机制能让每个注意力机制优化每个词的不同特征部分，从而均衡同一种注意力机制可能产
+                生的偏差，让词义拥有更多元的表达，提升模型效果。
+                import copy
+                def clones(module, N):   # 深度克隆目标网络层
+                    return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
+
+                class MultiHeadedAttention(nn.Module):
+                    def __init__(self, head, embedding_dim, dropout=0.1):
+                        # head 头数，embedding_dim 词嵌入的维度， dropout 置0比
+                        super(MultiHeadedAttention, self).__init__()
+                        assert embedding_dim % head == 0
+                        self.d_k = embedding_dim // head
+                        self.head = head
+                        self.linears = clones(nn.Linear(embedding_dim, embedding_dim), 4)   Q，K，V，和最后拼接的矩阵
+                        self.attn = None
+                        self.dropout = nn.Dropout(p=dropout)
+
+                    def forward(self, query, key, value, mask=None):
+                        if mask is not None:
+                            mask = mask.unsqueeze(0)
+                        batch_size = query.size(0)
+                        query, key, value = \
+                           [model(x).view(batch_size, -1, self.head, self.d_k).transpose(1, 2)   # -1 对应序列长度
+                            for model, x in zip(self.linears, (query, key, value))] # zip 1 对 1 只有到前 3 个linear
+                        x, self.attn = attention(query, key, value, mask=mask, dropout=self.dropout)
+                        x = x.transpose(1, 2).contiguous().view(batch_size, -1, self.head * self.d_k)
+                            # 对之前调换 head, 序列长度 维度的逆操作，transpose 后需要 contiguous()，才能使用 view() 方法
+                        return self.linears[-1](x)
+
+                head, embedding_dim, dropout = 8, 512, 0.2
+                query = key = value = pe_result
+                mask = Variable(torch.zeros(8,3,3))
+                mha = MultiHeadedAttention(head,embedding_dim, dropout)
+                mha_res = mha(query, key, value, mask)     # 返回多头注意力处理的 Q 的注意力表示，形状 (2,4,512)
+
+            iv. 前馈全连接层
+                两层线性层的全连接网络，用来增加模型对复杂过程的拟合度（模型学习能力）。
+                class PositionwiseFeedForward(nn.Module):
+                    def __init__(self, embedding_dim, d_ff, dropout=0.1):
+                        # embedding_dim 线性层的输入维度, d_ff 第一个线性层的输出维度, dropout 置0比率
+                        super(PositionwiseFeedForward, self).__init__()
+                        self.w1 = nn.Linear(embedding_dim, d_ff)
+                        self.w2 = nn.Linear(d_ff, embedding_dim)
+                        self.dropout = nn.Dropout(dropout)
+
+                    def forward(self, x):
+                        return self.w2(self.dropout(F.relu(self.w1(x))))
+
+                 embedding_dim, d_ff, dropout = 512, 64, 0.2
+                 x = mha_res
+                 ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+                 ff_res = ff(x)                       # 返回形状 (2,4,512)
+
+            v. 规范化层
+                解决随着网络层数增加得到多层计算后参数可能开始出现过大或过小，导致学习出现异常，模型收敛慢的问题。使用规范化层对数值规范化，使其
+                特征值在合理范围内。
+                class LayerNorm(nn.Module):
+                    def __init__(self, embedding_dim, eps=1e-6):
+                        features, 表示词嵌入的维度, eps 一个足够小的数, 防止除以 0 报错
+                        super(LayerNorm, self).__init__()
+                        self.a2 = nn.Parameter(torch.ones(embedding_dim))  缩放系数， nn.parameter封装，代表是模型的参数，会被训练。
+                        self.b2 = nn.Parameter(torch.zeros(embedding_dim))
+                        self.eps = eps
+
+                    def forward(self, x):
+                        mean = x.mean(-1, keepdim=True)   在最后维度求均值，保持维度
+                        std = x.std(-1, keepdim=True)
+                        return self.a2 * (x - mean) / (std + self.eps) + self.b2    * 为同型点成（对应位置乘法）
+
+                x = ff_res
+                ln = LayerNorm(embedding_dim, eps=1e-6)
+                ln_res = ln(x)                # 返回经过规范化的特征表示，形状 (2,4,512)
+
+            vi. 子层连接结构
+                编码器，解码器每个子层输入到规范化层的过程中，还使用了残差链接（跳跃连接），把这部分结构整体叫做子层连接（代表子层及其链接结构）
+                class SublayerConnection(nn.Module):
+                def __init__(self, embedding_dim, dropout=0.1):
+                    super(SublayerConnection, self).__init__()
+                    self.norm = LayerNorm(embedding_dim)
+                    self.dropout = nn.Dropout(p=dropout)
+
+                def forward(self, x, sublayer):
+                    # 接收上一个层或者子层的输入作为第一个参数，该子层连接中的子层函数为第二个参数
+                    return x + self.dropout(sublayer(self.norm(x)))
+
+                embedding_dim, head, dropout = 512, 8, 0.2
+                x = pe_res
+                mask = Variable(torch.zeros(8,4,4))
+                self_attn = MultiHeadedAttention(head,embedding_dim)
+                sublayer = lambda x: self_attn(x, x, x, mask=mask)
+                sc = SublayerConnection(embedding_dim, dropout)
+                sc_result = sc(x, sublayer)          # 返回经过残差的特征表示，形状 (2,4,512)
+
+            vii. 编码器层
+                作为编码器的组成单元，每个编码器层完成一次对输入的特征提取过程，即编码过程。
+                class EncoderLayer(nn.Module):
+                    def __init__(self, embedding_dim, self_attn, feed_forward, dropout):
+                        # embedding_dim，词嵌入维度的大小（作为编码器层的大小）
+                           self_attn 多头自注意力子层实例化对象  feed_froward 前馈全连接层实例化对象
+                        super(EncoderLayer, self).__init__()
+                        self.self_attn = self_attn
+                        self.feed_forward = feed_forward
+                        self.sublayer = clones(SublayerConnection(embedding_dim, dropout), 2)
+                        self.embedding_dim = embedding_dim
+
+                    def forward(self, x, mask):
+                        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, mask))  # 多头自注意力子层
+                        return self.sublayer[1](x, self.feed_forward)          # 前馈全连接子层
+
+                embedding_dim, head, d_ff, dropout = 512, 8, 64, 0.2
+                x = pe_res
+                mask = Variable(torch.zeros(8,4,4))
+                self_attn = MultiHeadedAttention(head,embedding_dim)
+                ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+                el = EncoderLayer(embedding_dim, self_attn, ff, dropout)
+                el_res = el(x, mask)         # 返回经过编码器的特征表示，形状 (2,4,512)
+
+            viii. 编码器
+                用于对输入进行指定的特征提取的过程，也称为编码，它的输出（特征提取表示）是解码器输入的一部分，由 N 个编码器堆叠而成。
+                class Encoder(nn.Module):
+                    def __init__(self, layer, N):
+                        # layer 编码器层,   N 编码器层的个数
+                        super(Encoder, self).__init__()
+                        self.layers = clones(layer, N)
+                        self.norm = LayerNorm(layer.embedding_dim)
+
+                    def forward(self, x, mask):
+                        for layer in self.layers:
+                            x = layer(x, mask)      输出的 x 依次经过了N个编码器层的处理
+                        return self.norm(x)
+
+                embedding_dim, head, d_ff, dropout, N= 512, 8, 64, 0.2, 8
+                attn = MultiHeadedAttention(head, embedding_dim)
+                ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+                layer = EncoderLayer(embedding_dim, copy.deepcopy(attn), copy.deepcopy(ff), dropout)
+                mask = Variable(torch.zeros(8, 4, 4))
+                en = Encoder(layer, N)
+                en_result = en(x, mask)             # 返回编码器最终的特征表示结果，形状 (2,4,512)
 
         d. 解码器部分实现
+            i. 解码器层
+                每个解码器层根据给定的输入向目标方向进行特征提取操作，即解码过程。
+                # 使用DecoderLayer的类实现解码器层
+                class DecoderLayer(nn.Module):
+                    def __init__(self, embedding_dim, self_attn, src_attn, feed_forward, dropout):
+                        # embedding_dim 词嵌入的维度大小 （解码器层尺寸）， self_attn 多头自注意力对象 Q=K=V，
+                        #    src_attn 多头注意力对象，这里Q!=K=V， feed_forward 前馈全连接层对象，droupout 置0比率
+                        super(DecoderLayer, self).__init__()
+                        self.embedding_dim = embedding_dim
+                        self.self_attn = self_attn
+                        self.src_attn = src_attn
+                        self.feed_forward = feed_forward
+                        self.sublayer = clones(SublayerConnection(size, dropout), 3)   # 三个子层
 
+                    def forward(self, x, memory, source_mask, target_mask):
+                        # x来自上一层的输入，  mermory  来自编码器输出的语义存储变量， 源数据掩码张量， 目标数据掩码张量
+                        x = self.sublayer[0](x, lambda x: self.self_attn(x, x, x, target_mask))
+                            # 使用掩码遮盖当前序列步之后的数据，防止信息泄露
+                        x = self.sublayer[1](x, lambda x: self.src_attn(x, memory, memory, source_mask))
+                            # 常规注意力机制 Q=x, K=V=memory(编码器输出)，遮蔽对结果没有意义的字符产生的注意力值，提升模型效果和训练速度
+                        return self.sublayer[2](x, self.feed_forward)
+
+                embedding_dim, head, d_ff, dropout, N= 512, 8, 64, 0.2, 8
+                self_attn = src_attn = MultiHeadedAttention(head, embedding_dim, dropout)
+                ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+
+                x， memory = pe_res， en_res
+                mask = Variable(torch.zeros(8, 4, 4))
+                source_mask = target_mask = mask
+                dl = DecoderLayer(size, self_attn, src_attn, ff, dropout)
+                dl_result = dl(x, memory, source_mask, target_mask)    # 返回经过解码器层的特征表示，形状 (2,4,512)
+
+            ii. 解码器
+                根据编码器的结果以及上一次预测的结果，对下一次可能出现的‘值‘进行特征表示
+                class Decoder(nn.Module):
+                    def __init__(self, layer, N):
+                        # layer 解码器层，N 解码器层的个数
+                        super(Decoder, self).__init__()
+                        self.layers = clones(layer, N)
+                        self.norm = LayerNorm(layer.size)
+
+                    def forward(self, x, memory, source_mask, target_mask):
+                        for layer in self.layers:
+                            x = layer(x, memory, source_mask, target_mask)   输出的 x 依次经过了N个解码器层的处理
+                        return self.norm(x)
+
+                embedding_dim, head, d_ff, dropout, N= 512, 8, 64, 0.2, 8
+                attn = MultiHeadedAttention(head, embedding_dim)
+                ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+                layer = DecoderLayer(embedding_dim, copy.deepcopy(attn), copy.deepcopy(attn), copy.deepcopy(ff), dropout)
+
+                x, memory= pe_result, en_result
+                mask = Variable(torch.zeros(8, 4, 4))
+                source_mask = target_mask = mask
+                de = Decoder(layer, N)
+                de_result = de(x, memory, source_mask, target_mask)     # 返回解码器最终的特征表示，形状 (2,4,512)
 
         e. 输出部分实现
+            通过线性层线性变换得到指定维度输出，经过 softmax 使最后一维的向量中的数字缩放到 0-1 的概率值域内，且和为 1。
+            class Generator(nn.Module):
+                def __init__(self, embedding_dim, vocab_size):
+                    # embedding_dim 代表词嵌入维度, vocab_size 词表大小
+                    super(Generator, self).__init__()
+                    self.project = nn.Linear(embedding_dim, vocab_size)
+
+                def forward(self, x):
+                    return F.log_softmax(self.project(x), dim=-1)    # log_softmax 是对 softmax 结果取了对数（单调递增）对结果没影响
+
+            embedding_dim, vocab_size = 512, 1000
+            x = de_result
+            gen = Generator(embedding_dim, vocab_size)
+            gen_res = gen(x)                  返回结果形状为 (2,4,1000)
 
         f. 模型构建
+            class EncoderDecoder(nn.Module):
+                def __init__(self, encoder, decoder, source_embed, target_embed, generator):
+                    # 编码器对象, 解码器对象, 源数据嵌入函数, 目标数据嵌入函数, 输出部分的类别生成器对象
+                    super(EncoderDecoder, self).__init__()
+                    self.encoder = encoder
+                    self.decoder = decoder
+                    self.src_embed = source_embed
+                    self.tgt_embed = target_embed
+                    self.generator = generator
+
+                def forward(self, source, target, source_mask, target_mask):
+                    # source 源数据, target 目标数据, source_mask target_mask 对应的掩码张量
+                    return self.decode(self.encode(source, source_mask), source_mask, target, target_mask)
+
+                def encode(self, source, source_mask):
+                    return self.encoder(self.src_embed(source), source_mask)
+
+                def decode(self, memory, source_mask, target, target_mask):
+                    return self.decoder(self.tgt_embed(target), memory, source_mask, target_mask)
+
+            vocab_size, embedding_dim = 1000, 512
+            encoder, decoder = en, de
+            source_embed = nn.Embedding(vocab_size, embedding_dim)
+            target_embed = nn.Embedding(vocab_size, embedding_dim)
+            generator = gen
+            source = target = Variable(torch.LongTensor([[100, 2, 421, 508], [491, 998, 1, 221]])) # 假设源数据与目标数据相同，实际不同
+            source_mask = target_mask = Variable(torch.zeros(8, 4, 4)) # 假设src_mask与tgt_mask相同，实际不同
+            ed = EncoderDecoder(encoder, decoder, source_embed, target_embed, generator)
+            ed_result = ed(source, target, source_mask, target_mask)       # 形状 (2,4,512)
+
+            def make_model(source_vocab, target_vocab, N=6,
+                   embedding_dim=512, d_ff=2048, head=8, dropout=0.1):
+                # 源数据特征(词汇)总数，目标数据特征(词汇)总数，编码器和解码器堆叠数，词向量映射维度，前馈全连接网络中变换矩阵的维度，
+                # 多头注意力结构中的多头数，以及置零比率
+                c = copy.deepcopy
+                attn = MultiHeadedAttention(head, embedding_dim)
+                ff = PositionwiseFeedForward(embedding_dim, d_ff, dropout)
+                position = PositionalEncoding(embedding_dim, dropout)
+                model = EncoderDecoder(
+                    Encoder(EncoderLayer(embedding_dim, c(attn), c(ff), dropout), N),
+                    Decoder(DecoderLayer(embedding_dim, c(attn), c(attn), c(ff), dropout), N),
+                    nn.Sequential(Embeddings(embedding_dim, source_vocab), c(position)),
+                    nn.Sequential(Embeddings(embedding_dim, target_vocab), c(position)),
+                    Generator(embedding_dim, target_vocab))
+
+                for p in model.parameters():
+                    if p.dim() > 1:
+                        nn.init.xavier_uniform(p)
+                return model                           # 返回模型对象
+
+            source_vocab, target_vocab, N = 11, 11, 6
+            res = make_model(source_vocab, target_vocab, N)
 
         g. 模型测试运行
+            copy 任务： 针对序列进行学习，学习的目标是使输入的序列与输出的序列相同。copy 操作是一条明显的操作，模型是否在短时间，小数据集内学
+                会它，用来判断模型是否正确且具有基本学习能力。
 
+            i. 构建数据生成集
+                from pyitcast.transformer_utils import Batch
+
+                def data_generator(V, batch, num_batch):
+                    # V 随机生成数字的最大值+1, batch 每次输送给模型更新一次参数的数据量, num_batch 一共输送num_batch次完成一轮
+                    for i in range(num_batch):
+                        data = torch.from_numpy(np.random.randint(1, V, size=(batch, 10)))
+                        data[:, 0] = 1   序列起始值为 1
+                        source = Variable(data, requires_grad=False)  文本样本和目标值不用求梯度更新
+                        target = Variable(data, requires_grad=False)
+                        yield Batch(source, target)
+
+                V, batch, num_batch= 11, 20, 30
+                res = data_generator(V, batch, num_batch)
+
+            ii. 获得 Transformer 模型及其优化器和损失函数
+                标签平滑：小幅度的改变原有标签值的值域, 弥补人工的标注数据的偏差, 减少模型对某一条规律的绝对认知, 以防止过拟合
+                from pyitcast.transformer_utils import get_std_opt         # 针对Transformer模型的优化器 （Adam)
+                from pyitcast.transformer_utils import LabelSmoothing     # 标签平滑
+                from pyitcast.transformer_utils import SimpleLossCompute  #交叉熵损失函数
+
+                model = make_model(V, V, N=2)
+                model_optimizer = get_std_opt(model)
+                criterion = LabelSmoothing(size=V, padding_idx=0, smoothing=0.0)
+                    # size 目标词汇总数，padding_idx=0 不进行替换， smoothing s把标签值值域变为 (原值-s,原值+s)
+                loss = SimpleLossCompute(model.generator, criterion, model_optimizer)
+
+            iii. 运行模型进行训练和评估, 使用模型进行贪婪解码
+                from pyitcast.transformer_utils import run_epoch   进行一轮参数更新，并打印参数的损失
+                from pyitcast.transformer_utils import greedy_decode   把概率最大的结果作为输出
+
+                def run(model, loss, epochs=10):
+                    for epoch in range(epochs):
+                        model.train()  # 进入训练模式
+                        run_epoch(data_generator(V, 8, 20), model, loss)   # 训练batch_size=20
+                        model.eval()   # 进入测试模式，不更新参数
+                        run_epoch(data_generator(V, 8, 5), model, loss)  # 评估 batch_size=5
+
+                    model.eval()
+                    source = Variable(torch.LongTensor([[1,3,2,5,4,6,7,8,9,10]]))  # 输入张量
+                    source_mask = Variable(torch.ones(1, 1, 10))
+                    result = greedy_decode(model, source, source_mask, max_len=10, start_symbol=1)  预测结果，起始标志数字为1
+                    print(result)    # 1 3 2 5 4 6 7 8 9 10
+
+                if __name__ == '__main__':
+                    run(model, loss)
+
+        h. pyitcast.transformer 库 TransformerModel 的使用
+            语言模型： 以一个符合语音规律的序列为输入，语音模型利用序列间关系等特征，输出一个在所有词汇上的概率分布。可以用来解决以下问题
+                1. 根据语言模型的定义，可以在它的基础上完成机器翻译，文本生成等任务，因为我们通过最后输出的概率分布来预测下一个词汇是什么.
+                2. 语言模型可以判断输入的序列是否为一句完整的话，因为我们可以根据输出的概率分布查看最大概率是否落在句子结束符上，来判断完整性.
+                3. 语言模型本身的训练目标是预测下一个词，因为它的特征提取部分会抽象很多语言序列之间的关系，这些关系可能同样对其他语言类任务有
+                    效果.因此可以作为预训练模型进行迁移学习.
 
 
 
