@@ -455,6 +455,10 @@
                 for col in df.columns:
                     df[col] = df[col].transform(min_max)
 
+            pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3, labels=["bad", "medium", "good"])
+                # return Categorical object, cut in equal 3 piece
+                #  ['bad', 'good', 'medium', 'medium', 'good', 'bad']  Categories (3, object): ['bad' < 'medium' < 'good']
+
             # math operation
             don't have broadcast, fill NaN if missing (number add NaN is NaN)
             python None can't used to calculate, pandas convert None to np.nan. np.nan math operation always return nan
@@ -640,6 +644,7 @@
             axes1.set_title('title for axes 1', fontsize=16)
 
             axes2 = plt.subplot(1, 2, 2)
+            axes2 = axes1.twinx()     # 共享 axes 1 的 x 轴坐标
             axes2.plot(x, np.cos(x))
             axes2.set(title="Simple Plot", xlabel="x-axis", ylabel="y-axis")  # set all at one time for axes object
 

@@ -194,8 +194,8 @@ Transformer：http://121.199.45.168:8001/1/
                 Axes 外观 facecolor, 边框线（spines），坐标轴（axis），坐标轴名称（axis label），坐标轴刻度（tick），坐标轴刻度标签
                 （tick label），网格线（grid），图例（legend），标题（title）
             图像层
-                绘制不同类型的图像 plot（折线图，绘制函数，表示数据变化）, scatter（数据关联、分布趋势）, bar(统计，对比数据之间差别),
-                histogram（展示连续数据的分布状况）, pie（分类数据的占比情况）
+                绘制不同类型的图像 plot（折线图，绘制函数，表示数据变化）, scatter（数散点图，据关联、分布趋势）, bar(条形图，统计，对比数据之间差别),
+                histogram（直方图，展示连续数据的分布状况）, pie（饼状图，分类数据的占比情况）
         如果中文乱码，需要下载 SimHei 字体，安装后删除 .matplotlib, 修改 matplotlibrc
 
         **** 实例
@@ -232,9 +232,52 @@ Transformer：http://121.199.45.168:8001/1/
         基于 Matplotlib 进行了更高级 API 的封装，出图更美观
         pip install seaborn
         import seaborn as sns
-        散点图
+        sns.set_style('darkgrid')
+
+        回归模型图
+            data = sns.load_dataset('iris')
             sns.lmplot(data=df, x='col1', y='col2', hue='col3',fit_reg=False)
                 hue 指定目标值对应列名，根据目标值给点涂成不同颜色， fit_reg 是否进行线性拟合， 代替 plt.scatter，其余 plt.xlabel等不变
+
+        a. 绘制统计图形
+            i. 单变量分布
+                直方图 histogram
+                sns.distplot(df['col1'], bins=None, hist=True, kde=True, rug=False, color=None)
+                # 数据可以是 Series，一维数组或列表， bins 条形数量，hist 是否显示直方图， kde 是否显示密度曲线， rug 是否绘制 rugplot
+                #（标记每条数据对应的值）， color 绘图元素的颜色
+
+            ii. 双变量分布
+                jointplot() 函数可以创建多种图形，如散点图，二维直方图，核密度估计图等，以显示两个变量之间的双变量关系及每个变量在单坐标轴上的单
+                变量分布。
+                sns.distplot(x, y, data=None, kind='scatter', stat_func=None, ratop=5, space=0.2, dropna=True, color=None)
+                # kind 图形类型 （默认 scatter, kde, hex 二维直方图）， stat_func 用于计算有关关系的统计量并标注在图上， size 设置图的大小（正方形）， ratio 中心
+                # 图与侧边图（单变量对应的 histgram / kde）的比例， space 中心图与侧边图的间距
+
+                sns.pairplot(data)   # 绘制所有两列的组合（两列相同时为直方图，不同时为散点图）， 建议数据量别太大
+
+        b. 绘制分类数据
+            i. 散点图
+                sns.stripplot(x, y, data=None, hue=None, order=None, hue_order=None, jitter=False)
+                # hue 指定列名来实现不同值对应不同颜色，jitter 是否添加随机扰动（解决数据点过多重叠问题）， order 指定分类变量绘图的顺序，
+                # hue_order 指定 hue 绘图的顺序
+                sns.swamplot(x, y, data)   类似 stripplot， 确保数据点没有重叠
+
+            ii. 箱形图 （Box plot）
+                显示出一组数据的最大值，最小值，中位数，及上下四分位数，异常值
+                sns.boxplot(x, y, hue=None, data=None, orient=None, color=None, saturation=0.75, width=0.8, order=None, hue_order)
+                    # palette=['r','g','b'] 设置 hue 对应类别的颜色， saturation 颜色饱和度
+
+            iii. 小提琴图 （Violin plot）
+                显示出一组数据的分布情况， 数据点分布密度（密度图宽）横轴宽度，还包含了中位数，上下四分位数，95% 置信区间
+                sns.violinplot(x, y, data=None, hue=None)
+
+            iv. 类别内的统计图 (包含了置信区间)
+                sns.barplot(x, y, data=None)
+                sns.pointplot(x, y, data=None)
+
+            v. 相关性分析
+                sns.heatmap(data.corr(), annot=True, fmt='d', linewidths=.5, annot=False, square=True)   data 为相关性矩阵
+                data.corr() (pandas 方法获取所有列之间的相关性矩阵， 默认 pearson 系数)
 
     2.5 Numpy (numerical Python)
         a. 定义
@@ -648,11 +691,30 @@ Transformer：http://121.199.45.168:8001/1/
         ball tree: 克服 kd 树特征值高维失效问题（使用超球体）分割样本空间
 
     3.4 模型选择与调优
-        a.（n 折）交叉验证
-            将训练数据分为训练和验证集，将数据分为 n 份，其中1份作为验证集，其余为训练集。经过 n 轮测试，每轮更换验证集，获得 n 组模型结果
-            取平均作为最终结果。 不能提高模型准确率，但使评估模型更准确可信。
+        分层采样 (Stratified Sampling) ： 保留类别比例的采样方式
+        a. 留出法（hold-out）： 直接将数据集划分为两个互斥的训练集和测试集。为了增加可靠性，一般要采用若干次随机划分，进行实验，取平均值作为结
+            果。一般训练集占 2/3 到 4/5。数据足够时，误差较小，计算简便。
+            from sklearn.model_selection import train_test_split, LeaveOneOut
+            x_train, x_test, y_train, y_test = train_test_split(d.data, d.target, test_size=0.2, random_state=None)
 
-        b. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
+            留一法（leave one out），经过与数据大小相同轮，每轮将不同的一条数据作为测试数据，其他作为训练集。评估结果比较准确，但是消耗大量资
+            源，适合小数据集。数据量特别少时使用。
+            loo = LeaveOneOut()
+            for [(train, test) for train, test in loo.split(data)]:
+
+        b.（n 折）交叉验证 （cross validation）
+            将训练数据分为训练和验证集，将数据分为 n 份，其中1份作为验证集，其余为训练集。经过 n 轮测试，每轮更换验证集，获得 n 组模型结果
+            取平均作为最终结果。 不能提高模型准确率，但使评估模型更准确可信。数据量较小时使用。
+            from sklearn.model_selection import KFold, StratifiedKFold
+            kf = KFold(n_splits=5, shuffle=False, random_state=None)    # 随机分配训练集验证集
+            sf = StratifiedKFold(n_splits=5, shuffle=False, random_state=0)          # 分层采样，保留类别比例
+            for train, test in kf.split(data):    sf.split(data)
+
+        c. 自助法（Bootstrapping）: 也叫包外估计（out-of-bag estimate）假设数据集有 m 条数据，进行 m 词有放回的采样，去除重复出现的数据，
+            得到训练集，未出现的为测试集。 lim_m->inf (1 - 1/m)^m = 1/e  大约 36.8% 被分为测试集。
+            对于小数据集，或难以划分训练测试的数据集很好用，能产生多个不同的训练集，可能改变初始数据集分布，在数据足够时不常用。
+
+        d. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
             grid = {‘param_name’: [‘param_value1’， ‘param_value2’]}
             est = sklearn.model_selection.GridSearchCV(estimator, param_grid=None, cv=None, n_jobs=1)
                 param_grid 估计器参数字典， cv 几折交叉验证,   n_jobs -1 使用全部多核 cpu
@@ -723,6 +785,13 @@ Transformer：http://121.199.45.168:8001/1/
             (u(x)+v(x))’ = u’(x)+v’(x)
             (u(x)*v(x))’ = (u’(x)v(x)-u(x)v’(x))/ (v(x))^2
             (g(h(x)))’ = g’(h)h’(x)
+
+            矩阵（向量）求导
+            ∂a/∂x = 0   (常数 a 不是关于 x 的函数)
+            ∂x/∂x = I
+            ∂Ax/∂x = A    (矩阵（向量） A 不是关于 x 的函数)
+            ∂x^T A/∂x = A^T  (矩阵（向量） A 不是关于 x 的函数)
+            ∂ g(u)/∂x = (∂ g(u)/∂u) * (∂u/∂x)      (u=u(x))
         b. 定义
             利用回归方程（函数）对一个或多个自变量（特征值）和因变量（目标值）之间关系进行建模的一种分析方式。
                 公式： h(w) = w_1 * x_1 + w_2 * x_2 + … + b = w^T * x = xw    w = [[b],[w1],[w2]], x = [[1],[x1],[x2]]
@@ -738,10 +807,14 @@ Transformer：http://121.199.45.168:8001/1/
                      ==>   X^T Xw = X^T y  (X^T* X 方阵确保可逆)  ==> (X^T X)^(-1)  X^T Xw = X^T X)^(-1) * X^T * y
                      ==> w = (X^T X)^(-1) * X^T * y
             梯度下降（Gradient Descent, GD）：计算所有样本值得到梯度。经过多次迭代，改进获得最优值 （计算量大，通用性强）
-                W = W - α dcost/ dw
+                J(W) = sum_i=0~m (h_w(x_i)-y_i)^2              W = W - α dcost/ dw
+                对于线性回归（∂h/∂w_i = x_i）， w_i = w_i - (α/m) sum_j=0~m (h_w(x_0^(j), x_1^(j),...x_n^(j)) - y_j) * x_i^(j)
+                    # x_i^(j) 为第 j 条数据中输入 x 的第 i 个特征
+
             随机梯度下降（Stochastic gradient descent, SGD）： 每次迭代仅考虑一个训练样本（速度快，但有很多超参数，对特征标准化敏感）
-            小批量梯度下降法（mini-batch gradient descent）：使用随机的 m 个训练数据
-            随机平均梯度（Stochastic average gradient, SAG）
+            小批量梯度下降法（mini-batch gradient descent）：使用随机的 m 个训练数据 (一般选择 2 的幂次方)
+            随机平均梯度（Stochastic average gradient, SAG）：保留上一轮的梯度，仅随机选择一个数据进行梯度更新，其余数据保留上轮梯度，最
+                后求平均作为这轮梯度（相当于一条更新数据的梯度 / n）
         d. 实现
             from sklearn.linear_model import LinearRegression
             est =  LinearRegression(fit_intercept=True)   通过正规方程优化，fit_intercept 是否计算偏置
@@ -751,7 +824,7 @@ Transformer：http://121.199.45.168:8001/1/
             from sklearn.linear_model import SGDRegressor   通过梯度下降优化
             est = SGDRegressor(loss='squared_loss', fit_intercept=True, penalty='l2',
                                 alpha=0.0001, learning_rate='invscaling', eta0=0.01, max_iter=1000)
-                squared_loss 最小二乘法。    learning_rate: "constant", "optimal", "invscaling"
+                squared_loss 最小二乘法。    learning_rate: "constant", "optimal"（默认）, "invscaling"
                 penalty='l2'  添加惩罚项等同于岭回归，只是采用 SGD
             est.coef_  回归系数         est.intercept_   偏置
         e. 回归性能评估
@@ -768,15 +841,21 @@ Transformer：http://121.199.45.168:8001/1/
             L2 正则化（更常用）：L2 正则化使得一些权重系数减小接近于0，削弱一些特征的影响。 在损失函数中添加惩罚项 + λ sum_j{1~n) w_j^2
         欠拟合：在训练数据和测试数据上都不能很好地拟合数据。学习到的特征太少，模型过于简单，区分太粗糙。需要增加数据，特征数量
 
-        Lasso 采用 L1 正则项的线性回归
-        Ridge 岭回归，是采用 L2 正则项的线性回归
 
-    3.10 岭回归 （线性回归改进，需要无量纲化）
-        岭回归：线性回归在建立回归方程时 加上了 L2 正则项的限制，解决过拟合。
-        from sklearn.linear_model import Ridge   通过梯度下降优化
+    3.10 正则项，Lasso， Ridge 回归
+        正则项：损失函数中加入系数的 n 次幂之和，解决过拟合。正则化力度（α）越大，权重系数越小，越不容易过拟合。
+        Lasso 损失函数（均方误差）加入了 L1（参数和） 正则项的线性回归  J(w) = MSE(w) + α sum(abs(w_i)) （只有少部分特征有用时使用）
+        Ridge 岭回归，损失函数加入了 L2（参数平方和）正则项的线性回归 J(w) = MSE(w) + α sum((w_i)^2) （常用）
+        Elastic Net(弹性网络)  J(w) = MSE(w) + rα sum(w_i) + (1-r)α sum(w_i^2)/2    (r=0 为岭回归，r=1 为 lasso 回归)
+            （只有少部分特征有用时使用，在特征维度高或强相关时比 Lasso 稳定）
+        岭回归：线性回归在建立回归方程时 加上了 L2 正则项的限制
+        from sklearn.linear_model import Ridge, Lasso, ElasticNet，RidgeCV   通过梯度下降优化
         est = Ridge(alpha=1.0, fit_intercept=True, solver="auto", normalize=False)
             alpha （λ） 为正则化力度  0~10     solver 在数据集，特征比较大时选择 SAG， normalize 同 StandardScaler
+            类似 SGDRegressor 不过优化器为 SGD
         est.coef_  回归系数         est.intercept_   偏置
+        RidgeCV(alphas=(0,0.1,10))  通过交叉验证从 alphas 列表求得最好的 alpha 值的模型
+        早停 （Early Stopping）: 在错误率达到满意阈值时停止训练
 
     3.11 逻辑回归（需要无量纲化）
         逻辑回归：用于二分类问题，输出 0 或 1。但和回归算法之间有一定的联系。
@@ -1732,7 +1811,109 @@ Transformer：http://121.199.45.168:8001/1/
                 2. 语言模型可以判断输入的序列是否为一句完整的话，因为我们可以根据输出的概率分布查看最大概率是否落在句子结束符上，来判断完整性.
                 3. 语言模型本身的训练目标是预测下一个词，因为它的特征提取部分会抽象很多语言序列之间的关系，这些关系可能同样对其他语言类任务有
                     效果.因此可以作为预训练模型进行迁移学习.
+            import math
+            import torch
+            import torch.nn as nn
+            import torch.nn.functional as F
+            import torchtext      # torch中经典文本数据集有关的工具包，对文本数据进行处理, 比如文本语料加载, 文本迭代器构建等
+            from torchtext.data.utils import get_tokenizer
+            from pyitcast.transformer import TransformerModel   # 已经构建完成的TransformerModel
 
+            TEXT = torchtext.data.Field(tokenize=get_tokenizer("basic_english"), init_token='<sos>', eos_token='<eos>',
+                lower=True)      # 创建语料域，是存放语料的数据结构
+            train_txt, val_txt, test_txt = torchtext.datasets.WikiText2.splits(TEXT)
+            TEXT.build_vocab(train_txt)      # 获取 vocab 对象， stoi 方法统计独特词汇总数
+            device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+            def batchify(data, batch_size):
+                # 将文本数据映射成连续数字, data 文本数据 (train_txt, val_txt, test_txt),
+                data = TEXT.numericalize([data.examples[0].text])
+                nbatch = data.size(0) // batch_size
+                data = data.narrow(0, 0, nbatch * batch_size)  # 在维度 1 上截取索引 0 到 nbatch * batch_size 的数据
+                data = data.view(batch_size, -1).t().contiguous()    # t() 转置后 contiguous 声明连续
+                return data.to(device)
+            batch_size, eval_batch_size = 20, 10
+            train_data = batchify(train_txt, batch_size)
+            val_data = batchify(val_txt, eval_batch_size)
+            test_data = batchify(test_txt, eval_batch_size)
+
+            bptt = 35     # 句子长度最大值
+            def get_batch(source, i):
+                # source 通过batchify得到的 train_data/val_data/test_data,  i 具体的批次次数
+                seq_len = min(bptt, len(source) - 1 - i)
+                data = source[i:i+seq_len]
+                target = source[i+1:i+1+seq_len].view(-1)
+                return data, target
+            source = test_data
+
+            ntokens = len(TEXT.vocab.stoi)    # 通过TEXT.vocab.stoi方法获得不重复词汇总数
+            emsize = 200    # 词嵌入大小为200
+            nhid = 200   # 前馈全连接层的节点数
+            nlayers = 2   # 编码器层的数量
+            nhead = 2   # 多头注意力机制的头数
+            dropout, lr = 0.2, 5.0
+            model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout).to(device)
+            criterion = nn.CrossEntropyLoss()
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr)
+            scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95)   # 定义学习率调整方法
+
+            def train():
+                model.train()
+                total_loss = 0.
+                start_time = time.time()
+
+                for batch, i in enumerate(range(0, train_data.size(0) - 1, bptt)):
+                    data, targets = get_batch(train_data, i)
+                    optimizer.zero_grad()
+                    output = model(data)
+                    loss = criterion(output.view(-1, ntokens), targets)
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)   # 进行梯度规范化, 防止出现梯度消失或爆炸
+                    optimizer.step()
+                    total_loss += loss.item()
+                    log_interval = 200
+
+                    if batch % log_interval == 0 and batch > 0:
+                        cur_loss = total_loss / log_interval
+                        elapsed = time.time() - start_time
+                        print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.2f} | ms/batch {:5.2f} | loss {:5.2f} | ppl
+                            {:8.2f}'.format(epoch, batch, len(train_data) // bptt, scheduler.get_lr()[0],
+                                elapsed * 1000 / log_interval, cur_loss, math.exp(cur_loss)))
+                        total_loss = 0
+                        start_time = time.time()
+
+            def evaluate(eval_model, data_source):
+                # eval_model 每轮训练产生的模型, data_source 验证或测试数据集
+                eval_model.eval()  # 验证模式，不求梯度
+                total_loss = 0
+                with torch.no_grad():
+                    for i in range(0, data_source.size(0) - 1, bptt):
+                        data, targets = get_batch(data_source, i)
+                        output = eval_model(data)     # 通过eval_model获得输出
+                        output_flat = output.view(-1, ntokens)
+                        total_loss += criterion(output_flat, targets).item()
+                        cur_loss = total_loss / ((data_source.size(0) - 1) / bptt)
+                return cur_loss
+
+            import copy
+            best_val_loss = float("inf")
+            epochs = 3
+            best_model = None
+
+            for epoch in range(1, epochs + 1):
+                epoch_start_time = time.time()
+                train()
+                val_loss = evaluate(model, val_data)
+                print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
+                    'valid ppl {:8.2f}'.format(epoch, (time.time() - epoch_start_time), val_loss, math.exp(val_loss)))
+
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    best_model = copy.deepcopy(model)
+                scheduler.step()
+
+            test_loss = evaluate(best_model, test_data)
+            print('| End of training | test loss {:5.2f} | test ppl {:8.2f}'.format(test_loss, math.exp(test_loss)))
 
 
 --------------------------------------------------------------------------------------------------------------
@@ -2394,6 +2575,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 plt.hist()
 df = pd.DataFrame([[1,2],[3,4]], columns=['a','b'])
+df.corr()
 s =pd.Series([1])
 s.des
 import seaborn as sns
