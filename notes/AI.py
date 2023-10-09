@@ -593,7 +593,7 @@ Transformer：http://121.199.45.168:8001/1/
                     x2 = obj.inverse_transform(m)
                     obj.get_feature_names_out()  标点，数字，字母不在特征词列表 ['like' 'sentences' 'some']
 
-                方法2：TfidfVectorizer 找到只在这篇文章中出现概率高的（重要的）特征词
+                方法2：TfidfVectorizer 找到只在这篇文章中出现概率高的（重要的）特征词，通常在文章分类数据处理时使用
                     tf (term frequency) 词频，表示一个词在当前文档中出现的概率（出现次数 / 文章字数）
                     idf (inverse document frequency) 逆向文档频率，是一个词语普遍重要性的度量，log(总文件数 / 包含该词语的文件数)
                     from sklearn.feature_extraction.text import TfidfVectorizer
@@ -655,8 +655,19 @@ Transformer：http://121.199.45.168:8001/1/
                     trans = PCA(n_components=0.95)        n_components 小数保留百分之多少信息，整数为减少到多少特征
                     x_remain = trans.fit_transform(x)     x 为二维数组
 
+        d. 标签值处理
+            把标签字符串类别转化为数字。
+            from sklearn.preprocessing import LabelEncoder
+            le = LabelEncoder()
+            y = le.fit_transform(y)
 
-    3.3 K-近邻（KNN）算法  （根据邻居判断类别）
+            把标签字符串或数字类别转化为独热编码
+            from sklearn.preprocessing import OneHotEncoder
+            onehot = OneHotEncoder()
+            y = onehot.fit_transform(y)
+
+
+    3.3 K-近邻（KNN）算法  （根据邻居判断标签类别或标签值）
         如果一个样本在特征空间中的k个最相似(即特征空间中最邻近，通常使用欧式距离)的样本中的大多数属于某一个类别，则该样本也属于这个类别。
         使用前必须对数据使用数据的无量纲化，适用于小数据场景（几千~几万）。
         简单有效，（没有构建模型）训练时间短，适合样本数多，共性多的数据。预测计算量大，时间长（惰性学习），预测解释性不强，不擅长不均衡的样本
@@ -713,6 +724,7 @@ Transformer：http://121.199.45.168:8001/1/
         c. 自助法（Bootstrapping）: 也叫包外估计（out-of-bag estimate）假设数据集有 m 条数据，进行 m 词有放回的采样，去除重复出现的数据，
             得到训练集，未出现的为测试集。 lim_m->inf (1 - 1/m)^m = 1/e  大约 36.8% 被分为测试集。
             对于小数据集，或难以划分训练测试的数据集很好用，能产生多个不同的训练集，可能改变初始数据集分布，在数据足够时不常用。
+            包外样本（没有被抽中的样本）可以用来作为验证集用来检验训练结果，神经网络早停，决策树减枝等
 
         d. 网格搜索：对于超参数（需要手动指定）可选值的所有组合使用交叉验证进行评估，选出最优组合来建立模型。
             grid = {‘param_name’: [‘param_value1’， ‘param_value2’]}
@@ -747,30 +759,82 @@ Transformer：http://121.199.45.168:8001/1/
         est.fit(x_train, y_train)
 
     3.6 决策树
-        决策树： 基于树结构进行决策的算法，根据数据特征是否满足节点特征分割条件进行划分，使用信息增益（为分类系统提供更多信息）多的特征来划分上层节
-        点（ID3 决策树），从而减小信息熵，C4.5 使用信息增益比， CART 使用基尼系数。
-        简单的理解，解释性强，树可以可视化。过于复杂的树容易过拟合。
+        决策树分割点的好坏通过分割后纯度来评价，信息增益，信息增益比，基尼系数都是纯度的表示。
+        决策树理解简单，解释性强，树可以可视化。过于复杂的树容易过拟合。
         信息： （香农定义） 消除随机不定性的东西
-        信息熵： 用于衡量信息量  H(X) = -sum_i{1~n} [P(x_i) * log_2 P(x_i)]  单位比特，最小为0    i 为类别
+
+        ID3 决策树： 基于树结构进行决策的算法，根据数据特征是否满足节点特征分割条件进行划分，使用信息增益（为分类系统提供更多信息）多的特征来划分
+        上层节点，从而减小信息熵。用于分类问题，不支持特征连续值，多叉树。偏好选择类别多的列（如编号列），有时不合理。
+        信息熵： 用于衡量信息量  H(X) = -sum_i{1~n} [P(x_i) * log_2 P(x_i)]   i 为类别，单位比特，最小为0。数据越密集 / 有序，熵越小。
         信息增益： 特征 A 对训练数据集 D 的信息增益 g(D,A)， 定义为集合 D 的信息熵 H(D) 和特征 A 给定条件下 D 的条件熵 H(D|A) 之差，即
-            g(D,A) = H(D) - H(D|A)  表示得知特征 A 的信息使得不确定性（信息熵）的减少程度
-                H(D) = -sum_i{1~n} [(D_i / D) * log_2 (D_i / D)]   D_i 为属于 i 类别的样本个数，D 为样本总数
+            g(D,A) = H(D) - H(D|A)  表示得知特征 A 的信息使得不确定性（信息熵）的减少程度。
+                H(D) = -sum_i{1~n} [(D_i / D) * log_2 (D_i / D)]   D_i 为目标值属于 i 类别的样本个数，D 为样本总数
                 条件熵 H(D|A) = sum_j{1~m} [(A_j / D) * H(A_j)]          A_j 为特征 A 的值 为 j 的样本个数
-                H(A_j) = -sum_i{1~n} [(d_ij / A_j) * log_2 (d_ij / A_j)]    d_ij 为属于 i 类别特征 A 的值 为 j 的样本个数
+                H(A_j) = -sum_i{1~n} [(d_ij / A_j) * log_2 (d_ij / A_j)]    d_ij 为目标值属于 i 类别特征 A 的值 为 j 的样本个数
+
+        C4.5 决策树： 使用信息增益比和后剪枝 (内存消耗较高)，且能处理缺失值，分类，回归问题，支持特征连续值，多叉树。 对于连续值，先对特征值排
+        序，然后使用相邻两个特征值的均值作为分割点分割为两类。
+        信息增益率：信息增益除以属性固有值（分类信息度量， intrinsic value）的比值。
+            r(D,a) = g(D,A) / IV(a)    IV(a) = - sum_j{1~m} (A_j / D) * log_2 (A_j / D)
+
+        CART（classification and regression tree）决策树：使用基尼系数，分类，回归问题，支持特征连续值，必须二叉决策树。特征连续值同 C4.5
+        基尼系数： 度量样本集合不纯度，基尼系数越小，纯度越高。
+            基尼值: 从数据集 D 中随机抽取两个样本，其类别标记不一致的概率。 Gini(D) = 1 - sum_i{1~n} (D_i / D)^2
+            基尼系数: G(D, a) =  sum_j{1~m} (A_j / D) Gini(A_j)
+            特征值多个类别时，（1 vs rest）可以使用其中一个特征值 vs 其余值来形成二叉决策树。
+
+        多变量决策树（multi-variate decision tree）：采用多个特征的组合做出分类决策，而非最优的某一个特征。代表算法 OC1
+
+        剪枝： 防止过拟合，降低模型复杂度。
+            预剪枝： 一边构造决策树，一边考虑是否需要剪枝。对当前划分比较不经过划分的模型性能和经过划分的模型性能（基于验证集评价函数），如果有
+                提升，则执行当前划分。只考虑了当前一步的划分，没考虑一步之后有可能的性能提升。
+                也可以通过限制节点最小样本数，决策树深度，熵阈值来进行预剪枝
+
+            后剪枝： 先构建完整的决策树，然后自底向上对非叶子节点进行判断，如果将该节点删除后模型性能提升（基于验证集评价函数），则将该节点下的
+                所有叶子节点合并成为新的叶子节点。模型复杂度比预剪枝复杂，欠拟合风险小，泛化性更好，但是消耗更多内存和时间。
+
         from sklearn.tree import DecisionTreeClassifier, export_graphciz
         est = DecisionTreeClassifier(criterion='gini', max_depth=None, random_state=None)    criterion='entropy' 使用信息熵
         est.fit(x_train, y_train))
         export_graphciz(est, out_file='tree.dot', feature_names=["occupation","age","income"])
         在 http://webgraphviz.com 显示导出的树文件
 
+        回归决策树
+        对于数据集 D, 假设有 n 个特征，每个特征 a 有 m 个取值，遍历所有特征，每个特征遍历所有 m -1 个分割值 s（排序后相邻两个特征值的平均值），
+        使用 s 把数据分成小于 s 和大于 s 的两个区域，两组数据的区域输出值 c1, c2 为对应区域 y 的平均值 ，计算两组数据的损失和 L（数据标签值减
+        对应标签平均值（c1或c2）的平方）
+        L = min_a,s [Loss(y_i,c1) + Loss(y_i,c2)] = min_a,s [sum_x∈{x^{a}<=s}(y_i - c1)^2 + sum_x∈{x^{a}>s}(y_i - c2)^2]
+            其中 x^{a} 表示数据 x 特征 a 的取值， c1 = avg(y_i) (where x^{a}<=s)    c2 = avg(y_i) (where x^{a}>s), s 为特征切割值
+        不断迭代，根据最小损失值对应的特征和分割值划分区域，直到满足停止条件。
+        from sklearn.tree import DecisionTreeRegressor
+        est = DecisionTreeRegressor(max_depth=3)
+        est.fit(x_train, y_train))
+        est.predict_proba(X_test)   返回预测类别概率
+
     3.7 随机森林
-        集成学习：通过建立多个模型独立学习和预测，最后结合成组合预测。
+        集成学习：通过建立多个模型独立学习和预测，最后结合成组合预测，优于任何单个模型的预测。
+        Boosting: 弱弱组合变强（解决欠拟合，降低偏差）。训练一个学习器，根据学习器预测结果，调整数据分布使错误预测的数据更被关注（错误数据更大
+            权重），根据新的数据分布（串行）训练下代学习器，最后通过所有学习器的加权投票进行预测。
+            代表算法：Adaboost, GBDT, XGBoost, LightGBM
+        Bagging: 互相扼制变壮（解决过拟合，降低方差）。采样不同数据集，分别训练多个分类器（并行），平权投票获得最终结果。简单，通用，可提升 2%
+            左右泛化正确率
+
+        AdaBoost: 初始训练数据（权重相等 D1=(w11,w12,...,w1n)），训练第一个学习器。反复学习 m 个基本分类器（在新的分布上训练基分类器，计算
+            它的错误率 ε_m = P(h(x_i) ≠ y_i)，计算数据权重 α_m = ln((1-ε_m)/ε_m) / 2， 跟新权重
+             w_(m+1,i) = ( w_mi /Z_m) * e^(-α_m*y_i*h_m(x_i)) 预测错误，Z_m = sum_i(w_mi* exp(-α_m*y_i*h_m(x_i)))
+            为归一化系数，将权重缩放到 0-1），对 m 个学习器进行加权投票 H(x) = sign(sum_m (α_m*h_m(x)))
+            from sklearn.ensemble import AdaBoostClassifier
+
+        GBDT(Gradient Boosting Decision Tree): 决策树部分使用 CART 回归来处理分类和回归问题（需要求梯度，要求连续值）。梯度提升部分，
+            利用损失函数的负梯度作为提升树算法（初始化一个回归树，不断重复 m 轮，每轮学习（拟合）上一轮真实值与回归树预测值的差（残差），获得
+            一个新的回归树，最终对 m 个回归树求和获得结果）中的残差近似值。回归问题损失使用平方损失，分类问题使用 logloss
+
         随机森林： 包含多个决策树的分类器，预测结果为所有决策树输出类别的众数。
             随机选择特征（抽取个数远小于特征总数，降维），随机选择训练集（bootstrap 随机有放回抽样，同一个数据可以被抽到多次），来产生不同的决策树。
-        具有极好的准确率，处理高维数据不需要降维，能够评估特征重要性。
+            具有极好的准确率，处理高维数据不需要降维，能够评估特征重要性。包外样本（没有被抽中的样本）可以用来作为验证集剪枝
         from sklearn.ensemble import RandomForestClassifier
         est = RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None, bootstrap=True,
-            min_samples_split=2, min_samples_leaf=1,max_features="auto", random_state=None)
+            min_samples_split=2, min_samples_leaf=1,max_features="auto", min_impurity_split=0, random_state=None)
                 max_features 可选值: "auto" -> sqrt(n_features) , "sqrt", "log2", None( = n_features)
         est.fit(x_train, y_train)
 
@@ -807,8 +871,8 @@ Transformer：http://121.199.45.168:8001/1/
                      ==>   X^T Xw = X^T y  (X^T* X 方阵确保可逆)  ==> (X^T X)^(-1)  X^T Xw = X^T X)^(-1) * X^T * y
                      ==> w = (X^T X)^(-1) * X^T * y
             梯度下降（Gradient Descent, GD）：计算所有样本值得到梯度。经过多次迭代，改进获得最优值 （计算量大，通用性强）
-                J(W) = sum_i=0~m (h_w(x_i)-y_i)^2              W = W - α dcost/ dw
-                对于线性回归（∂h/∂w_i = x_i）， w_i = w_i - (α/m) sum_j=0~m (h_w(x_0^(j), x_1^(j),...x_n^(j)) - y_j) * x_i^(j)
+                J(W) = sum_i{0~m} (h_w(x_i)-y_i)^2              W = W - α dcost/ dw
+                对于线性回归（∂h/∂w_i = x_i）， w_i = w_i - (α/m) sum_j{0~m} (h_w(x_0^(j), x_1^(j),...x_n^(j)) - y_j) * x_i^(j)
                     # x_i^(j) 为第 j 条数据中输入 x 的第 i 个特征
 
             随机梯度下降（Stochastic gradient descent, SGD）： 每次迭代仅考虑一个训练样本（速度快，但有很多超参数，对特征标准化敏感）
@@ -835,8 +899,8 @@ Transformer：http://121.199.45.168:8001/1/
     3.9 拟合
         欠拟合（）和过拟合（学习了太多针对训练集的特征）
 
-        过拟合：在训练数据能获得更好的拟合，但是测试数据不能很好地拟合。学习了太多针对训练集的特征，模型过于复杂。需要减小高次项特征的影响，使用
-            正则化。
+        过拟合：在训练数据能获得更好的拟合，但是测试数据不能很好地拟合。学习了太多针对训练集的特征（噪声，样本冲突和巧合的规律），模型过于复杂。
+            需要减小高次项特征的影响，使用正则化。
             L1 正则化：L1 正则化使得一些权重系数直接为 0，删除特征影响（比较粗暴）   损失函数中添加惩罚项 + λ sum_j{1~n) abs(w_j)
             L2 正则化（更常用）：L2 正则化使得一些权重系数减小接近于0，削弱一些特征的影响。 在损失函数中添加惩罚项 + λ sum_j{1~n) w_j^2
         欠拟合：在训练数据和测试数据上都不能很好地拟合数据。学习到的特征太少，模型过于简单，区分太粗糙。需要增加数据，特征数量
@@ -886,6 +950,32 @@ Transformer：http://121.199.45.168:8001/1/
                     随机猜测 为 （0,0）到（1,1）直线 （TPR = FPR），AUC 为 0.5。 完美预测为（0,1）到 （1,1）直线，AUC 为 1， AUC 范围 [0.5,1]
                     from sklearn.metrics import roc_auc_score
                     roc_auc_score(y_true, y_pred)    y_true 反例必须为0， 正例为 1。
+
+        类别不平衡处理
+            pip install imbalanced-learn
+            过采样（oversampling）： 增加数量较少那一类样本的数量，使得正负样本比例均衡。
+                随机过采样：随机选择一些少数类样本，复制并添加到原始数据集中。会造成模型训练复杂度加大，容易造成模型过拟合。
+                    from imblearn.over_sampling import RandomOverSampler, SMOTE
+                    from collections import Counter
+                    sampler = RandomOverSampler(random_state=0)
+                    X_resampled, y_resampled = sampler.fit_resample(X, y)
+                    Counter(y_resampled)     # Counter({2:4674,  1:4674, 0:4674})
+                SMOTE 过采样 （Synthetic Minority Oversampling）：合成少数类过采样，可以降低过拟合风险。随机选择一个少数类样本 a，从其
+                    k 个邻近样本中随机选择一个样本 b，在 a 与 b 的连线上随机点一个点 c，将 c 作为新的人工合成的少数类样本。
+                    X_resampled, y_resampled = SMOTE().fit_resample(X, y)
+
+            欠采样（undersampling）： 减少数量较多那一类样本的数量，使得正负样本比例均衡。会造成一些信息缺失（丢失多数类信息），较少使用。
+                随机欠采样：随机选择一些多数类样本，从原始数据集中移除。
+                    from imblearn.under_sampling import RandomUnderSampler
+                    sampler = RandomUnderSampler(random_state=0)
+                    X_resampled, y_resampled = sampler.fit_resample(X, y)
+
+            随机生成分类数据
+            from sklean.datasets import make_classification
+            X, y = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, n_repeated=0,
+                n_classes=3, n_clusters_per_class=1, weights=[0.01, 0.05, 0.94], random_state=0)    # 创建随机按比例分类数据
+                # n_features (特征个数) = informative (有用特征) + redundant (冗余特征) + repeated (重复特征)
+                # n_clusters_per_class 每个类别中簇的个数， weights 每个类别的权重
 
     3.12 K-Means 算法
         迭代式算法，简单实用。但是容易收敛到局部最优（可通过多次聚类取最佳值缓解）。
@@ -2586,6 +2676,7 @@ import matplotlib.pyplot as plt
 pd.crosstab()
 v = sklearn.feature_extraction.DictVectorizer(sparse=True)
 v.fit_transform
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import RandomForestClassifier
 est = RandomForestClassifier
 x=jieba.cut("我爱北京天安门")
