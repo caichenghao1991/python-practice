@@ -630,7 +630,7 @@ Transformer：http://121.199.45.168:8001/1/
                 降低算法性能。
                 i. 特征选择：从所有特征（包含冗余或相关特征）中选择一个子集（主要特征）作为模型的训练数据。
                     Filter（过滤式）：寻找特征本身特点，特征与特征和目标之间的关联
-                        方差选择法： 方差小的特征，可以认为是不重要的特征
+                        低方差特征过滤法： 方差小的特征，可以认为是不重要的特征
                             trans = sklearn.feature_selection.VarianceThreshold(threshold=0.0)  删除所有方差低的特征
                             x_remain = trans.fit_transform(x)    x 为二维数组
                         相关系数法：特征与特征之间的相关程度。
@@ -638,11 +638,16 @@ Transformer：http://121.199.45.168:8001/1/
                             r = [n * sum(xy) - sum(x) * sum(y)] / [sqrt(n * sum(x^2) - sum(x)^2) * sqrt(n * sum(y^2) - sum(y)^2)]
                                 两个变量 x, y， 样本个数 n， r ∈ [-1,1]  r>0 正相关， r<0 负相关， r=0 无关, |r| 越大，相关性越强
                             from scipy.stats import pearsonr
-                            r, p = pearsonr(x, y)   r 相关系数， p-value 值  x，y 为两列值
+                            r, p = pearsonr(x1, x2)   r 相关系数， p-value 值(越小接近 0 越相关)  x1, x2 为两列值
                             对于特征相关性高的特征，可以通过以下方法降维：
                                 选择其中一个特征，删除其他
                                 对于这些进行特征加权求和
                                 主成分分析
+                        斯皮尔曼相关系数：衡量两个变量之间线性相关程度
+                            r = 1 - 6*sum(d_i^2)/n/(n^2-1)   n 为等级（rank 排序名词）个数， d 为二列成对变量(两列各自排序对应)的等级差数
+                            from scipy.stats import spearmanr
+                            r, p = spearmanr(x1, x2)      r ∈ [-1,1]， p-value 值(越小越相关)
+
                     Embedded（嵌入式）： 算法自动选择特征
                         决策树：信息熵，信息增益
                         正则化： L1， L2
@@ -739,19 +744,22 @@ Transformer：http://121.199.45.168:8001/1/
             cv_results_： 每次交叉验证的验证集好训练集准确率
 
     3.5 朴素贝叶斯算法  （独立条件下的贝叶斯）
-        朴素贝叶斯算法是生成式模型，通过先验概率和条件概率计算后验概率，进而求解最大后验概率对应的类别。
-        基于数学理论，有稳定的分类效率，对缺失值不太敏感，算法较简单，分类准确度高，速度快。但是由于使用特征独立假设，特征有关联时效果不好。 常用于文
-        本分类 （假设单词之间相互独立）
+        朴素贝叶斯算法是生成式模型 (对 P(x,c) 建模获得 P(c|x) 预测 c)，通过先验概率和条件概率计算后验概率，进而求解最大后验概率对应的类别。
+        基于数学理论，有稳定的分类效率，对缺失值不太敏感，算法较简单，分类准确度高，速度快。但是由于使用特征独立假设，特征有关联时效果不好。
+        先验概率有时取决于假设，不好的假设模型可能导致预测效果不佳。常用于文本分类 （假设单词之间相互独立）
+        样本容量增加时收敛更快，存在隐变量时也适用，但是消耗很多计算资源，不适用大规模数据集
 
         概率： 一件事发生的可能性， P(X) ∈[0,1]
         联合概率：多个条件同时成立的概率， P(A,B)
         条件概率：事件 A 在另外一个事件 B 已经发生条件下的发生概率， P(A|B)
-        相互独立： P(A,B) = P(A) * P(B) <==> 事件 A 与 B 相互独立。
+        相互独立： P(A,B) = P(A) * P(B) <==> 事件 A 与 B 相互独立。没有
+        P(A|B) 后验概率    先验概率 P(B)
 
         贝叶斯公式 P(A|B) = P(B|A) * P(A) / P(B)  A: 类别， B： 特征    P(B|A) = B特征在 A 类别出现的次数 / 类别 A中所有特征出现的次数和
             拉普拉斯平滑系数： 防止概率为 0， P(B|A) = (B特征在 A 类别出现的次数 + α) / (类别 A中所有特征出现的次数和 + α * 特征总数)
                 α 为指定的平滑系数，一般为 1
-        朴素： 假设特征与特征之间相互独立，即 P(A,B) = P(A) * P(B)
+        朴素： 假设特征与特征之间相互独立，即 P(A,B) = P(A) * P(B)  如果不使用此假设，会导致组合爆炸，样本稀疏。
+            可以运用假设得出较好效果原因：特征选择可以排除一些相关特征，有些依赖关系会相互抵消，只要预测类别排序正确就行不需要太精确。
         P(A,B | C) = P(A | C) * P(B | C)
 
         from sklearn.naive_bayes import MultinomialNB
@@ -922,7 +930,8 @@ Transformer：http://121.199.45.168:8001/1/
         早停 （Early Stopping）: 在错误率达到满意阈值时停止训练
 
     3.11 逻辑回归（需要无量纲化）
-        逻辑回归：用于二分类问题，输出 0 或 1。但和回归算法之间有一定的联系。
+        逻辑回归：用于二分类问题，输出 0 或 1。但和回归算法之间有一定的联系，适用大规模数据集。属于判别模型 (输入 x, 通过 P(c|x) 预测 c)
+        准确率不错，简化问题，可以反映数据的分布情况，类别的差异特征，适用于较多类别的识别。但是收敛较慢，不适用于隐变量的情况。
         原理
             逻辑回归的输入就是线性回归的输出，然后通过 sigmoid 函数 （1 / (1+e^(-x))）将其映射到 0~1 之间，采用默认 0.5 为阈值，
             区分两个类。
@@ -971,37 +980,138 @@ Transformer：http://121.199.45.168:8001/1/
                     X_resampled, y_resampled = sampler.fit_resample(X, y)
 
             随机生成分类数据
-            from sklean.datasets import make_classification
+            from sklearn.datasets import make_classification
             X, y = make_classification(n_samples=1000, n_features=2, n_informative=2, n_redundant=0, n_repeated=0,
                 n_classes=3, n_clusters_per_class=1, weights=[0.01, 0.05, 0.94], random_state=0)    # 创建随机按比例分类数据
                 # n_features (特征个数) = informative (有用特征) + redundant (冗余特征) + repeated (重复特征)
                 # n_clusters_per_class 每个类别中簇的个数， weights 每个类别的权重
 
-    3.12 K-Means 算法
-        迭代式算法，简单实用。但是容易收敛到局部最优（可通过多次聚类取最佳值缓解）。
-        步骤：
-            1. 随机设置 k 个特征空间内的点作为初始的聚类中心。
-            2. 对于其他每个点计算到 k 个中心点的距离， 未分类的点选择距离最近的聚类中心点作为标记类别。
-            3. 对于（k 个）聚类中心，计算所有被标记为该类的点的（所有维度）平均值作为新的中心点
-            4. 重复第二步，直到新中心点与原中心点一致（可以加入可容忍误差）。
-        k 值选取： 看需求， 或者网格搜索调节超参数
-            from sklearn.cluster import KMeans
-            estimator = KMeans(n_clusters=3, init='k-means++'， max_iter=300)    中心个数，中心初始方法
-            estimator.fit(X)
-            estimator.cluster_centers_    聚类中心点
-            estimator.labels_     训练后标记类型
-            estimator.predict(new_X)
+    3.12 支持向量机 SVM (support vector machine)
+        寻找一个超平面使样本分成两类，并且间隔（两类边缘点到分割平面的距离和）最大。特别适合中小型数据集的分类。
+        适合于（二/多）分类，回归和异常检测，具有内存需求小，良好的鲁棒性（确定性），对未知数据的泛化能力强，特别数据量少时比其他模型效果好。
+        需要数据标准化。如果特征数量比样本数量大得多，选择核函数时要避免过拟合。对缺失数据敏感。
+        硬间隔和软间隔：
+            硬间隔分类不允许分类错误，必须满足数据是线性可分的，且对于异常值非常敏感。
+            软间隔分类允许少量错误，在保持最大间隔宽度和错误分类个数间找到平衡。使用 C 作为预测错误数据的惩罚项，C 越小，间隔越宽。
+
+        算法原理 ??
+            给定特征空间上的数据集 D ={(x_1,y_1),(x_2,y_2),...,(x_n,y_n)}}   y∈{1,-1} 。
+            间隔最大化的超平面为： y(x) = w^T φ(x) + b   φ(x) 为核函数 (能将 x 映射到更高维度)，最常见的是线性核函数：φ(x) = x
+            对应的决策函数为：f(x) = sign(w^T φ(x) + b)  其中 w 和 b 为模型的参数，sign(x) 为符号函数
+            样本空间中的任意样本 x 到 超平面 (w,b) 距离为： r = |w^T x+b| / ||w||     ||w|| 为范数
+            若 y_i = 1, w^T x+b > 0   (令 w^T x+b >= 1); 若 y_i = -1, w^T x+b <0 (令 w^T x+b <= -1)
+            两个距离超平面最近的点为支持向量，两个类的支持向量到超平面的距离之和为间隔： γ = 2 / ||w||
+            等价于在对于所有 i 满足 y_i(w^T x_i+b)>=1 的前提下，最小化 ||w||^2/2
+            使用拉格朗日乘子法（求解多元函数在一组约束下的极值的方法）
+            L(w,b,α) = ||w||^2/2 - sum_n{1~n} [α_i(y_i(w^T φ(x)+b)-1)]    极小极大值问题
+            求导
+        SVM 损失函数
+            0/1 损失： 分类正确损失 0， 错误损失 1
+            Hinge 损失： 正样本数据点距离超平面距离 r (分错时r<0), r >=1 时损失0，r <=1 时损失 1-r
+            Logistic 损失： 损失 ln(1+e*(-y_i)) / ln2
+        核函数：将原始输入空间映射到高维特征空间，从而将原本线性不可分的样本可能在核空间可分。
+            对于空间内的 x,z核函数满足 k(x,z) = φ(x) φ(z)     φ 为映射函数， k 为核函数
+            常见核：线性核（特征数量大时使用。特征数量小且样本数很大时，手动添加特征使得线性可分。参数少，速度快），多项式核，
+                高斯核（RBF，最常使用，在空间中使用一些点为圆心向外扩展划分数据。特征数量很小，样本数正常时使用。效果依赖于参数选择（交叉验证较耗时））
+                Sigmoid 核（经过 tanh 函数把值域限制在-1到1），Laplace 核
+        SVM 回归
+            让尽可能多的数据点落在预测线附近，限制落在间隔外错误的数据。ϵ 越小，间隔越小。
+
+        from sklearn import svm
+        clf = svm.SVC(C=1.0, kernel='linear',degree=3，coef0=0)   # C 越大惩罚越大, degree 为多项式核的最高次数， kernel 可取
+            # RBF, linear, Polu, Sigmoid,自定义核,   coef0 核函数常数值（只在 poly 和 sigmoid 核时有用）
+        clf = svm.NuSVC(nu=0.5)            nu 参数 nu ∈ (0,1)
+        clf = svm.LinearSVC(penalty='l2', loss='squared_hinge', C=1.0, dual=True)    loss: hinge，squared_hinge
+            # 没有 kernel 参数, dual 是否转为对偶问题求解
+        clf.fit(X,y)
+
+
+
+    3.13 K-Means 算法
+        聚类算法：典型的无监督学习算法，用于将相似的样本自动归到一个类别中，从而将样本分到不同的类别中。使用不同的相似度计算方法，会得到不同的聚类
+            结果。
+        随机生成聚类数据
+            from sklearn.datasets import make_blobs
+            X, y = make_blobs(n_samples=1000, n_features=2, centers=4, cluster_std=[0.1, 0.3, 0.2, 0.2], random_state=0)
+                # centers=[[-1,-1],[2,2]]  可以声明个数或者坐标列表
         聚类效果评估
-            轮廓系数 (silhouette score)：  期望簇内距离小， 簇间距离大
+            误差平方和（sum of squares due to error）: 真实值和预测值差的平方和
+                SSE = sum_k(sum_p∈C_i |p, m_i|^2)    总共分为 k 类， C_i 为第 i 个类， m_i 为其中心。|p, m_i| 为 p 到中心距离
+            肘方法（Elbow method）: 用来确定 k 。计算从 k 从 1 到 n 时的模型的误差平方和，在误差减小的过程中会出现一个拐点，即“肘”点，下降
+                率突然变缓，此拐点对应的 k 值就是最佳聚类数。
+            轮廓系数 (silhouette score)：  期望簇内距离小， 簇间距离大。当 k 对应轮廓系数差不多时，优先选择每类数据个数差不多的 k。
                 sc_i = (b_i - a_i) / (max(b_i, a_i))     b_i 为到其他簇群的所有样本距离最小值， a_i 为到本身簇的距离平均值。
                 计算所有样本点的轮廓系数平均值。 轮廓系数取值范围 [-1,1] 越大聚类效果越好
-            from sklearn.metrics import silhouette_score
-            silhouette_score(X, estimator.labels_, metric='euclidean')
+                from sklearn.metrics import silhouette_score
+                silhouette_score(X, estimator.labels_, metric='euclidean')
+            CH 系数（Calinski-Harabasz Index）: CH 系数越大越好。类别间协方差矩阵的迹(主对角线元素和，反应相似性)越大越好，类别内越小越好，
+                同时偏好较少的类
+               s(k) = (tr(B_k) / tr(W_k)) *(m-k)/(k-1)    tr 为矩阵迹， B_k, W_k 为类间，类内协方差矩阵，m 为训练样本数，k 为类别数
+
+        KMeans
+            步骤：
+                1. 随机设置 k 个特征空间内的点作为初始的聚类中心。
+                2. 对于其他每个点计算到 k 个中心点的距离， 未分类的点选择距离最近的聚类中心点作为标记类别。
+                3. 对于（k 个）聚类中心，计算所有被标记为该类的点的（所有维度）平均值作为新的中心点
+                4. 重复第二步，直到新中心点与原中心点一致（可以加入可容忍误差）。
+            k 值选取： 看需求， 或者网格搜索调节超参数，根据聚类效果评估
+
+            原理简单，实现容易，效果中上（依赖 k 的选择），空间复杂度 O(N),时间复杂度 O(IKN)，N 为样本数，K中心数，I迭代次数。但是对离群点（噪声）
+                敏感，很难发现大小差别很大的簇，结果不一定是全局最优，容易收敛到局部最优（可通过多次聚类取最佳值缓解）。
+
+            聚类 api
+                from sklearn.cluster import KMeans
+                estimator = KMeans(n_clusters=3, init='k-means++'， max_iter=300)    中心个数，中心初始方法
+                estimator.fit(X)
+                estimator.cluster_centers_    聚类中心点
+                estimator.labels_     训练后标记类型
+                estimator.predict(new_X)
+
+        KMeans 优化方法
+            Canopy 算法：粗聚类。
+                受噪声影响较小，选择的中心比 KMeans 精确。但是依赖于半径 t1, t2 的选择
+                步骤
+                    1. 随机选择一个点，作为簇中心点，并以此点为中心，半径 t1 内的点归到该簇
+                    2. 在所有簇中心点半径 t2 被覆盖的区域外，选择一个点作为新的簇中心点，重复 1
+
+            KMeans++：距离越远越可能成为中心
+                在数据集中随机选择一个样本点作为第一个初始化的聚类中心
+                计算每个样本与当前已有聚类中心之间的最短距离，记为 D(x)
+                选择一个概率 P(x) (当前点到中心最短距离除以所有点最短距离之和)最大（或者概率分布）对应的数据点作为新的聚类中心。
+                    P(x) = D(x)^2 / sum_x D(x)^2
+                重复上述过程，直到k个聚类中心都被确定
+                对k个初始化的聚类中心，利用K-Means算法计算最终的聚类中心。
+
+            二分 k-means: 拆分 SSE 最大的簇
+                将所有点做为一个簇，将该簇使用 KMeans 分为两个簇，之后选择能最大程度降低聚类代价函数（也就是误差平方和）的簇划分为两个簇（或者选择
+                最大的簇等，选择方法多种）。重复直到簇的数目等于用户给定数目
+
+            K-medoids：选取中心方式不同
+                与 k-means 类似，只在第 3 步计算新的中心不同。选取该类内到其他所有点的距离之和最小的点作为中心点。
+
+            Kernel k-means：
+                将每个点 x 映射到高维空间，然后再使用 k-means 进行聚类。
+
+            ISODATA：可以动态修改 k 值
+                类别数目随着聚类过程而变化。当聚类结果中某一类中样本数太少，或者两个类间距太近时，进行合并类。当聚类结果中某一类的类内方差太大时，
+                分裂成两个类。
+
+            Mini batch K-Means：大数据分批
+                适合大数据（1万+）的聚类算法。从数据集中随机抽取一些数据形成小批量，把他们分配给最近的中心。
+
+
+    3.14 EM （Expectation Maximum）算法
+        根据已经给出的观测数据，估计模型参数的值，再依据这些参数估计值，估计缺失数据的值，再根据估计的缺失数据和已经观测的数据，重新对参数估计。
+        反复迭代，直至最后收敛。
+        极大似然估计：用来估计模型参数的统计学方法
+
 
     3.13 神经网络
         不要初始化权重为 0 的矩阵，会导致训练缓慢，最好均匀分布的小数。
 
 4 Pytorch
+    cuda 11.2, python3.9, cudnn 8.1.1
+    pip install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
     Pytorch 是基于 Numpy 的科学计算包，能够使用 GPU 加速计算，提供灵活，高速的深度学习平台。
     Tensor (torch.Tensor)张量： 类似于 Numpy 的 ndarry 的数据结构， 区别在于可以利用 GPU 加速运算。
 
@@ -1241,8 +1351,12 @@ Transformer：http://121.199.45.168:8001/1/
                     络参数完成一次模型迭代。
                     最后窗口每次向后移动一个单词，更新参数，直到语料遍历完成，得到最终的变化矩阵 W (3*5)，这个变化矩阵与每个词汇的 one-hot
                     矩阵（5*1）相乘，得到 3*1 的矩阵就是该词汇的 word2vec 张量表示。
+                #
+
                 skipgram：给点一段用于训练的文本语料，再选定某段长度（窗口）作为研究对象，使用（窗口正中间）目标词汇预测上下文词汇。
-                例： 一句话 Hope can set you free. 假设参数窗口大小为 3， 对于第一轮，输入 can， 预测 Hope，set。can (5*1) 的
+
+                                                              例： 一句话 Hope can set you free. 假设参数窗口大小为 3， 对于第一轮，输入 can， 预测 Hope，set。can (5*1) 的
+  |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             6;Z\3A Q
                     one-hot 矩阵，与变化矩阵 W (3*5) 相乘，得到 3*1 的隐藏层（上下文表示矩阵），让后用隐藏层分别乘以变化矩阵 W1 (5*3)，
                     W2 (5*3)，得到两个 5*1 的结果矩阵，与目标词汇 Hope, set 的 one-hot 矩阵进行损失计算，并更新网络参数完成一次模型迭代。
                     之后与 CBOW 相同。
@@ -2689,4 +2803,3 @@ import torchvision
 torchvision.datasets.CIFAR10
 torchvision.utils.make_grid(images)
 import torch.nn as nn
-nn.LSTM
