@@ -123,6 +123,7 @@ class Review:
     identity operator: is  is not
     membership operator: in  not in
     logical operator: and  or  not     print(1 and 3)  # 3
+        any(i for i in lis) # iterator way(recommended)      all([i for i in lis])
     bitwise operator:  &   |   ^ XOR(both true or both false return false)    ~ NOT   << (add 0 right most)    >>
     
     --Math
@@ -217,6 +218,7 @@ class Review:
     list1.sort(reverse=True)    # return None  mutate original list  large -> small
     list1.reverse()   # return None   mutates list to [True, '2', 1]
     li = sorted(list1)  # return new sorted array
+    list1.sort(key=lambda x: (-x[0], x[1]))   # first axis decreasing , second axis increasing order
     reversed(li)  # return iterable object   for i in reversed(list1): print(i)   [True, '2', 1]    or li[::-1]
     Aggregate functions
     min(list1)   max(list1)  sum(list1)

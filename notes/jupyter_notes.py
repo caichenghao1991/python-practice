@@ -31,4 +31,9 @@
     up/down arrow       # move to above/below cell
 
 
+
 """
+from sklearn.preprocessing import LabelEncoder
+
+le = LabelEncoder()
+le.set_params()

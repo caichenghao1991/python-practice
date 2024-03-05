@@ -173,7 +173,7 @@
 
             # add value
             color['d'] = np.nan
-            color = color.append(pd.Series(['Orange','Black']))  # default index start at 0, {"0":'Orange', "1":'Black'}
+            color = color._append(pd.Series(['Orange','Black']))  # default index start at 0, {"0":'Orange', "1":'Black'}
                 # need assign otherwise series won't change
             # attribute
             color.shape  # (3,)         color.size  # 3
@@ -318,7 +318,7 @@
                 df[~df.duplicated()]  # rows not duplicated,  keep='last' check from bottom to top
                 # subset=['Harry','Ronald']  # check duplicate value in subset columns
             df = df.drop_duplicates()    # remove duplicated rows
-            df.unique()                 # return Series of unique counts for each column
+            df.nunique()                 # return Series of unique counts for each column
             df['Harry'].unique()        # return unique counts column Harry value
             df = df.add_prefix('new_')   # add prefix for each column name   # add_surfix()
             .sort_values(by=["saledate"], inplace=True, ascending=True)    # only sort column, return sorted rows base
@@ -341,8 +341,6 @@
                 pd.concat((df1, df2),keys=['df1','df2'], axis=0)  # add hierarchical index at level 0 'df1','df2'
                     # fill NaN and outer join in default if 2 df have different column
                 pd.concat((df1, df2),join='inner', sort=True)  # inner join, default outer join
-                pd.concat((df1, df2),axis=0, join_axes=[df1.columns])
-                        # axis=1, join_axes=[df1.index]  # left join on df1 index, keep all df1 rows
 
             pd.merge(df1, df2)    # merge must have common column(s), default inner join on the common column
                 df1.merge(df2)   # how='inner' #inner join     how='right' # right join    outer left
@@ -1141,4 +1139,5 @@ if __name__ == '__main__':
     # numpy_basic()
     # pandas_basic()
     matplotlib_basic()
+    np.hsplit(a)
     #scipy_basic()
