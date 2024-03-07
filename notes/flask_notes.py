@@ -18,12 +18,11 @@
 
 
     # native wsgi implementation
-    def app1(env, make_response):
-        header, body=[],[]
-        request_path = env.get('PATH_INFO')
-        header.append(('content-type', 'images\*'))'text/html;charset=utf-8'  'audio/mpeg'   'video/mp4'
-        make_response('%s OK' % status_code, header)  # native python implementing wsgi,
-        return body  # content inside body (list, string)
+    def application(environ, start_response):
+        status = '200 OK'
+        headers = [('Content-type', 'text/plain')]
+        start_response(status, headers)
+        return [b"Hello, World!"]
     httpd = make_server('127.0.0.1', 8000, app1)  # http daemon
     httpd.serve_forever(poll_interval=0.5)
 
@@ -113,6 +112,7 @@
     from flask import make_response, jsonify, Response, Blueprint
     emp.py
     bp = Blueprint('emp', __name__)  # use blueprint to split the work into different class (employer)
+        # name of the blueprint (prepended to each endpoint name),     The name of the blueprint package
         # inside main app class:
     @bp.route('/find/<int:id>', methods=['GET', 'POST'])  # <int:id>
     def employee(id):

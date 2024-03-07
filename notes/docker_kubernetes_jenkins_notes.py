@@ -40,7 +40,7 @@
             # -rm  remove container automatically after finish running job
             docker run -dit --name redis1 -p 6378:6379 redis      # -d:backend, -i:can enter container, -t:can open
                  terminal, 6378 ubuntu machine port(place running docker commands),  6379 container port  run in backend
-        docker inspect containerid    # check container info
+        docker inspect containerid    # obtaining detailed information about Docker objects
         docker ps a            # show all container (stopped as well, check for container id)
                 u: show program based on user     # x show all program      # ps aux  # can write together
         docker start redis1
@@ -54,7 +54,7 @@
             or  docker save -o ~/redis.tar redis1  # save imageID/name snapshot
                 docker load --input ~/redis.tar   or   docker load < ~/redis.tar
         docker logs   # check logs
-        docker top containerid   # check container status
+        docker top containerid   #  viewing the processes running inside a container
 
         Dockerfile
             FROM: ubuntu-dev:latest   # base:image version
@@ -92,8 +92,12 @@
                     CMD /bin/sh -c 'nginx -g "daemon off;"'    CMD ["-g","daemon off;"]   CMD ["/usr/bin/wc","--help"]
                     # docker run -it -p 8080:8000 <docker_image> ls -l    command with param (ls -l) will override
                         cmd command, need entrypoint ahead of cmd in this case to avoid must execute command overridden
-                CMD设置的指令在镜像运行时自动运行，无法追加指令，只能把指令全部覆盖
-                ENTRYPOINT设置的指令在镜像运行时与CMD一样，可以在新建镜像时设置的指令后追加新的指令，也可以使用 --entrypoint 覆盖指令。
+                CMD 用于添加 ENTRYPOINT 的参数（ENTRYPOINT ["ls"]  CMD ["-alh"]， 只有CMD 时实际使用默认 ENTRYPOINT /bin/sh -c）
+                    设置的指令在镜像运行时自动运行，无法追加指令，只能把指令全部覆盖 （CMD ["echo", "Hello"] docker run imgname pwd
+                    只会打印当前目录，pwd 覆盖了echo cmd）
+                ENTRYPOINT设置的指令在镜像运行时与CMD一样，可以在新建镜像时设置的指令后追加新的指令，
+                （ENTRYPOINT ["echo", "Hello"] docker run imgname pwd  会打印 Hello 当前目录）也可以使用 --entrypoint 覆盖指令。
+
             ONBUILD <command>         # command won't be executed for building this image, only run command when some
                                       # other image have 'from thisImageName' (use this image as base image)
         ex.
@@ -137,6 +141,9 @@
                     links:                          # link to other service
                         - db
                         - redis
+                    extends:                        # extend same base setting from current file service or yml file
+                        file: common.yml
+                        service: webapp
                     container_name: app             # optional, specify container name
                     ports:                          # access port
                         - 8080
@@ -166,9 +173,6 @@
                         - service_name
                         - container_name
                     entrypoint: /code/entrypoint.sh # optional override entrypoint in Dockerfile
-                    extends:                        # extend same base setting from current file service or yml file
-                        file: common.yml
-                        service: webapp
                     logging:                        # specify logging config
                       driver: syslog
                       options:
@@ -368,7 +372,9 @@
         Nodes(worker): have single/multiple pod (must have kubelet(process that schedule the container, interacts with
             node and container, assign resource to container), kube-proxy(intelligently forward request from service to
              pod), Pod(container runtime))
-        Master Node: There is one or multiple(for high availability) central control computer(control plane)
+             Nodes provide the underlying infrastructure and resources for running applications, managed by the Kubernetes
+             control plane. Deployments schedule pods onto nodes based on resource availability and constraints
+        Master Node(control plane): There is one or multiple(for high availability) central control computer
             k8s cluster services to manage nodes and pods. It use api to communicate with nodes. It will monitor network
             status of nodes to balance the load. It can also issue command to nodes (replace drained pod with pod in
             replica set)
@@ -378,7 +384,7 @@
             between master and nodes) stored in the key value pair)
             master node need less resource since it's nodes that do actually jobs.
             master and nodes recommended located on different machine, can be same machine though
-        Cluster: control plane and corresponding nodes
+        Cluster: control plane and corresponding nodes. Namespaces exist within clusters
         Namespace: can have multiple namespace(cluster) in cluster to organize resource. default has some namespace:
             kube-node-lease(node associated lease object in namespace, heartbeats of nodes to determine availability);
             kube-public(public accessible data, a config map with cluster information, use 'kubectl cluster info' to get
@@ -418,6 +424,22 @@
             When using 'helm upgrade [chartname]', changes are applied to existing deployment instead of create new one.
             If something went wrong, use 'helm rollback [chartname]' to change back to previous deployment. Tiller has
             too much permission, cause security issue. So in Helm 3, Tiller got removed.
+
+        helm install: This command is used to install a chart onto a Kubernetes cluster. It deploys the resources
+            defined in the chart to the cluster.
+        helm upgrade: This command is used to upgrade a release to a new version of a chart. It can also be used to
+            update the configuration of an existing release.
+        helm uninstall: This command is used to uninstall a release from the Kubernetes cluster. It removes all resources
+            associated with the release.
+        helm list: This command is used to list all releases deployed to the Kubernetes cluster. It provides information
+            about the status, chart, and version of each release.
+        helm status: This command is used to get the status of a specific release. It provides information about the
+            resources deployed as part of the release and their current status.
+        helm rollback: This command is used to roll back a release to a previous version. It reverts the changes made by
+            a previous upgrade.
+        helm search: This command is used to search for charts in Helm repositories. It helps you find charts that you
+            can install on your Kubernetes cluster.
+
 
         installation: minikube, kubeadm, yum, binary, 3rd party, cloud(Amazon EKS)
         minikube simulate kubernetes in virtual environment for learning
@@ -469,6 +491,8 @@
                             cpu: "500m"
                         ports:
                         - containerPort: 5000
+                        command: ["sh","-cex"]
+                        args: ["git clone xxx"]
                         env:
                         - name: USER
                             value: root
@@ -482,7 +506,13 @@
                                 configMapKeyRef:
                                     name: nginx-configmap       # match configure map service name
                                     value: my_url               # retrieve from configure map via key
+                        volumeMounts:
+                            - name:
+                                mountPath: /etc/xxx
+                                subPath: xxx
+                                readOnly: True
         ---                     # new document starting
+
         apiVersion: apps/v1
         kind: Service           # create service
         metadata:

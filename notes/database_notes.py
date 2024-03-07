@@ -3,15 +3,15 @@
     relation database(SQL): need accuracy Oracle/ MySQL / MariaDB (similar to MySQL)   (row-column, 2d table)
         one line: a record    one column: attribute
         ACID
-        Atomic: All operations in a transaction succeed or every operation is rolled back. (transaction)
-        Consistent: On the completion of a transaction, the database is structurally sound.
+        Atomicity: All operations in a transaction succeed or every operation is rolled back. (transaction)
+        Consistency: On the completion of a transaction, the database is structurally sound.
             instance consistent: ensure no redundancy via primary keys
             relation consistent: ensure relation holds between instances via foreign keys.
             field consistent: data consistency, via datatype, length, null check, default value, check constraint
-        Isolated: Transactions do not contend with one another. Contentious access to data is moderated
-            by the database so that transactions appear to run sequentially.
-            transactions don't know each other's intermediate state
-        Durable: The results of applying a transaction are permanent, even in the presence of failures.
+        Isolation: ensures that the concurrent execution of transactions does not result in interference between them. 
+            Each transaction should be isolated from other transactions until it's completed and committed. This prevents 
+            concurrent transactions from accessing or modifying the same data simultaneously
+        Durability: The results of applying a transaction are permanent, even in the presence of failures.
 
 
     non-relational database (NoSQL): faster flexible. MongoDB, Redis (key-value pair, cache),
@@ -40,9 +40,9 @@
     rpm -e mysql-5.7.25-1  # uninstall mysql
 
     yum install -y mariadb mariadb-server  # install MariaDB
-    systemctl start/stop/status mariadb  # start maria server on centos 8
+    systemctl start/stop/status mariadb/mysql  # start maria server on centos 8
         # windows  inside bin    mariadbd.exe --console
-    net start/stop mysql
+        
     netstat -nap | grep 3306   # maria server default port 3306, open 3306 to specific ip, not to public
         process name mysqld: daemon (won't stop system shutdown, close app same time)
 
@@ -266,7 +266,7 @@
 
     # function
     delimiter $$
-    create function genPerson(@name varchar(20)) returns varchar(50)   -- return avgage
+    create function genPerson(@name varchar(20)) returns varchar(50)   -- return avg age  
     begin
         declare @cmd varchar(50) default '';   # declare variable
         set @cmd=concat('create table ',@name,' (id int, name varchar(20));');
@@ -312,7 +312,7 @@
     # data search result case-sensitive or not depends on collate rules during database creation
         # utf8_general_ci not case-sensitive,  utf8_bin  is case-sensitive
     # database object name better use prefix to distinguish: table, views, index, function, procedure, trigger
-    # not recommend use in, not in, distinct. consider use exists, no exists
+    # not recommend use in, not in, distinct. consider use exists, no exists (self join for distinct)
     select 'x'  #'x'    select 'x' from dual  # 'x'  table dual is unique non exist table
     select 'x' from t_student  # how many row is how many 'x'
     select 'x' from dual where exists (select * from t_student where stu_name like 'Harry%')
@@ -373,8 +373,7 @@
     jobs  # show running process    fg%1  move to foreground   Ctrl+z  stop process  bg%1 start in background
 
     redis-server redis-5.0.4/redis.conf    # use config file
-    redis-client  auth 123456      shutdown nosave
-    redis-cli  # connect to redis client   -h 127.33.1.23  -p 1234   default 127.0.0.1:6379
+    redis-cli -h example.com -p 12345 -a mypassword  # connect to redis client   default 127.0.0.1:6379
 
     close redis server options: 1. server  ctrl+c    2. kill process # (ps -ef | grep redis)
         3. redis-cli   shutdown  quit
@@ -741,10 +740,11 @@
     # mapreduce
     db.collection.mapReduce(function() {emit(key,value);}, function(key,values) {return reduceFunction},
         {out: collection,query: document,sort: document,limit: number})
+
     db.posts.mapReduce(function() {emit(this.name, this.score);}, function(key, values){return Array.sum(values)},
         {query:{"age":{$lt:50}}, out:"score_total" }).find()
         # map with name as key and put all score into an array, then reduce by sum, query filter out results, and
-        add a collection 'score_total'.  { "_id" : "Harry", "value" : 4 }
+        add a collection 'score_total'.  { "_id" : "Harry", "value" : 4 }  map, reduce function need in formatted string
 
 
     # GridFS
