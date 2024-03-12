@@ -7,9 +7,9 @@
         using DataFrames, Supports ANSI SQL
     Apache Spark works in a master-slave architecture where the master is called “Driver” and slaves are called
         “Workers”. When you run a Spark application, Spark Driver creates a context that is an entry point to your
-        application, and all  operations (transformations and actions) are executed on worker nodes, and the resources
+        application, and all operations (transformations and actions) are executed on worker nodes, and the resources
         are managed by Cluster Manager (standalone, apache mesos, Hadoop YARN, Kubernetes).
-    
+
     SparkSession
         an entry point to work with RDD, DataFrame since Spark 2.0. it's a combined class for all different contexts
         (SQLContext, Streaming Context, Spark Context and HiveContext e.t.c).
@@ -22,11 +22,11 @@
         map(), filter(), union(), flatMap(),mapPartition() are narrow transformation (no data sent across partition)
         groupByKey(), reduceByKey(), aggregateByKey(), aggregate(), join(), repartition() are wider(shuffle)
             transformation (data sent across partition), expensive due to shuffling
-    
-    DataFrame is a distributed collection of data organized into named columns. It is conceptually equivalent to a table 
-        in a relational database. mostly similar to Pandas DataFrame with exception PySpark DataFrames are distributed 
+
+    DataFrame is a distributed collection of data organized into named columns. It is conceptually equivalent to a table
+        in a relational database. mostly similar to Pandas DataFrame with exception PySpark DataFrames are distributed
         in the cluster
-        
+
     check jobs at Spark Web UI     terminal:  pyspark       localhost:
     check logs at Spark History Server  (https://sparkbyexamples.com/pyspark-tutorial/)
 
@@ -41,11 +41,11 @@
     from pyspark.sql import SparkSession
 
     # Spark session
-    spark = SparkSession.builder.master("local[1]").appName("test").getOrCreate() 
+    spark = SparkSession.builder.master("local[1]").appName("test").getOrCreate()
         # create spark session
         # master() - specify cluster master  "yarn" or "mesos" for cluster mode, local[x] for Standalone mode
-            #  x is number partitions created when using RDD, DataFrame, and Dataset. ideally should be same 
-            # as CPU cores 
+            #  x is number partitions created when using RDD, DataFrame, and Dataset. ideally should be same
+            # as CPU cores
         # appName() - set your application name.
         # getOrCreate() – returns SparkSession object if exists, creates new one if not
         # .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/test.coll").config("spark.mongodb.output.uri",
@@ -87,9 +87,9 @@
         print(str(rdd.getNumPartitions()))
         rdd = df4.rdd    # convert dataframe to rdd
 
-    # perform transformation(return another RDD) and action operations(trigger computation and return RDD values to the 
-        # driver(master)). Any operation you perform on RDD runs in parallel.    
-    
+    # perform transformation(return another RDD) and action operations(trigger computation and return RDD values to the
+        # driver(master)). Any operation you perform on RDD runs in parallel.
+
     # transformation: flatMap(), map(), reduceByKey(), filter(), sortByKey()...
     # action: count(), collect(), first(), max(), reduce()...
 
@@ -101,7 +101,7 @@
         rdd5 = rdd4.reduceByKey(lambda a,b: a+b) # merges the values for each key with the function specified.
                                             # here create RDD for appearance counts for unique word
         rdd6 = rdd5.map(lambda x: (x[1],x[0])).sortByKey()     # sort RDD elements on key.
-                                            # here switch key with value, and sort via unique words appearance count
+                                            # here switch key with value, and sort via unique words appearance count]
         rdd7 = rdd6.filter(lambda x : 'a' in x[1])     #  filter the records in an RDD.
         print(rdd7.collect())            # return list of key-value pair (collect is action)
 
@@ -148,16 +148,16 @@
 
 
 
-    
+
     # Data Frame
-    
+
     # create dataframe
     from pyspark.sql.types import StructType,StructField, StringType, IntegerType
     schema = ['id', 'dogs', 'cats']
     data = [(1, 2, 0), (2, 0, 1)]
     rdd = spark.sparkContext.parallelize(data)
     df = rdd.toDF(schema)
-    
+
         # df = spark.createDataFrame(rdd).toDF(*columns)    # toDF('col1','col2')
         # df = spark.createDataFrame(data=data, schema = schema)
     df.show()
@@ -382,7 +382,7 @@
     spark.sql("select employee_name,department from EMP ORDER BY department asc") # sort raw sql
 
     # DataFrame also has operations like Transformations and Actions.
-    
+
 
     # map
         RDD transformation used to apply the transformation function (lambda) on every element of RDD/DataFrame and
@@ -429,7 +429,7 @@
     df.groupBy("department").agg(sum("salary").alias("sum_salary"),avg("salary").alias("avg_salary"))
     df2 = df.agg({'Species':'mean'})
     df.groupBy("department").agg(sum("salary").alias("sum_salary")).where(col("sum_salary") >=6000))
-    
+
 
     # join
     combine two DataFrames and by chaining these you can join multiple DataFrames
@@ -618,21 +618,21 @@
 
 
     # PySpark Streaming
-    PySpark Streaming is a scalable, high-throughput, fault-tolerant streaming processing system that supports both batch 
+    PySpark Streaming is a scalable, high-throughput, fault-tolerant streaming processing system that supports both batch
         and streaming workloads. It process real-time data from: file system folder, TCP socket, S3, Kafka, Flume, Twitter,
         and Amazon Kinesis e.t.c. Processed data can be pushed to databases, Kafka, live dashboards e.t.c
-        
+
         # TCP socket
         df = spark.readStream.format("socket").option("host","localhost").option("port","9090").load()
         # write to terminal
         query = df.writeStream.format("console").outputMode("complete").start().awaitTermination()
-        
+
         #Kafka
         df = spark.readStream.format("kafka").option("kafka.bootstrap.servers", "192.168.1.100:9092")
             .option("subscribe", "json_topic").option("startingOffsets", "earliest").load() // From starting
         df.selectExpr("CAST(id AS STRING) AS key", "to_json(struct(*)) AS value").writeStream.format("kafka")
             .outputMode("append").option("kafka.bootstrap.servers", "192.168.1.100:9092").option("topic", "josn_data_topic")
-            .start().awaitTermination()    
+            .start().awaitTermination()
 
 
 
